@@ -1,6 +1,0 @@
-#!/bin/bash
-[[ -f ./setup ]] && source ./setup
-
-pushd /app/gitbundle >/dev/null
-exec su-exec $USER /usr/local/bin/gitbundle web
-popd

@@ -1,3 +1,5 @@
+.DS_Store
+
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
@@ -15,6 +17,7 @@ _test
 # MS VSCode
 # .vscode
 __debug_bin*
+.vscode
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -36,89 +39,20 @@ _testmain.go
 coverage.all
 cpu.out
 
-# /services/deployment/bindata.go
-# /services/deployment/bindata.go.hash
-# /services/migrations/schemas/bindata.go
-# /services/migrations/schemas/bindata.go.hash
-
-/pkg/**/bindata.go
-/pkg/**/bindata.go.hash
-/pkg/static/options/bindata.go
-/pkg/static/options/bindata.go.hash
-/pkg/static/public/bindata.go
-/pkg/static/public/bindata.go.hash
-/pkg/static/templates/bindata.go
-/pkg/static/templates/bindata.go.hash
-
 *.db
 *.log
-
-/gitbundle
-/gitbundle-debug
-/debug
-/integrations.test
-/Launch_*
-
-/bin
-/dist
-/custom/*
-!/custom/conf
-/custom/conf/*
-!/custom/conf/app.example.ini
-/data
-/indexers
-/log
-/public/img/avatar
-/integrations/gitea-integration-mysql
-/integrations/gitea-integration-mysql8
-/integrations/gitea-integration-pgsql
-/integrations/gitea-integration-sqlite
-/integrations/gitea-integration-mssql
-/integrations/indexers-mysql
-/integrations/indexers-mysql8
-/integrations/indexers-pgsql
-/integrations/indexers-sqlite
-/integrations/indexers-mssql
-/integrations/sqlite.ini
-/integrations/mysql.ini
-/integrations/mysql8.ini
-/integrations/pgsql.ini
-/integrations/mssql.ini
-/node_modules
-/yarn.lock
-/yarn-error.log
-/npm-debug.log*
-/public/js
-/public/serviceworker.js
-/public/css
-/public/fonts
-/public/img/webpack
-/public/manifest.json
-/public/*.svg
-/public/*.eot
-/vendor
-/web_src/fomantic/node_modules
-/web_src/fomantic/build/*
-/web_src/js/main.js
-/public/serviceworker.js.map
-/VERSION
-/.air
-
-# Snapcraft
-snap/.snapcraft/
-parts/
-stage/
-prime/
-*.snap
-*.snap-build
-*_source.tar.bz2
-.DS_Store
 
 # Make evidence files
 /.make_evidence
 
-# Manpage
-/man
+/gitbundle
+/gitbundle-debug
+/log
+/node_modules
+/yarn.lock
+/yarn-error.log
+/npm-debug.log*
+/vendor
 
 # binary
 /release

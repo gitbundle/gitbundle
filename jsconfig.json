@@ -1,5 +1,0 @@
-// jsconfig.json
-{
-  "include": ["web_src/js/**/*"],
-  "exclude": ["public", "node_modules"]
-}
