@@ -12,10 +12,82 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Access is the client for interacting with the Access builders.
+	Access *AccessClient
+	// AccessToken is the client for interacting with the AccessToken builders.
+	AccessToken *AccessTokenClient
+	// Action is the client for interacting with the Action builders.
+	Action *ActionClient
+	// AppState is the client for interacting with the AppState builders.
+	AppState *AppStateClient
+	// Attachment is the client for interacting with the Attachment builders.
+	Attachment *AttachmentClient
+	// Collaboration is the client for interacting with the Collaboration builders.
+	Collaboration *CollaborationClient
+	// CommitStatus is the client for interacting with the CommitStatus builders.
+	CommitStatus *CommitStatusClient
+	// CommitStatusIndex is the client for interacting with the CommitStatusIndex builders.
+	CommitStatusIndex *CommitStatusIndexClient
+	// DeletedBranch is the client for interacting with the DeletedBranch builders.
+	DeletedBranch *DeletedBranchClient
+	// EmailAddress is the client for interacting with the EmailAddress builders.
+	EmailAddress *EmailAddressClient
+	// EmailHash is the client for interacting with the EmailHash builders.
+	EmailHash *EmailHashClient
+	// ExternalLoginUser is the client for interacting with the ExternalLoginUser builders.
+	ExternalLoginUser *ExternalLoginUserClient
+	// Follow is the client for interacting with the Follow builders.
+	Follow *FollowClient
+	// ForeignReference is the client for interacting with the ForeignReference builders.
+	ForeignReference *ForeignReferenceClient
+	// GpgKey is the client for interacting with the GpgKey builders.
+	GpgKey *GpgKeyClient
+	// GpgKeyImport is the client for interacting with the GpgKeyImport builders.
+	GpgKeyImport *GpgKeyImportClient
+	// Label is the client for interacting with the Label builders.
+	Label *LabelClient
+	// LanguageStat is the client for interacting with the LanguageStat builders.
+	LanguageStat *LanguageStatClient
+	// LfsLock is the client for interacting with the LfsLock builders.
+	LfsLock *LfsLockClient
+	// LfsMetaObject is the client for interacting with the LfsMetaObject builders.
+	LfsMetaObject *LfsMetaObjectClient
+	// LoginSource is the client for interacting with the LoginSource builders.
+	LoginSource *LoginSourceClient
+	// Mirror is the client for interacting with the Mirror builders.
+	Mirror *MirrorClient
+	// Notice is the client for interacting with the Notice builders.
+	Notice *NoticeClient
+	// OrgUser is the client for interacting with the OrgUser builders.
+	OrgUser *OrgUserClient
 	// Repo is the client for interacting with the Repo builders.
 	Repo *RepoClient
+	// RepoArchiver is the client for interacting with the RepoArchiver builders.
+	RepoArchiver *RepoArchiverClient
+	// RepoIndexerStatus is the client for interacting with the RepoIndexerStatus builders.
+	RepoIndexerStatus *RepoIndexerStatusClient
+	// RepoRedirect is the client for interacting with the RepoRedirect builders.
+	RepoRedirect *RepoRedirectClient
+	// RepoTopic is the client for interacting with the RepoTopic builders.
+	RepoTopic *RepoTopicClient
+	// RepoTransfer is the client for interacting with the RepoTransfer builders.
+	RepoTransfer *RepoTransferClient
+	// RepoUnit is the client for interacting with the RepoUnit builders.
+	RepoUnit *RepoUnitClient
+	// Team is the client for interacting with the Team builders.
+	Team *TeamClient
+	// TeamRepo is the client for interacting with the TeamRepo builders.
+	TeamRepo *TeamRepoClient
+	// TeamUnit is the client for interacting with the TeamUnit builders.
+	TeamUnit *TeamUnitClient
+	// TeamUser is the client for interacting with the TeamUser builders.
+	TeamUser *TeamUserClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserOpenid is the client for interacting with the UserOpenid builders.
+	UserOpenid *UserOpenidClient
+	// UserRedirect is the client for interacting with the UserRedirect builders.
+	UserRedirect *UserRedirectClient
 
 	// lazily loaded.
 	client     *Client
@@ -147,8 +219,44 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Access = NewAccessClient(tx.config)
+	tx.AccessToken = NewAccessTokenClient(tx.config)
+	tx.Action = NewActionClient(tx.config)
+	tx.AppState = NewAppStateClient(tx.config)
+	tx.Attachment = NewAttachmentClient(tx.config)
+	tx.Collaboration = NewCollaborationClient(tx.config)
+	tx.CommitStatus = NewCommitStatusClient(tx.config)
+	tx.CommitStatusIndex = NewCommitStatusIndexClient(tx.config)
+	tx.DeletedBranch = NewDeletedBranchClient(tx.config)
+	tx.EmailAddress = NewEmailAddressClient(tx.config)
+	tx.EmailHash = NewEmailHashClient(tx.config)
+	tx.ExternalLoginUser = NewExternalLoginUserClient(tx.config)
+	tx.Follow = NewFollowClient(tx.config)
+	tx.ForeignReference = NewForeignReferenceClient(tx.config)
+	tx.GpgKey = NewGpgKeyClient(tx.config)
+	tx.GpgKeyImport = NewGpgKeyImportClient(tx.config)
+	tx.Label = NewLabelClient(tx.config)
+	tx.LanguageStat = NewLanguageStatClient(tx.config)
+	tx.LfsLock = NewLfsLockClient(tx.config)
+	tx.LfsMetaObject = NewLfsMetaObjectClient(tx.config)
+	tx.LoginSource = NewLoginSourceClient(tx.config)
+	tx.Mirror = NewMirrorClient(tx.config)
+	tx.Notice = NewNoticeClient(tx.config)
+	tx.OrgUser = NewOrgUserClient(tx.config)
 	tx.Repo = NewRepoClient(tx.config)
+	tx.RepoArchiver = NewRepoArchiverClient(tx.config)
+	tx.RepoIndexerStatus = NewRepoIndexerStatusClient(tx.config)
+	tx.RepoRedirect = NewRepoRedirectClient(tx.config)
+	tx.RepoTopic = NewRepoTopicClient(tx.config)
+	tx.RepoTransfer = NewRepoTransferClient(tx.config)
+	tx.RepoUnit = NewRepoUnitClient(tx.config)
+	tx.Team = NewTeamClient(tx.config)
+	tx.TeamRepo = NewTeamRepoClient(tx.config)
+	tx.TeamUnit = NewTeamUnitClient(tx.config)
+	tx.TeamUser = NewTeamUserClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserOpenid = NewUserOpenidClient(tx.config)
+	tx.UserRedirect = NewUserRedirectClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -158,7 +266,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Repo.QueryXXX(), the query will be executed
+// applies a query, for example: Access.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

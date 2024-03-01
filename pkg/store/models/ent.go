@@ -12,8 +12,44 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/gitbundle/server/pkg/store/models/access"
+	"github.com/gitbundle/server/pkg/store/models/accesstoken"
+	"github.com/gitbundle/server/pkg/store/models/action"
+	"github.com/gitbundle/server/pkg/store/models/appstate"
+	"github.com/gitbundle/server/pkg/store/models/attachment"
+	"github.com/gitbundle/server/pkg/store/models/collaboration"
+	"github.com/gitbundle/server/pkg/store/models/commitstatus"
+	"github.com/gitbundle/server/pkg/store/models/commitstatusindex"
+	"github.com/gitbundle/server/pkg/store/models/deletedbranch"
+	"github.com/gitbundle/server/pkg/store/models/emailaddress"
+	"github.com/gitbundle/server/pkg/store/models/emailhash"
+	"github.com/gitbundle/server/pkg/store/models/externalloginuser"
+	"github.com/gitbundle/server/pkg/store/models/follow"
+	"github.com/gitbundle/server/pkg/store/models/foreignreference"
+	"github.com/gitbundle/server/pkg/store/models/gpgkey"
+	"github.com/gitbundle/server/pkg/store/models/gpgkeyimport"
+	"github.com/gitbundle/server/pkg/store/models/label"
+	"github.com/gitbundle/server/pkg/store/models/languagestat"
+	"github.com/gitbundle/server/pkg/store/models/lfslock"
+	"github.com/gitbundle/server/pkg/store/models/lfsmetaobject"
+	"github.com/gitbundle/server/pkg/store/models/loginsource"
+	"github.com/gitbundle/server/pkg/store/models/mirror"
+	"github.com/gitbundle/server/pkg/store/models/notice"
+	"github.com/gitbundle/server/pkg/store/models/orguser"
 	"github.com/gitbundle/server/pkg/store/models/repo"
+	"github.com/gitbundle/server/pkg/store/models/repoarchiver"
+	"github.com/gitbundle/server/pkg/store/models/repoindexerstatus"
+	"github.com/gitbundle/server/pkg/store/models/reporedirect"
+	"github.com/gitbundle/server/pkg/store/models/repotopic"
+	"github.com/gitbundle/server/pkg/store/models/repotransfer"
+	"github.com/gitbundle/server/pkg/store/models/repounit"
+	"github.com/gitbundle/server/pkg/store/models/team"
+	"github.com/gitbundle/server/pkg/store/models/teamrepo"
+	"github.com/gitbundle/server/pkg/store/models/teamunit"
+	"github.com/gitbundle/server/pkg/store/models/teamuser"
 	"github.com/gitbundle/server/pkg/store/models/user"
+	"github.com/gitbundle/server/pkg/store/models/useropenid"
+	"github.com/gitbundle/server/pkg/store/models/userredirect"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -74,8 +110,44 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			repo.Table: repo.ValidColumn,
-			user.Table: user.ValidColumn,
+			access.Table:            access.ValidColumn,
+			accesstoken.Table:       accesstoken.ValidColumn,
+			action.Table:            action.ValidColumn,
+			appstate.Table:          appstate.ValidColumn,
+			attachment.Table:        attachment.ValidColumn,
+			collaboration.Table:     collaboration.ValidColumn,
+			commitstatus.Table:      commitstatus.ValidColumn,
+			commitstatusindex.Table: commitstatusindex.ValidColumn,
+			deletedbranch.Table:     deletedbranch.ValidColumn,
+			emailaddress.Table:      emailaddress.ValidColumn,
+			emailhash.Table:         emailhash.ValidColumn,
+			externalloginuser.Table: externalloginuser.ValidColumn,
+			follow.Table:            follow.ValidColumn,
+			foreignreference.Table:  foreignreference.ValidColumn,
+			gpgkey.Table:            gpgkey.ValidColumn,
+			gpgkeyimport.Table:      gpgkeyimport.ValidColumn,
+			label.Table:             label.ValidColumn,
+			languagestat.Table:      languagestat.ValidColumn,
+			lfslock.Table:           lfslock.ValidColumn,
+			lfsmetaobject.Table:     lfsmetaobject.ValidColumn,
+			loginsource.Table:       loginsource.ValidColumn,
+			mirror.Table:            mirror.ValidColumn,
+			notice.Table:            notice.ValidColumn,
+			orguser.Table:           orguser.ValidColumn,
+			repo.Table:              repo.ValidColumn,
+			repoarchiver.Table:      repoarchiver.ValidColumn,
+			repoindexerstatus.Table: repoindexerstatus.ValidColumn,
+			reporedirect.Table:      reporedirect.ValidColumn,
+			repotopic.Table:         repotopic.ValidColumn,
+			repotransfer.Table:      repotransfer.ValidColumn,
+			repounit.Table:          repounit.ValidColumn,
+			team.Table:              team.ValidColumn,
+			teamrepo.Table:          teamrepo.ValidColumn,
+			teamunit.Table:          teamunit.ValidColumn,
+			teamuser.Table:          teamuser.ValidColumn,
+			user.Table:              user.ValidColumn,
+			useropenid.Table:        useropenid.ValidColumn,
+			userredirect.Table:      userredirect.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

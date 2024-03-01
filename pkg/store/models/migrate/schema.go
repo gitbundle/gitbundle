@@ -8,6 +8,699 @@ import (
 )
 
 var (
+	// AccessesColumns holds the columns for the "accesses" table.
+	AccessesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "mode", Type: field.TypeInt, Nullable: true},
+	}
+	// AccessesTable holds the schema information for the "accesses" table.
+	AccessesTable = &schema.Table{
+		Name:       "accesses",
+		Columns:    AccessesColumns,
+		PrimaryKey: []*schema.Column{AccessesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "access_user_id_repo_id",
+				Unique:  true,
+				Columns: []*schema.Column{AccessesColumns[1], AccessesColumns[2]},
+			},
+		},
+	}
+	// AccessTokensColumns holds the columns for the "access_tokens" table.
+	AccessTokensColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "token_hash", Type: field.TypeString, Nullable: true},
+		{Name: "token_salt", Type: field.TypeString, Nullable: true},
+		{Name: "token_last_eight", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// AccessTokensTable holds the schema information for the "access_tokens" table.
+	AccessTokensTable = &schema.Table{
+		Name:       "access_tokens",
+		Columns:    AccessTokensColumns,
+		PrimaryKey: []*schema.Column{AccessTokensColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "accesstoken_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{AccessTokensColumns[1]},
+			},
+			{
+				Name:    "accesstoken_token_hash",
+				Unique:  true,
+				Columns: []*schema.Column{AccessTokensColumns[3]},
+			},
+			{
+				Name:    "accesstoken_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{AccessTokensColumns[6]},
+			},
+			{
+				Name:    "accesstoken_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{AccessTokensColumns[7]},
+			},
+		},
+	}
+	// ActionsColumns holds the columns for the "actions" table.
+	ActionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "op_type", Type: field.TypeInt, Nullable: true},
+		{Name: "act_user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "is_deleted", Type: field.TypeBool, Default: false},
+		{Name: "ref_name", Type: field.TypeString, Nullable: true},
+		{Name: "is_private", Type: field.TypeBool, Default: false},
+		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// ActionsTable holds the schema information for the "actions" table.
+	ActionsTable = &schema.Table{
+		Name:       "actions",
+		Columns:    ActionsColumns,
+		PrimaryKey: []*schema.Column{ActionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "action_repo_id_user_id_is_deleted",
+				Unique:  false,
+				Columns: []*schema.Column{ActionsColumns[4], ActionsColumns[1], ActionsColumns[5]},
+			},
+			{
+				Name:    "action_act_user_id_repo_id_created_at_user_id_is_deleted",
+				Unique:  false,
+				Columns: []*schema.Column{ActionsColumns[3], ActionsColumns[4], ActionsColumns[9], ActionsColumns[1], ActionsColumns[5]},
+			},
+		},
+	}
+	// AppStatesColumns holds the columns for the "app_states" table.
+	AppStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "revision", Type: field.TypeInt64, Nullable: true},
+		{Name: "content", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// AppStatesTable holds the schema information for the "app_states" table.
+	AppStatesTable = &schema.Table{
+		Name:       "app_states",
+		Columns:    AppStatesColumns,
+		PrimaryKey: []*schema.Column{AppStatesColumns[0]},
+	}
+	// AttachmentsColumns holds the columns for the "attachments" table.
+	AttachmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeString, Nullable: true, Size: 80},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "uploader_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "download_count", Type: field.TypeInt64, Default: 0},
+		{Name: "size", Type: field.TypeInt64, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// AttachmentsTable holds the schema information for the "attachments" table.
+	AttachmentsTable = &schema.Table{
+		Name:       "attachments",
+		Columns:    AttachmentsColumns,
+		PrimaryKey: []*schema.Column{AttachmentsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "attachment_uuid",
+				Unique:  true,
+				Columns: []*schema.Column{AttachmentsColumns[1]},
+			},
+			{
+				Name:    "attachment_repo_id",
+				Unique:  false,
+				Columns: []*schema.Column{AttachmentsColumns[2]},
+			},
+			{
+				Name:    "attachment_uploader_id",
+				Unique:  false,
+				Columns: []*schema.Column{AttachmentsColumns[3]},
+			},
+		},
+	}
+	// CollaborationsColumns holds the columns for the "collaborations" table.
+	CollaborationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64},
+		{Name: "user_id", Type: field.TypeInt64},
+		{Name: "mode", Type: field.TypeInt},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// CollaborationsTable holds the schema information for the "collaborations" table.
+	CollaborationsTable = &schema.Table{
+		Name:       "collaborations",
+		Columns:    CollaborationsColumns,
+		PrimaryKey: []*schema.Column{CollaborationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "collaboration_repo_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{CollaborationsColumns[1], CollaborationsColumns[2]},
+			},
+			{
+				Name:    "collaboration_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{CollaborationsColumns[4]},
+			},
+			{
+				Name:    "collaboration_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{CollaborationsColumns[5]},
+			},
+		},
+	}
+	// CommitStatusColumns holds the columns for the "commit_status" table.
+	CommitStatusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "index", Type: field.TypeInt64, Nullable: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "state", Type: field.TypeString, Size: 7},
+		{Name: "sha", Type: field.TypeString, Size: 64},
+		{Name: "target_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "context_hash", Type: field.TypeString, Size: 40},
+		{Name: "context", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "creator_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// CommitStatusTable holds the schema information for the "commit_status" table.
+	CommitStatusTable = &schema.Table{
+		Name:       "commit_status",
+		Columns:    CommitStatusColumns,
+		PrimaryKey: []*schema.Column{CommitStatusColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "commitstatus_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{CommitStatusColumns[10]},
+			},
+			{
+				Name:    "commitstatus_context_hash",
+				Unique:  false,
+				Columns: []*schema.Column{CommitStatusColumns[7]},
+			},
+			{
+				Name:    "commitstatus_index_repo_id_sha",
+				Unique:  true,
+				Columns: []*schema.Column{CommitStatusColumns[1], CommitStatusColumns[2], CommitStatusColumns[4]},
+			},
+			{
+				Name:    "commitstatus_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{CommitStatusColumns[11]},
+			},
+		},
+	}
+	// CommitStatusIndexesColumns holds the columns for the "commit_status_indexes" table.
+	CommitStatusIndexesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "sha", Type: field.TypeString, Nullable: true},
+		{Name: "max_index", Type: field.TypeInt64, Nullable: true},
+	}
+	// CommitStatusIndexesTable holds the schema information for the "commit_status_indexes" table.
+	CommitStatusIndexesTable = &schema.Table{
+		Name:       "commit_status_indexes",
+		Columns:    CommitStatusIndexesColumns,
+		PrimaryKey: []*schema.Column{CommitStatusIndexesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "commitstatusindex_repo_id_sha",
+				Unique:  true,
+				Columns: []*schema.Column{CommitStatusIndexesColumns[1], CommitStatusIndexesColumns[2]},
+			},
+			{
+				Name:    "commitstatusindex_max_index",
+				Unique:  false,
+				Columns: []*schema.Column{CommitStatusIndexesColumns[3]},
+			},
+		},
+	}
+	// DeletedBranchesColumns holds the columns for the "deleted_branches" table.
+	DeletedBranchesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64},
+		{Name: "name", Type: field.TypeString},
+		{Name: "commit", Type: field.TypeString},
+		{Name: "deleted_by_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+	}
+	// DeletedBranchesTable holds the schema information for the "deleted_branches" table.
+	DeletedBranchesTable = &schema.Table{
+		Name:       "deleted_branches",
+		Columns:    DeletedBranchesColumns,
+		PrimaryKey: []*schema.Column{DeletedBranchesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "deletedbranch_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{DeletedBranchesColumns[5]},
+			},
+			{
+				Name:    "deletedbranch_deleted_by_id",
+				Unique:  false,
+				Columns: []*schema.Column{DeletedBranchesColumns[4]},
+			},
+			{
+				Name:    "deletedbranch_repo_id_name_commit",
+				Unique:  true,
+				Columns: []*schema.Column{DeletedBranchesColumns[1], DeletedBranchesColumns[2], DeletedBranchesColumns[3]},
+			},
+		},
+	}
+	// EmailAddressesColumns holds the columns for the "email_addresses" table.
+	EmailAddressesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64},
+		{Name: "email", Type: field.TypeString},
+		{Name: "lower_email", Type: field.TypeString},
+		{Name: "is_activated", Type: field.TypeBool, Nullable: true},
+		{Name: "is_primary", Type: field.TypeBool, Default: false},
+	}
+	// EmailAddressesTable holds the schema information for the "email_addresses" table.
+	EmailAddressesTable = &schema.Table{
+		Name:       "email_addresses",
+		Columns:    EmailAddressesColumns,
+		PrimaryKey: []*schema.Column{EmailAddressesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "emailaddress_email",
+				Unique:  true,
+				Columns: []*schema.Column{EmailAddressesColumns[2]},
+			},
+			{
+				Name:    "emailaddress_lower_email",
+				Unique:  true,
+				Columns: []*schema.Column{EmailAddressesColumns[3]},
+			},
+			{
+				Name:    "emailaddress_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{EmailAddressesColumns[1]},
+			},
+		},
+	}
+	// EmailHashesColumns holds the columns for the "email_hashes" table.
+	EmailHashesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "hash", Type: field.TypeString, Size: 32},
+		{Name: "email", Type: field.TypeString},
+	}
+	// EmailHashesTable holds the schema information for the "email_hashes" table.
+	EmailHashesTable = &schema.Table{
+		Name:       "email_hashes",
+		Columns:    EmailHashesColumns,
+		PrimaryKey: []*schema.Column{EmailHashesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "emailhash_email",
+				Unique:  true,
+				Columns: []*schema.Column{EmailHashesColumns[2]},
+			},
+		},
+	}
+	// ExternalLoginUsersColumns holds the columns for the "external_login_users" table.
+	ExternalLoginUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "external_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeInt64},
+		{Name: "login_source_id", Type: field.TypeInt64},
+		{Name: "provider", Type: field.TypeString, Nullable: true},
+		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "first_name", Type: field.TypeString, Nullable: true},
+		{Name: "last_name", Type: field.TypeString, Nullable: true},
+		{Name: "nick_name", Type: field.TypeString, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "avatar_url", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "location", Type: field.TypeString, Nullable: true},
+		{Name: "access_token", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "access_token_secret", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "refresh_token", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "expired_at", Type: field.TypeTime, Nullable: true},
+	}
+	// ExternalLoginUsersTable holds the schema information for the "external_login_users" table.
+	ExternalLoginUsersTable = &schema.Table{
+		Name:       "external_login_users",
+		Columns:    ExternalLoginUsersColumns,
+		PrimaryKey: []*schema.Column{ExternalLoginUsersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "externalloginuser_external_id_login_source_id",
+				Unique:  false,
+				Columns: []*schema.Column{ExternalLoginUsersColumns[1], ExternalLoginUsersColumns[3]},
+			},
+			{
+				Name:    "externalloginuser_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ExternalLoginUsersColumns[2]},
+			},
+			{
+				Name:    "externalloginuser_provider",
+				Unique:  false,
+				Columns: []*schema.Column{ExternalLoginUsersColumns[4]},
+			},
+		},
+	}
+	// FollowsColumns holds the columns for the "follows" table.
+	FollowsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "follow_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// FollowsTable holds the schema information for the "follows" table.
+	FollowsTable = &schema.Table{
+		Name:       "follows",
+		Columns:    FollowsColumns,
+		PrimaryKey: []*schema.Column{FollowsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "follow_user_id_follow_id",
+				Unique:  true,
+				Columns: []*schema.Column{FollowsColumns[1], FollowsColumns[2]},
+			},
+			{
+				Name:    "follow_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{FollowsColumns[3]},
+			},
+		},
+	}
+	// ForeignReferencesColumns holds the columns for the "foreign_references" table.
+	ForeignReferencesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "local_index", Type: field.TypeInt64, Nullable: true},
+		{Name: "foreign_index", Type: field.TypeString, Nullable: true},
+		{Name: "type", Type: field.TypeString, Nullable: true},
+	}
+	// ForeignReferencesTable holds the schema information for the "foreign_references" table.
+	ForeignReferencesTable = &schema.Table{
+		Name:       "foreign_references",
+		Columns:    ForeignReferencesColumns,
+		PrimaryKey: []*schema.Column{ForeignReferencesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "foreignreference_type",
+				Unique:  false,
+				Columns: []*schema.Column{ForeignReferencesColumns[4]},
+			},
+			{
+				Name:    "foreignreference_repo_id_foreign_index_type",
+				Unique:  true,
+				Columns: []*schema.Column{ForeignReferencesColumns[1], ForeignReferencesColumns[3], ForeignReferencesColumns[4]},
+			},
+			{
+				Name:    "foreignreference_repo_id_local_index",
+				Unique:  false,
+				Columns: []*schema.Column{ForeignReferencesColumns[1], ForeignReferencesColumns[2]},
+			},
+		},
+	}
+	// GpgKeysColumns holds the columns for the "gpg_keys" table.
+	GpgKeysColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "owner_id", Type: field.TypeInt64},
+		{Name: "key_id", Type: field.TypeString, Size: 16},
+		{Name: "primary_key_id", Type: field.TypeString, Nullable: true, Size: 16},
+		{Name: "content", Type: field.TypeString, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "expired_at", Type: field.TypeTime, Nullable: true},
+		{Name: "emails", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "verified", Type: field.TypeBool, Default: false},
+		{Name: "can_sign", Type: field.TypeBool, Nullable: true},
+		{Name: "can_encrypt_comms", Type: field.TypeBool, Nullable: true},
+		{Name: "can_encrypt_storage", Type: field.TypeBool, Nullable: true},
+		{Name: "can_certify", Type: field.TypeBool, Nullable: true},
+	}
+	// GpgKeysTable holds the schema information for the "gpg_keys" table.
+	GpgKeysTable = &schema.Table{
+		Name:       "gpg_keys",
+		Columns:    GpgKeysColumns,
+		PrimaryKey: []*schema.Column{GpgKeysColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "gpgkey_owner_id",
+				Unique:  false,
+				Columns: []*schema.Column{GpgKeysColumns[1]},
+			},
+			{
+				Name:    "gpgkey_key_id",
+				Unique:  false,
+				Columns: []*schema.Column{GpgKeysColumns[2]},
+			},
+		},
+	}
+	// GpgKeyImportsColumns holds the columns for the "gpg_key_imports" table.
+	GpgKeyImportsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "key_id", Type: field.TypeString, Size: 16},
+		{Name: "content", Type: field.TypeString, Size: 2147483647},
+	}
+	// GpgKeyImportsTable holds the schema information for the "gpg_key_imports" table.
+	GpgKeyImportsTable = &schema.Table{
+		Name:       "gpg_key_imports",
+		Columns:    GpgKeyImportsColumns,
+		PrimaryKey: []*schema.Column{GpgKeyImportsColumns[0]},
+	}
+	// LabelsColumns holds the columns for the "labels" table.
+	LabelsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "org_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "color", Type: field.TypeString, Nullable: true, Size: 7},
+		{Name: "num_issues", Type: field.TypeInt64, Nullable: true},
+		{Name: "num_closed_issues", Type: field.TypeInt64, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// LabelsTable holds the schema information for the "labels" table.
+	LabelsTable = &schema.Table{
+		Name:       "labels",
+		Columns:    LabelsColumns,
+		PrimaryKey: []*schema.Column{LabelsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "label_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{LabelsColumns[8]},
+			},
+			{
+				Name:    "label_org_id",
+				Unique:  false,
+				Columns: []*schema.Column{LabelsColumns[2]},
+			},
+			{
+				Name:    "label_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{LabelsColumns[9]},
+			},
+			{
+				Name:    "label_repo_id",
+				Unique:  false,
+				Columns: []*schema.Column{LabelsColumns[1]},
+			},
+		},
+	}
+	// LanguageStatsColumns holds the columns for the "language_stats" table.
+	LanguageStatsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64},
+		{Name: "commit_id", Type: field.TypeString, Nullable: true},
+		{Name: "is_primary", Type: field.TypeBool, Nullable: true},
+		{Name: "language", Type: field.TypeString, Size: 50},
+		{Name: "size", Type: field.TypeInt64},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// LanguageStatsTable holds the schema information for the "language_stats" table.
+	LanguageStatsTable = &schema.Table{
+		Name:       "language_stats",
+		Columns:    LanguageStatsColumns,
+		PrimaryKey: []*schema.Column{LanguageStatsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "languagestat_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{LanguageStatsColumns[6]},
+			},
+			{
+				Name:    "languagestat_repo_id_language",
+				Unique:  true,
+				Columns: []*schema.Column{LanguageStatsColumns[1], LanguageStatsColumns[4]},
+			},
+		},
+	}
+	// LfsLocksColumns holds the columns for the "lfs_locks" table.
+	LfsLocksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64},
+		{Name: "owner_id", Type: field.TypeInt64},
+		{Name: "path", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// LfsLocksTable holds the schema information for the "lfs_locks" table.
+	LfsLocksTable = &schema.Table{
+		Name:       "lfs_locks",
+		Columns:    LfsLocksColumns,
+		PrimaryKey: []*schema.Column{LfsLocksColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "lfslock_owner_id",
+				Unique:  false,
+				Columns: []*schema.Column{LfsLocksColumns[2]},
+			},
+			{
+				Name:    "lfslock_repo_id",
+				Unique:  false,
+				Columns: []*schema.Column{LfsLocksColumns[1]},
+			},
+		},
+	}
+	// LfsMetaObjectsColumns holds the columns for the "lfs_meta_objects" table.
+	LfsMetaObjectsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "oid", Type: field.TypeString},
+		{Name: "size", Type: field.TypeInt64},
+		{Name: "repo_id", Type: field.TypeInt64},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// LfsMetaObjectsTable holds the schema information for the "lfs_meta_objects" table.
+	LfsMetaObjectsTable = &schema.Table{
+		Name:       "lfs_meta_objects",
+		Columns:    LfsMetaObjectsColumns,
+		PrimaryKey: []*schema.Column{LfsMetaObjectsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "lfsmetaobject_oid_repo_id",
+				Unique:  true,
+				Columns: []*schema.Column{LfsMetaObjectsColumns[1], LfsMetaObjectsColumns[3]},
+			},
+		},
+	}
+	// LoginSourcesColumns holds the columns for the "login_sources" table.
+	LoginSourcesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "type", Type: field.TypeInt, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "is_active", Type: field.TypeBool, Default: false},
+		{Name: "is_sync_enabled", Type: field.TypeBool, Default: false},
+		{Name: "config", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// LoginSourcesTable holds the schema information for the "login_sources" table.
+	LoginSourcesTable = &schema.Table{
+		Name:       "login_sources",
+		Columns:    LoginSourcesColumns,
+		PrimaryKey: []*schema.Column{LoginSourcesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "loginsource_is_sync_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{LoginSourcesColumns[4]},
+			},
+			{
+				Name:    "loginsource_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{LoginSourcesColumns[7]},
+			},
+			{
+				Name:    "loginsource_name",
+				Unique:  false,
+				Columns: []*schema.Column{LoginSourcesColumns[2]},
+			},
+			{
+				Name:    "loginsource_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{LoginSourcesColumns[3]},
+			},
+			{
+				Name:    "loginsource_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{LoginSourcesColumns[6]},
+			},
+		},
+	}
+	// MirrorsColumns holds the columns for the "mirrors" table.
+	MirrorsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "interval", Type: field.TypeInt64, Nullable: true},
+		{Name: "enable_prune", Type: field.TypeBool, Default: true},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "next_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "lfs_enabled", Type: field.TypeBool, Default: false},
+		{Name: "lfs_endpoint", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// MirrorsTable holds the schema information for the "mirrors" table.
+	MirrorsTable = &schema.Table{
+		Name:       "mirrors",
+		Columns:    MirrorsColumns,
+		PrimaryKey: []*schema.Column{MirrorsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "mirror_repo_id",
+				Unique:  false,
+				Columns: []*schema.Column{MirrorsColumns[1]},
+			},
+			{
+				Name:    "mirror_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{MirrorsColumns[4]},
+			},
+			{
+				Name:    "mirror_next_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{MirrorsColumns[5]},
+			},
+		},
+	}
+	// NoticesColumns holds the columns for the "notices" table.
+	NoticesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// NoticesTable holds the schema information for the "notices" table.
+	NoticesTable = &schema.Table{
+		Name:       "notices",
+		Columns:    NoticesColumns,
+		PrimaryKey: []*schema.Column{NoticesColumns[0]},
+	}
+	// OrgUsersColumns holds the columns for the "org_users" table.
+	OrgUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "org_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "is_public", Type: field.TypeBool, Nullable: true},
+	}
+	// OrgUsersTable holds the schema information for the "org_users" table.
+	OrgUsersTable = &schema.Table{
+		Name:       "org_users",
+		Columns:    OrgUsersColumns,
+		PrimaryKey: []*schema.Column{OrgUsersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "orguser_user_id_org_id",
+				Unique:  true,
+				Columns: []*schema.Column{OrgUsersColumns[1], OrgUsersColumns[2]},
+			},
+			{
+				Name:    "orguser_is_public",
+				Unique:  false,
+				Columns: []*schema.Column{OrgUsersColumns[3]},
+			},
+		},
+	}
 	// ReposColumns holds the columns for the "repos" table.
 	ReposColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -136,6 +829,247 @@ var (
 			},
 		},
 	}
+	// RepoArchiversColumns holds the columns for the "repo_archivers" table.
+	RepoArchiversColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "type", Type: field.TypeInt, Nullable: true},
+		{Name: "status", Type: field.TypeInt, Nullable: true},
+		{Name: "commit_id", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// RepoArchiversTable holds the schema information for the "repo_archivers" table.
+	RepoArchiversTable = &schema.Table{
+		Name:       "repo_archivers",
+		Columns:    RepoArchiversColumns,
+		PrimaryKey: []*schema.Column{RepoArchiversColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "repoarchiver_repo_id_type_commit_id",
+				Unique:  true,
+				Columns: []*schema.Column{RepoArchiversColumns[1], RepoArchiversColumns[2], RepoArchiversColumns[4]},
+			},
+			{
+				Name:    "repoarchiver_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{RepoArchiversColumns[5]},
+			},
+		},
+	}
+	// RepoIndexerStatusColumns holds the columns for the "repo_indexer_status" table.
+	RepoIndexerStatusColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "commit_sha", Type: field.TypeString, Nullable: true, Size: 40},
+		{Name: "indexer_type", Type: field.TypeInt},
+	}
+	// RepoIndexerStatusTable holds the schema information for the "repo_indexer_status" table.
+	RepoIndexerStatusTable = &schema.Table{
+		Name:       "repo_indexer_status",
+		Columns:    RepoIndexerStatusColumns,
+		PrimaryKey: []*schema.Column{RepoIndexerStatusColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "repoindexerstatus_repo_id_indexer_type",
+				Unique:  false,
+				Columns: []*schema.Column{RepoIndexerStatusColumns[1], RepoIndexerStatusColumns[3]},
+			},
+		},
+	}
+	// RepoRedirectsColumns holds the columns for the "repo_redirects" table.
+	RepoRedirectsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "owner_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "lower_name", Type: field.TypeString},
+		{Name: "redirect_repo_id", Type: field.TypeInt64, Nullable: true},
+	}
+	// RepoRedirectsTable holds the schema information for the "repo_redirects" table.
+	RepoRedirectsTable = &schema.Table{
+		Name:       "repo_redirects",
+		Columns:    RepoRedirectsColumns,
+		PrimaryKey: []*schema.Column{RepoRedirectsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "reporedirect_owner_id_lower_name",
+				Unique:  true,
+				Columns: []*schema.Column{RepoRedirectsColumns[1], RepoRedirectsColumns[2]},
+			},
+		},
+	}
+	// RepoTopicsColumns holds the columns for the "repo_topics" table.
+	RepoTopicsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64},
+		{Name: "topic_id", Type: field.TypeInt64},
+	}
+	// RepoTopicsTable holds the schema information for the "repo_topics" table.
+	RepoTopicsTable = &schema.Table{
+		Name:       "repo_topics",
+		Columns:    RepoTopicsColumns,
+		PrimaryKey: []*schema.Column{RepoTopicsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "repotopic_repo_id_topic_id",
+				Unique:  false,
+				Columns: []*schema.Column{RepoTopicsColumns[1], RepoTopicsColumns[2]},
+			},
+		},
+	}
+	// RepoTransfersColumns holds the columns for the "repo_transfers" table.
+	RepoTransfersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "doer_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "recipient_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "team_i_ds", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// RepoTransfersTable holds the schema information for the "repo_transfers" table.
+	RepoTransfersTable = &schema.Table{
+		Name:       "repo_transfers",
+		Columns:    RepoTransfersColumns,
+		PrimaryKey: []*schema.Column{RepoTransfersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "repotransfer_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{RepoTransfersColumns[5]},
+			},
+			{
+				Name:    "repotransfer_updated_at",
+				Unique:  false,
+				Columns: []*schema.Column{RepoTransfersColumns[6]},
+			},
+		},
+	}
+	// RepoUnitsColumns holds the columns for the "repo_units" table.
+	RepoUnitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "type", Type: field.TypeInt, Nullable: true},
+		{Name: "config", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// RepoUnitsTable holds the schema information for the "repo_units" table.
+	RepoUnitsTable = &schema.Table{
+		Name:       "repo_units",
+		Columns:    RepoUnitsColumns,
+		PrimaryKey: []*schema.Column{RepoUnitsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "repounit_repo_id_type",
+				Unique:  false,
+				Columns: []*schema.Column{RepoUnitsColumns[1], RepoUnitsColumns[2]},
+			},
+			{
+				Name:    "repounit_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{RepoUnitsColumns[4]},
+			},
+		},
+	}
+	// TeamsColumns holds the columns for the "teams" table.
+	TeamsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "org_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "team_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+	}
+	// TeamsTable holds the schema information for the "teams" table.
+	TeamsTable = &schema.Table{
+		Name:       "teams",
+		Columns:    TeamsColumns,
+		PrimaryKey: []*schema.Column{TeamsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "team_team_id_repo_id",
+				Unique:  true,
+				Columns: []*schema.Column{TeamsColumns[2], TeamsColumns[3]},
+			},
+			{
+				Name:    "team_org_id",
+				Unique:  false,
+				Columns: []*schema.Column{TeamsColumns[1]},
+			},
+		},
+	}
+	// TeamReposColumns holds the columns for the "team_repos" table.
+	TeamReposColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "org_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "team_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "repo_id", Type: field.TypeInt64, Nullable: true},
+	}
+	// TeamReposTable holds the schema information for the "team_repos" table.
+	TeamReposTable = &schema.Table{
+		Name:       "team_repos",
+		Columns:    TeamReposColumns,
+		PrimaryKey: []*schema.Column{TeamReposColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "teamrepo_team_id_repo_id",
+				Unique:  true,
+				Columns: []*schema.Column{TeamReposColumns[2], TeamReposColumns[3]},
+			},
+			{
+				Name:    "teamrepo_org_id",
+				Unique:  false,
+				Columns: []*schema.Column{TeamReposColumns[1]},
+			},
+		},
+	}
+	// TeamUnitsColumns holds the columns for the "team_units" table.
+	TeamUnitsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "org_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "team_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "type", Type: field.TypeInt, Nullable: true},
+		{Name: "access_mode", Type: field.TypeInt, Nullable: true},
+	}
+	// TeamUnitsTable holds the schema information for the "team_units" table.
+	TeamUnitsTable = &schema.Table{
+		Name:       "team_units",
+		Columns:    TeamUnitsColumns,
+		PrimaryKey: []*schema.Column{TeamUnitsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "teamunit_team_id_type",
+				Unique:  true,
+				Columns: []*schema.Column{TeamUnitsColumns[2], TeamUnitsColumns[3]},
+			},
+			{
+				Name:    "teamunit_org_id",
+				Unique:  false,
+				Columns: []*schema.Column{TeamUnitsColumns[1]},
+			},
+		},
+	}
+	// TeamUsersColumns holds the columns for the "team_users" table.
+	TeamUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "org_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "team_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+	}
+	// TeamUsersTable holds the schema information for the "team_users" table.
+	TeamUsersTable = &schema.Table{
+		Name:       "team_users",
+		Columns:    TeamUsersColumns,
+		PrimaryKey: []*schema.Column{TeamUsersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "teamuser_team_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{TeamUsersColumns[2], TeamUsersColumns[3]},
+			},
+			{
+				Name:    "teamuser_org_id",
+				Unique:  false,
+				Columns: []*schema.Column{TeamUsersColumns[1]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -223,10 +1157,90 @@ var (
 			},
 		},
 	}
+	// UserOpenidsColumns holds the columns for the "user_openids" table.
+	UserOpenidsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "uri", Type: field.TypeString, Nullable: true},
+		{Name: "show", Type: field.TypeBool, Default: false},
+	}
+	// UserOpenidsTable holds the schema information for the "user_openids" table.
+	UserOpenidsTable = &schema.Table{
+		Name:       "user_openids",
+		Columns:    UserOpenidsColumns,
+		PrimaryKey: []*schema.Column{UserOpenidsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "useropenid_uri",
+				Unique:  true,
+				Columns: []*schema.Column{UserOpenidsColumns[2]},
+			},
+			{
+				Name:    "useropenid_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserOpenidsColumns[1]},
+			},
+		},
+	}
+	// UserRedirectsColumns holds the columns for the "user_redirects" table.
+	UserRedirectsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "lower_name", Type: field.TypeInt64, Nullable: true},
+		{Name: "redirect_user_id", Type: field.TypeString, Nullable: true},
+	}
+	// UserRedirectsTable holds the schema information for the "user_redirects" table.
+	UserRedirectsTable = &schema.Table{
+		Name:       "user_redirects",
+		Columns:    UserRedirectsColumns,
+		PrimaryKey: []*schema.Column{UserRedirectsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userredirect_lower_name",
+				Unique:  true,
+				Columns: []*schema.Column{UserRedirectsColumns[1]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AccessesTable,
+		AccessTokensTable,
+		ActionsTable,
+		AppStatesTable,
+		AttachmentsTable,
+		CollaborationsTable,
+		CommitStatusTable,
+		CommitStatusIndexesTable,
+		DeletedBranchesTable,
+		EmailAddressesTable,
+		EmailHashesTable,
+		ExternalLoginUsersTable,
+		FollowsTable,
+		ForeignReferencesTable,
+		GpgKeysTable,
+		GpgKeyImportsTable,
+		LabelsTable,
+		LanguageStatsTable,
+		LfsLocksTable,
+		LfsMetaObjectsTable,
+		LoginSourcesTable,
+		MirrorsTable,
+		NoticesTable,
+		OrgUsersTable,
 		ReposTable,
+		RepoArchiversTable,
+		RepoIndexerStatusTable,
+		RepoRedirectsTable,
+		RepoTopicsTable,
+		RepoTransfersTable,
+		RepoUnitsTable,
+		TeamsTable,
+		TeamReposTable,
+		TeamUnitsTable,
+		TeamUsersTable,
 		UsersTable,
+		UserOpenidsTable,
+		UserRedirectsTable,
 	}
 )
 

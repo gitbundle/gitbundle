@@ -5,8 +5,29 @@ package models
 import (
 	"time"
 
+	"github.com/gitbundle/server/pkg/store/models/accesstoken"
+	"github.com/gitbundle/server/pkg/store/models/action"
+	"github.com/gitbundle/server/pkg/store/models/attachment"
+	"github.com/gitbundle/server/pkg/store/models/collaboration"
+	"github.com/gitbundle/server/pkg/store/models/commitstatus"
+	"github.com/gitbundle/server/pkg/store/models/emailaddress"
+	"github.com/gitbundle/server/pkg/store/models/emailhash"
+	"github.com/gitbundle/server/pkg/store/models/follow"
+	"github.com/gitbundle/server/pkg/store/models/gpgkey"
+	"github.com/gitbundle/server/pkg/store/models/gpgkeyimport"
+	"github.com/gitbundle/server/pkg/store/models/label"
+	"github.com/gitbundle/server/pkg/store/models/languagestat"
+	"github.com/gitbundle/server/pkg/store/models/lfslock"
+	"github.com/gitbundle/server/pkg/store/models/lfsmetaobject"
+	"github.com/gitbundle/server/pkg/store/models/loginsource"
+	"github.com/gitbundle/server/pkg/store/models/mirror"
 	"github.com/gitbundle/server/pkg/store/models/repo"
+	"github.com/gitbundle/server/pkg/store/models/repoarchiver"
+	"github.com/gitbundle/server/pkg/store/models/repoindexerstatus"
+	"github.com/gitbundle/server/pkg/store/models/repotransfer"
+	"github.com/gitbundle/server/pkg/store/models/repounit"
 	"github.com/gitbundle/server/pkg/store/models/user"
+	"github.com/gitbundle/server/pkg/store/models/useropenid"
 	"github.com/gitbundle/server/pkg/store/schema"
 )
 
@@ -14,6 +35,166 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	accesstokenFields := schema.AccessToken{}.Fields()
+	_ = accesstokenFields
+	// accesstokenDescCreatedAt is the schema descriptor for created_at field.
+	accesstokenDescCreatedAt := accesstokenFields[5].Descriptor()
+	// accesstoken.DefaultCreatedAt holds the default value on creation for the created_at field.
+	accesstoken.DefaultCreatedAt = accesstokenDescCreatedAt.Default.(func() time.Time)
+	actionFields := schema.Action{}.Fields()
+	_ = actionFields
+	// actionDescIsDeleted is the schema descriptor for is_deleted field.
+	actionDescIsDeleted := actionFields[4].Descriptor()
+	// action.DefaultIsDeleted holds the default value on creation for the is_deleted field.
+	action.DefaultIsDeleted = actionDescIsDeleted.Default.(bool)
+	// actionDescIsPrivate is the schema descriptor for is_private field.
+	actionDescIsPrivate := actionFields[6].Descriptor()
+	// action.DefaultIsPrivate holds the default value on creation for the is_private field.
+	action.DefaultIsPrivate = actionDescIsPrivate.Default.(bool)
+	// actionDescCreatedAt is the schema descriptor for created_at field.
+	actionDescCreatedAt := actionFields[8].Descriptor()
+	// action.DefaultCreatedAt holds the default value on creation for the created_at field.
+	action.DefaultCreatedAt = actionDescCreatedAt.Default.(func() time.Time)
+	attachmentFields := schema.Attachment{}.Fields()
+	_ = attachmentFields
+	// attachmentDescUUID is the schema descriptor for uuid field.
+	attachmentDescUUID := attachmentFields[0].Descriptor()
+	// attachment.UUIDValidator is a validator for the "uuid" field. It is called by the builders before save.
+	attachment.UUIDValidator = attachmentDescUUID.Validators[0].(func(string) error)
+	// attachmentDescDownloadCount is the schema descriptor for download_count field.
+	attachmentDescDownloadCount := attachmentFields[4].Descriptor()
+	// attachment.DefaultDownloadCount holds the default value on creation for the download_count field.
+	attachment.DefaultDownloadCount = attachmentDescDownloadCount.Default.(int64)
+	// attachmentDescSize is the schema descriptor for size field.
+	attachmentDescSize := attachmentFields[5].Descriptor()
+	// attachment.DefaultSize holds the default value on creation for the size field.
+	attachment.DefaultSize = attachmentDescSize.Default.(int64)
+	// attachmentDescCreatedAt is the schema descriptor for created_at field.
+	attachmentDescCreatedAt := attachmentFields[6].Descriptor()
+	// attachment.DefaultCreatedAt holds the default value on creation for the created_at field.
+	attachment.DefaultCreatedAt = attachmentDescCreatedAt.Default.(func() time.Time)
+	collaborationFields := schema.Collaboration{}.Fields()
+	_ = collaborationFields
+	// collaborationDescCreatedAt is the schema descriptor for created_at field.
+	collaborationDescCreatedAt := collaborationFields[3].Descriptor()
+	// collaboration.DefaultCreatedAt holds the default value on creation for the created_at field.
+	collaboration.DefaultCreatedAt = collaborationDescCreatedAt.Default.(func() time.Time)
+	commitstatusFields := schema.CommitStatus{}.Fields()
+	_ = commitstatusFields
+	// commitstatusDescState is the schema descriptor for state field.
+	commitstatusDescState := commitstatusFields[2].Descriptor()
+	// commitstatus.StateValidator is a validator for the "state" field. It is called by the builders before save.
+	commitstatus.StateValidator = commitstatusDescState.Validators[0].(func(string) error)
+	// commitstatusDescSha is the schema descriptor for sha field.
+	commitstatusDescSha := commitstatusFields[3].Descriptor()
+	// commitstatus.ShaValidator is a validator for the "sha" field. It is called by the builders before save.
+	commitstatus.ShaValidator = commitstatusDescSha.Validators[0].(func(string) error)
+	// commitstatusDescContextHash is the schema descriptor for context_hash field.
+	commitstatusDescContextHash := commitstatusFields[6].Descriptor()
+	// commitstatus.ContextHashValidator is a validator for the "context_hash" field. It is called by the builders before save.
+	commitstatus.ContextHashValidator = commitstatusDescContextHash.Validators[0].(func(string) error)
+	// commitstatusDescCreatedAt is the schema descriptor for created_at field.
+	commitstatusDescCreatedAt := commitstatusFields[9].Descriptor()
+	// commitstatus.DefaultCreatedAt holds the default value on creation for the created_at field.
+	commitstatus.DefaultCreatedAt = commitstatusDescCreatedAt.Default.(func() time.Time)
+	emailaddressFields := schema.EmailAddress{}.Fields()
+	_ = emailaddressFields
+	// emailaddressDescIsPrimary is the schema descriptor for is_primary field.
+	emailaddressDescIsPrimary := emailaddressFields[4].Descriptor()
+	// emailaddress.DefaultIsPrimary holds the default value on creation for the is_primary field.
+	emailaddress.DefaultIsPrimary = emailaddressDescIsPrimary.Default.(bool)
+	emailhashFields := schema.EmailHash{}.Fields()
+	_ = emailhashFields
+	// emailhashDescHash is the schema descriptor for hash field.
+	emailhashDescHash := emailhashFields[0].Descriptor()
+	// emailhash.HashValidator is a validator for the "hash" field. It is called by the builders before save.
+	emailhash.HashValidator = emailhashDescHash.Validators[0].(func(string) error)
+	followFields := schema.Follow{}.Fields()
+	_ = followFields
+	// followDescCreatedAt is the schema descriptor for created_at field.
+	followDescCreatedAt := followFields[2].Descriptor()
+	// follow.DefaultCreatedAt holds the default value on creation for the created_at field.
+	follow.DefaultCreatedAt = followDescCreatedAt.Default.(func() time.Time)
+	gpgkeyFields := schema.GpgKey{}.Fields()
+	_ = gpgkeyFields
+	// gpgkeyDescKeyID is the schema descriptor for key_id field.
+	gpgkeyDescKeyID := gpgkeyFields[1].Descriptor()
+	// gpgkey.KeyIDValidator is a validator for the "key_id" field. It is called by the builders before save.
+	gpgkey.KeyIDValidator = gpgkeyDescKeyID.Validators[0].(func(string) error)
+	// gpgkeyDescPrimaryKeyID is the schema descriptor for primary_key_id field.
+	gpgkeyDescPrimaryKeyID := gpgkeyFields[2].Descriptor()
+	// gpgkey.PrimaryKeyIDValidator is a validator for the "primary_key_id" field. It is called by the builders before save.
+	gpgkey.PrimaryKeyIDValidator = gpgkeyDescPrimaryKeyID.Validators[0].(func(string) error)
+	// gpgkeyDescCreatedAt is the schema descriptor for created_at field.
+	gpgkeyDescCreatedAt := gpgkeyFields[4].Descriptor()
+	// gpgkey.DefaultCreatedAt holds the default value on creation for the created_at field.
+	gpgkey.DefaultCreatedAt = gpgkeyDescCreatedAt.Default.(func() time.Time)
+	// gpgkeyDescVerified is the schema descriptor for verified field.
+	gpgkeyDescVerified := gpgkeyFields[7].Descriptor()
+	// gpgkey.DefaultVerified holds the default value on creation for the verified field.
+	gpgkey.DefaultVerified = gpgkeyDescVerified.Default.(bool)
+	gpgkeyimportFields := schema.GpgKeyImport{}.Fields()
+	_ = gpgkeyimportFields
+	// gpgkeyimportDescKeyID is the schema descriptor for key_id field.
+	gpgkeyimportDescKeyID := gpgkeyimportFields[0].Descriptor()
+	// gpgkeyimport.KeyIDValidator is a validator for the "key_id" field. It is called by the builders before save.
+	gpgkeyimport.KeyIDValidator = gpgkeyimportDescKeyID.Validators[0].(func(string) error)
+	labelFields := schema.Label{}.Fields()
+	_ = labelFields
+	// labelDescColor is the schema descriptor for color field.
+	labelDescColor := labelFields[4].Descriptor()
+	// label.ColorValidator is a validator for the "color" field. It is called by the builders before save.
+	label.ColorValidator = labelDescColor.Validators[0].(func(string) error)
+	// labelDescCreatedAt is the schema descriptor for created_at field.
+	labelDescCreatedAt := labelFields[7].Descriptor()
+	// label.DefaultCreatedAt holds the default value on creation for the created_at field.
+	label.DefaultCreatedAt = labelDescCreatedAt.Default.(func() time.Time)
+	languagestatFields := schema.LanguageStat{}.Fields()
+	_ = languagestatFields
+	// languagestatDescLanguage is the schema descriptor for language field.
+	languagestatDescLanguage := languagestatFields[3].Descriptor()
+	// languagestat.LanguageValidator is a validator for the "language" field. It is called by the builders before save.
+	languagestat.LanguageValidator = languagestatDescLanguage.Validators[0].(func(string) error)
+	// languagestatDescCreatedAt is the schema descriptor for created_at field.
+	languagestatDescCreatedAt := languagestatFields[5].Descriptor()
+	// languagestat.DefaultCreatedAt holds the default value on creation for the created_at field.
+	languagestat.DefaultCreatedAt = languagestatDescCreatedAt.Default.(func() time.Time)
+	lfslockFields := schema.LfsLock{}.Fields()
+	_ = lfslockFields
+	// lfslockDescCreatedAt is the schema descriptor for created_at field.
+	lfslockDescCreatedAt := lfslockFields[3].Descriptor()
+	// lfslock.DefaultCreatedAt holds the default value on creation for the created_at field.
+	lfslock.DefaultCreatedAt = lfslockDescCreatedAt.Default.(func() time.Time)
+	lfsmetaobjectFields := schema.LfsMetaObject{}.Fields()
+	_ = lfsmetaobjectFields
+	// lfsmetaobjectDescCreatedAt is the schema descriptor for created_at field.
+	lfsmetaobjectDescCreatedAt := lfsmetaobjectFields[3].Descriptor()
+	// lfsmetaobject.DefaultCreatedAt holds the default value on creation for the created_at field.
+	lfsmetaobject.DefaultCreatedAt = lfsmetaobjectDescCreatedAt.Default.(func() time.Time)
+	loginsourceFields := schema.LoginSource{}.Fields()
+	_ = loginsourceFields
+	// loginsourceDescIsActive is the schema descriptor for is_active field.
+	loginsourceDescIsActive := loginsourceFields[2].Descriptor()
+	// loginsource.DefaultIsActive holds the default value on creation for the is_active field.
+	loginsource.DefaultIsActive = loginsourceDescIsActive.Default.(bool)
+	// loginsourceDescIsSyncEnabled is the schema descriptor for is_sync_enabled field.
+	loginsourceDescIsSyncEnabled := loginsourceFields[3].Descriptor()
+	// loginsource.DefaultIsSyncEnabled holds the default value on creation for the is_sync_enabled field.
+	loginsource.DefaultIsSyncEnabled = loginsourceDescIsSyncEnabled.Default.(bool)
+	// loginsourceDescCreatedAt is the schema descriptor for created_at field.
+	loginsourceDescCreatedAt := loginsourceFields[5].Descriptor()
+	// loginsource.DefaultCreatedAt holds the default value on creation for the created_at field.
+	loginsource.DefaultCreatedAt = loginsourceDescCreatedAt.Default.(func() time.Time)
+	mirrorFields := schema.Mirror{}.Fields()
+	_ = mirrorFields
+	// mirrorDescEnablePrune is the schema descriptor for enable_prune field.
+	mirrorDescEnablePrune := mirrorFields[2].Descriptor()
+	// mirror.DefaultEnablePrune holds the default value on creation for the enable_prune field.
+	mirror.DefaultEnablePrune = mirrorDescEnablePrune.Default.(bool)
+	// mirrorDescLfsEnabled is the schema descriptor for lfs_enabled field.
+	mirrorDescLfsEnabled := mirrorFields[5].Descriptor()
+	// mirror.DefaultLfsEnabled holds the default value on creation for the lfs_enabled field.
+	mirror.DefaultLfsEnabled = mirrorDescLfsEnabled.Default.(bool)
 	repoFields := schema.Repo{}.Fields()
 	_ = repoFields
 	// repoDescName is the schema descriptor for name field.
@@ -56,6 +237,30 @@ func init() {
 	repoDescCreatedAt := repoFields[35].Descriptor()
 	// repo.DefaultCreatedAt holds the default value on creation for the created_at field.
 	repo.DefaultCreatedAt = repoDescCreatedAt.Default.(func() time.Time)
+	repoarchiverFields := schema.RepoArchiver{}.Fields()
+	_ = repoarchiverFields
+	// repoarchiverDescCreatedAt is the schema descriptor for created_at field.
+	repoarchiverDescCreatedAt := repoarchiverFields[4].Descriptor()
+	// repoarchiver.DefaultCreatedAt holds the default value on creation for the created_at field.
+	repoarchiver.DefaultCreatedAt = repoarchiverDescCreatedAt.Default.(func() time.Time)
+	repoindexerstatusFields := schema.RepoIndexerStatus{}.Fields()
+	_ = repoindexerstatusFields
+	// repoindexerstatusDescCommitSha is the schema descriptor for commit_sha field.
+	repoindexerstatusDescCommitSha := repoindexerstatusFields[1].Descriptor()
+	// repoindexerstatus.CommitShaValidator is a validator for the "commit_sha" field. It is called by the builders before save.
+	repoindexerstatus.CommitShaValidator = repoindexerstatusDescCommitSha.Validators[0].(func(string) error)
+	repotransferFields := schema.RepoTransfer{}.Fields()
+	_ = repotransferFields
+	// repotransferDescCreatedAt is the schema descriptor for created_at field.
+	repotransferDescCreatedAt := repotransferFields[4].Descriptor()
+	// repotransfer.DefaultCreatedAt holds the default value on creation for the created_at field.
+	repotransfer.DefaultCreatedAt = repotransferDescCreatedAt.Default.(func() time.Time)
+	repounitFields := schema.RepoUnit{}.Fields()
+	_ = repounitFields
+	// repounitDescCreatedAt is the schema descriptor for created_at field.
+	repounitDescCreatedAt := repounitFields[3].Descriptor()
+	// repounit.DefaultCreatedAt holds the default value on creation for the created_at field.
+	repounit.DefaultCreatedAt = repounitDescCreatedAt.Default.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.
@@ -118,4 +323,10 @@ func init() {
 	userDescKeepActivityPrivate := userFields[41].Descriptor()
 	// user.DefaultKeepActivityPrivate holds the default value on creation for the keep_activity_private field.
 	user.DefaultKeepActivityPrivate = userDescKeepActivityPrivate.Default.(bool)
+	useropenidFields := schema.UserOpenid{}.Fields()
+	_ = useropenidFields
+	// useropenidDescShow is the schema descriptor for show field.
+	useropenidDescShow := useropenidFields[2].Descriptor()
+	// useropenid.DefaultShow holds the default value on creation for the show field.
+	useropenid.DefaultShow = useropenidDescShow.Default.(bool)
 }

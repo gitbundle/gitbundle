@@ -6,8 +6,116 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Access is the predicate function for access builders.
+type Access func(*sql.Selector)
+
+// AccessToken is the predicate function for accesstoken builders.
+type AccessToken func(*sql.Selector)
+
+// Action is the predicate function for action builders.
+type Action func(*sql.Selector)
+
+// AppState is the predicate function for appstate builders.
+type AppState func(*sql.Selector)
+
+// Attachment is the predicate function for attachment builders.
+type Attachment func(*sql.Selector)
+
+// Collaboration is the predicate function for collaboration builders.
+type Collaboration func(*sql.Selector)
+
+// CommitStatus is the predicate function for commitstatus builders.
+type CommitStatus func(*sql.Selector)
+
+// CommitStatusIndex is the predicate function for commitstatusindex builders.
+type CommitStatusIndex func(*sql.Selector)
+
+// DeletedBranch is the predicate function for deletedbranch builders.
+type DeletedBranch func(*sql.Selector)
+
+// EmailAddress is the predicate function for emailaddress builders.
+type EmailAddress func(*sql.Selector)
+
+// EmailHash is the predicate function for emailhash builders.
+type EmailHash func(*sql.Selector)
+
+// ExternalLoginUser is the predicate function for externalloginuser builders.
+type ExternalLoginUser func(*sql.Selector)
+
+// Follow is the predicate function for follow builders.
+type Follow func(*sql.Selector)
+
+// ForeignReference is the predicate function for foreignreference builders.
+type ForeignReference func(*sql.Selector)
+
+// GpgKey is the predicate function for gpgkey builders.
+type GpgKey func(*sql.Selector)
+
+// GpgKeyImport is the predicate function for gpgkeyimport builders.
+type GpgKeyImport func(*sql.Selector)
+
+// Label is the predicate function for label builders.
+type Label func(*sql.Selector)
+
+// LanguageStat is the predicate function for languagestat builders.
+type LanguageStat func(*sql.Selector)
+
+// LfsLock is the predicate function for lfslock builders.
+type LfsLock func(*sql.Selector)
+
+// LfsMetaObject is the predicate function for lfsmetaobject builders.
+type LfsMetaObject func(*sql.Selector)
+
+// LoginSource is the predicate function for loginsource builders.
+type LoginSource func(*sql.Selector)
+
+// Mirror is the predicate function for mirror builders.
+type Mirror func(*sql.Selector)
+
+// Notice is the predicate function for notice builders.
+type Notice func(*sql.Selector)
+
+// OrgUser is the predicate function for orguser builders.
+type OrgUser func(*sql.Selector)
+
 // Repo is the predicate function for repo builders.
 type Repo func(*sql.Selector)
 
+// RepoArchiver is the predicate function for repoarchiver builders.
+type RepoArchiver func(*sql.Selector)
+
+// RepoIndexerStatus is the predicate function for repoindexerstatus builders.
+type RepoIndexerStatus func(*sql.Selector)
+
+// RepoRedirect is the predicate function for reporedirect builders.
+type RepoRedirect func(*sql.Selector)
+
+// RepoTopic is the predicate function for repotopic builders.
+type RepoTopic func(*sql.Selector)
+
+// RepoTransfer is the predicate function for repotransfer builders.
+type RepoTransfer func(*sql.Selector)
+
+// RepoUnit is the predicate function for repounit builders.
+type RepoUnit func(*sql.Selector)
+
+// Team is the predicate function for team builders.
+type Team func(*sql.Selector)
+
+// TeamRepo is the predicate function for teamrepo builders.
+type TeamRepo func(*sql.Selector)
+
+// TeamUnit is the predicate function for teamunit builders.
+type TeamUnit func(*sql.Selector)
+
+// TeamUser is the predicate function for teamuser builders.
+type TeamUser func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// UserOpenid is the predicate function for useropenid builders.
+type UserOpenid func(*sql.Selector)
+
+// UserRedirect is the predicate function for userredirect builders.
+type UserRedirect func(*sql.Selector)

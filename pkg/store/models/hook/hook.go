@@ -9,6 +9,294 @@ import (
 	"github.com/gitbundle/server/pkg/store/models"
 )
 
+// The AccessFunc type is an adapter to allow the use of ordinary
+// function as Access mutator.
+type AccessFunc func(context.Context, *models.AccessMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AccessFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.AccessMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.AccessMutation", m)
+}
+
+// The AccessTokenFunc type is an adapter to allow the use of ordinary
+// function as AccessToken mutator.
+type AccessTokenFunc func(context.Context, *models.AccessTokenMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AccessTokenFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.AccessTokenMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.AccessTokenMutation", m)
+}
+
+// The ActionFunc type is an adapter to allow the use of ordinary
+// function as Action mutator.
+type ActionFunc func(context.Context, *models.ActionMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ActionFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.ActionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.ActionMutation", m)
+}
+
+// The AppStateFunc type is an adapter to allow the use of ordinary
+// function as AppState mutator.
+type AppStateFunc func(context.Context, *models.AppStateMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AppStateFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.AppStateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.AppStateMutation", m)
+}
+
+// The AttachmentFunc type is an adapter to allow the use of ordinary
+// function as Attachment mutator.
+type AttachmentFunc func(context.Context, *models.AttachmentMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AttachmentFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.AttachmentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.AttachmentMutation", m)
+}
+
+// The CollaborationFunc type is an adapter to allow the use of ordinary
+// function as Collaboration mutator.
+type CollaborationFunc func(context.Context, *models.CollaborationMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CollaborationFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.CollaborationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.CollaborationMutation", m)
+}
+
+// The CommitStatusFunc type is an adapter to allow the use of ordinary
+// function as CommitStatus mutator.
+type CommitStatusFunc func(context.Context, *models.CommitStatusMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CommitStatusFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.CommitStatusMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.CommitStatusMutation", m)
+}
+
+// The CommitStatusIndexFunc type is an adapter to allow the use of ordinary
+// function as CommitStatusIndex mutator.
+type CommitStatusIndexFunc func(context.Context, *models.CommitStatusIndexMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CommitStatusIndexFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.CommitStatusIndexMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.CommitStatusIndexMutation", m)
+}
+
+// The DeletedBranchFunc type is an adapter to allow the use of ordinary
+// function as DeletedBranch mutator.
+type DeletedBranchFunc func(context.Context, *models.DeletedBranchMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DeletedBranchFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.DeletedBranchMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.DeletedBranchMutation", m)
+}
+
+// The EmailAddressFunc type is an adapter to allow the use of ordinary
+// function as EmailAddress mutator.
+type EmailAddressFunc func(context.Context, *models.EmailAddressMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EmailAddressFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.EmailAddressMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.EmailAddressMutation", m)
+}
+
+// The EmailHashFunc type is an adapter to allow the use of ordinary
+// function as EmailHash mutator.
+type EmailHashFunc func(context.Context, *models.EmailHashMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EmailHashFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.EmailHashMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.EmailHashMutation", m)
+}
+
+// The ExternalLoginUserFunc type is an adapter to allow the use of ordinary
+// function as ExternalLoginUser mutator.
+type ExternalLoginUserFunc func(context.Context, *models.ExternalLoginUserMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ExternalLoginUserFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.ExternalLoginUserMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.ExternalLoginUserMutation", m)
+}
+
+// The FollowFunc type is an adapter to allow the use of ordinary
+// function as Follow mutator.
+type FollowFunc func(context.Context, *models.FollowMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FollowFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.FollowMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.FollowMutation", m)
+}
+
+// The ForeignReferenceFunc type is an adapter to allow the use of ordinary
+// function as ForeignReference mutator.
+type ForeignReferenceFunc func(context.Context, *models.ForeignReferenceMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ForeignReferenceFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.ForeignReferenceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.ForeignReferenceMutation", m)
+}
+
+// The GpgKeyFunc type is an adapter to allow the use of ordinary
+// function as GpgKey mutator.
+type GpgKeyFunc func(context.Context, *models.GpgKeyMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GpgKeyFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.GpgKeyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.GpgKeyMutation", m)
+}
+
+// The GpgKeyImportFunc type is an adapter to allow the use of ordinary
+// function as GpgKeyImport mutator.
+type GpgKeyImportFunc func(context.Context, *models.GpgKeyImportMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GpgKeyImportFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.GpgKeyImportMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.GpgKeyImportMutation", m)
+}
+
+// The LabelFunc type is an adapter to allow the use of ordinary
+// function as Label mutator.
+type LabelFunc func(context.Context, *models.LabelMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LabelFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.LabelMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.LabelMutation", m)
+}
+
+// The LanguageStatFunc type is an adapter to allow the use of ordinary
+// function as LanguageStat mutator.
+type LanguageStatFunc func(context.Context, *models.LanguageStatMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LanguageStatFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.LanguageStatMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.LanguageStatMutation", m)
+}
+
+// The LfsLockFunc type is an adapter to allow the use of ordinary
+// function as LfsLock mutator.
+type LfsLockFunc func(context.Context, *models.LfsLockMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LfsLockFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.LfsLockMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.LfsLockMutation", m)
+}
+
+// The LfsMetaObjectFunc type is an adapter to allow the use of ordinary
+// function as LfsMetaObject mutator.
+type LfsMetaObjectFunc func(context.Context, *models.LfsMetaObjectMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LfsMetaObjectFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.LfsMetaObjectMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.LfsMetaObjectMutation", m)
+}
+
+// The LoginSourceFunc type is an adapter to allow the use of ordinary
+// function as LoginSource mutator.
+type LoginSourceFunc func(context.Context, *models.LoginSourceMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LoginSourceFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.LoginSourceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.LoginSourceMutation", m)
+}
+
+// The MirrorFunc type is an adapter to allow the use of ordinary
+// function as Mirror mutator.
+type MirrorFunc func(context.Context, *models.MirrorMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MirrorFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.MirrorMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.MirrorMutation", m)
+}
+
+// The NoticeFunc type is an adapter to allow the use of ordinary
+// function as Notice mutator.
+type NoticeFunc func(context.Context, *models.NoticeMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NoticeFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.NoticeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.NoticeMutation", m)
+}
+
+// The OrgUserFunc type is an adapter to allow the use of ordinary
+// function as OrgUser mutator.
+type OrgUserFunc func(context.Context, *models.OrgUserMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrgUserFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.OrgUserMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.OrgUserMutation", m)
+}
+
 // The RepoFunc type is an adapter to allow the use of ordinary
 // function as Repo mutator.
 type RepoFunc func(context.Context, *models.RepoMutation) (models.Value, error)
@@ -21,6 +309,126 @@ func (f RepoFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoMutation", m)
 }
 
+// The RepoArchiverFunc type is an adapter to allow the use of ordinary
+// function as RepoArchiver mutator.
+type RepoArchiverFunc func(context.Context, *models.RepoArchiverMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoArchiverFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.RepoArchiverMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoArchiverMutation", m)
+}
+
+// The RepoIndexerStatusFunc type is an adapter to allow the use of ordinary
+// function as RepoIndexerStatus mutator.
+type RepoIndexerStatusFunc func(context.Context, *models.RepoIndexerStatusMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoIndexerStatusFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.RepoIndexerStatusMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoIndexerStatusMutation", m)
+}
+
+// The RepoRedirectFunc type is an adapter to allow the use of ordinary
+// function as RepoRedirect mutator.
+type RepoRedirectFunc func(context.Context, *models.RepoRedirectMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoRedirectFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.RepoRedirectMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoRedirectMutation", m)
+}
+
+// The RepoTopicFunc type is an adapter to allow the use of ordinary
+// function as RepoTopic mutator.
+type RepoTopicFunc func(context.Context, *models.RepoTopicMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoTopicFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.RepoTopicMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoTopicMutation", m)
+}
+
+// The RepoTransferFunc type is an adapter to allow the use of ordinary
+// function as RepoTransfer mutator.
+type RepoTransferFunc func(context.Context, *models.RepoTransferMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoTransferFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.RepoTransferMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoTransferMutation", m)
+}
+
+// The RepoUnitFunc type is an adapter to allow the use of ordinary
+// function as RepoUnit mutator.
+type RepoUnitFunc func(context.Context, *models.RepoUnitMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoUnitFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.RepoUnitMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.RepoUnitMutation", m)
+}
+
+// The TeamFunc type is an adapter to allow the use of ordinary
+// function as Team mutator.
+type TeamFunc func(context.Context, *models.TeamMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TeamFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.TeamMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.TeamMutation", m)
+}
+
+// The TeamRepoFunc type is an adapter to allow the use of ordinary
+// function as TeamRepo mutator.
+type TeamRepoFunc func(context.Context, *models.TeamRepoMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TeamRepoFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.TeamRepoMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.TeamRepoMutation", m)
+}
+
+// The TeamUnitFunc type is an adapter to allow the use of ordinary
+// function as TeamUnit mutator.
+type TeamUnitFunc func(context.Context, *models.TeamUnitMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TeamUnitFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.TeamUnitMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.TeamUnitMutation", m)
+}
+
+// The TeamUserFunc type is an adapter to allow the use of ordinary
+// function as TeamUser mutator.
+type TeamUserFunc func(context.Context, *models.TeamUserMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TeamUserFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.TeamUserMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.TeamUserMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *models.UserMutation) (models.Value, error)
@@ -31,6 +439,30 @@ func (f UserFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, 
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.UserMutation", m)
+}
+
+// The UserOpenidFunc type is an adapter to allow the use of ordinary
+// function as UserOpenid mutator.
+type UserOpenidFunc func(context.Context, *models.UserOpenidMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserOpenidFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.UserOpenidMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.UserOpenidMutation", m)
+}
+
+// The UserRedirectFunc type is an adapter to allow the use of ordinary
+// function as UserRedirect mutator.
+type UserRedirectFunc func(context.Context, *models.UserRedirectMutation) (models.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserRedirectFunc) Mutate(ctx context.Context, m models.Mutation) (models.Value, error) {
+	if mv, ok := m.(*models.UserRedirectMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *models.UserRedirectMutation", m)
 }
 
 // Condition is a hook condition function.
