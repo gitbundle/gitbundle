@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/access"
+	"github.com/gitbundle/gitbundle/store/models/access"
 )
 
 // Access is the model entity for the Access schema.

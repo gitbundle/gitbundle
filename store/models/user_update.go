@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/predicate"
-	"github.com/gitbundle/server/store/models/repo"
-	"github.com/gitbundle/server/store/models/user"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/repo"
+	"github.com/gitbundle/gitbundle/store/models/user"
 )
 
 // UserUpdate is the builder for updating User entities.

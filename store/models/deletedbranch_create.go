@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/deletedbranch"
+	"github.com/gitbundle/gitbundle/store/models/deletedbranch"
 )
 
 // DeletedBranchCreate is the builder for creating a DeletedBranch entity.

@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/oauth2applicationcode"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/oauth2applicationcode"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // Oauth2ApplicationCodeQuery is the builder for querying Oauth2ApplicationCode entities.

@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/languagestat"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/languagestat"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // LanguageStatQuery is the builder for querying LanguageStat entities.

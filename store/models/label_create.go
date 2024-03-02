@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/label"
+	"github.com/gitbundle/gitbundle/store/models/label"
 )
 
 // LabelCreate is the builder for creating a Label entity.

@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/oauth2application"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/oauth2application"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // Oauth2ApplicationDelete is the builder for deleting a Oauth2Application entity.

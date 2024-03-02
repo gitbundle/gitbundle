@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/teamuser"
+	"github.com/gitbundle/gitbundle/store/models/teamuser"
 )
 
 // TeamUserCreate is the builder for creating a TeamUser entity.

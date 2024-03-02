@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/gpgkey"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/gpgkey"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // GpgKeyUpdate is the builder for updating GpgKey entities.

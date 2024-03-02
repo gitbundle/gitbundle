@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/webauthncredential"
+	"github.com/gitbundle/gitbundle/store/models/webauthncredential"
 )
 
 // WebauthnCredentialCreate is the builder for creating a WebauthnCredential entity.

@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/usersetting"
+	"github.com/gitbundle/gitbundle/store/models/usersetting"
 )
 
 // UserSettingCreate is the builder for creating a UserSetting entity.

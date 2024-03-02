@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/usersetting"
+	"github.com/gitbundle/gitbundle/store/models/usersetting"
 )
 
 // UserSetting is the model entity for the UserSetting schema.

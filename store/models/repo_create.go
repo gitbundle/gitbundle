@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/repo"
-	"github.com/gitbundle/server/store/models/user"
+	"github.com/gitbundle/gitbundle/store/models/repo"
+	"github.com/gitbundle/gitbundle/store/models/user"
 )
 
 // RepoCreate is the builder for creating a Repo entity.

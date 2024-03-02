@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/accesstoken"
+	"github.com/gitbundle/gitbundle/store/models/accesstoken"
 )
 
 // AccessTokenCreate is the builder for creating a AccessToken entity.

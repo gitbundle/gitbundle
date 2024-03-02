@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/oauth2application"
+	"github.com/gitbundle/gitbundle/store/models/oauth2application"
 )
 
 // Oauth2ApplicationCreate is the builder for creating a Oauth2Application entity.

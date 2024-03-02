@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/label"
+	"github.com/gitbundle/gitbundle/store/models/label"
 )
 
 // Label is the model entity for the Label schema.

@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/predicate"
-	"github.com/gitbundle/server/store/models/repotopic"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/repotopic"
 )
 
 // RepoTopicUpdate is the builder for updating RepoTopic entities.

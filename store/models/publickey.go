@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/publickey"
+	"github.com/gitbundle/gitbundle/store/models/publickey"
 )
 
 // PublicKey is the model entity for the PublicKey schema.

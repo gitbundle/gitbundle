@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/predicate"
-	"github.com/gitbundle/server/store/models/session"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/session"
 )
 
 // SessionDelete is the builder for deleting a Session entity.

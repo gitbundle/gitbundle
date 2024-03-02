@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/user"
+	"github.com/gitbundle/gitbundle/store/models/user"
 )
 
 // User is the model entity for the User schema.

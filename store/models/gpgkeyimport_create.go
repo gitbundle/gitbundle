@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/gpgkeyimport"
+	"github.com/gitbundle/gitbundle/store/models/gpgkeyimport"
 )
 
 // GpgKeyImportCreate is the builder for creating a GpgKeyImport entity.

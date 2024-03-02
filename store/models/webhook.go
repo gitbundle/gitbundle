@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/webhook"
+	"github.com/gitbundle/gitbundle/store/models/webhook"
 )
 
 // Webhook is the model entity for the Webhook schema.

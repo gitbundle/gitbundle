@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/emailaddress"
+	"github.com/gitbundle/gitbundle/store/models/emailaddress"
 )
 
 // EmailAddress is the model entity for the EmailAddress schema.

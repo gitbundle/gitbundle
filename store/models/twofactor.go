@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/twofactor"
+	"github.com/gitbundle/gitbundle/store/models/twofactor"
 )
 
 // TwoFactor is the model entity for the TwoFactor schema.

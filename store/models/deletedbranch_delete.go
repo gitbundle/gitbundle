@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/deletedbranch"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/deletedbranch"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // DeletedBranchDelete is the builder for deleting a DeletedBranch entity.

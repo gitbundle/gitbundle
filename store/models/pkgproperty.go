@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/pkgproperty"
+	"github.com/gitbundle/gitbundle/store/models/pkgproperty"
 )
 
 // PkgProperty is the model entity for the PkgProperty schema.

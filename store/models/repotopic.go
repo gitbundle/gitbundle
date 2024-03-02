@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/repotopic"
+	"github.com/gitbundle/gitbundle/store/models/repotopic"
 )
 
 // RepoTopic is the model entity for the RepoTopic schema.

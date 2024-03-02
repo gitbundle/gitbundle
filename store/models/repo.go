@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/repo"
-	"github.com/gitbundle/server/store/models/user"
+	"github.com/gitbundle/gitbundle/store/models/repo"
+	"github.com/gitbundle/gitbundle/store/models/user"
 )
 
 // Repo is the model entity for the Repo schema.

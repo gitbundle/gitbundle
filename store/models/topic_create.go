@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/topic"
+	"github.com/gitbundle/gitbundle/store/models/topic"
 )
 
 // TopicCreate is the builder for creating a Topic entity.

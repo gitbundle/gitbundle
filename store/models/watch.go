@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/watch"
+	"github.com/gitbundle/gitbundle/store/models/watch"
 )
 
 // Watch is the model entity for the Watch schema.

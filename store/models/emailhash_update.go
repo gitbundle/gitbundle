@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/emailhash"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/emailhash"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // EmailHashUpdate is the builder for updating EmailHash entities.

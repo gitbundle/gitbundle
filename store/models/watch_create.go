@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/watch"
+	"github.com/gitbundle/gitbundle/store/models/watch"
 )
 
 // WatchCreate is the builder for creating a Watch entity.

@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/renamedbranch"
+	"github.com/gitbundle/gitbundle/store/models/renamedbranch"
 )
 
 // RenamedBranchCreate is the builder for creating a RenamedBranch entity.

@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/commitstatus"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/commitstatus"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // CommitStatusDelete is the builder for deleting a CommitStatus entity.

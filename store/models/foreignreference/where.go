@@ -4,7 +4,7 @@ package foreignreference
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // ID filters vertices based on their ID field.

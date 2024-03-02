@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/gpgkey"
+	"github.com/gitbundle/gitbundle/store/models/gpgkey"
 )
 
 // GpgKey is the model entity for the GpgKey schema.

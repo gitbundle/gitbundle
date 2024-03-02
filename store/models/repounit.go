@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/repounit"
+	"github.com/gitbundle/gitbundle/store/models/repounit"
 )
 
 // RepoUnit is the model entity for the RepoUnit schema.

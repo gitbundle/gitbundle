@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/loginsource"
+	"github.com/gitbundle/gitbundle/store/models/loginsource"
 )
 
 // LoginSourceCreate is the builder for creating a LoginSource entity.

@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/upload"
+	"github.com/gitbundle/gitbundle/store/models/upload"
 	"github.com/google/uuid"
 )
 

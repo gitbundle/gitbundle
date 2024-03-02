@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/protectedtag"
+	"github.com/gitbundle/gitbundle/store/models/protectedtag"
 )
 
 // ProtectedTagCreate is the builder for creating a ProtectedTag entity.

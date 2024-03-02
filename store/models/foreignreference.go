@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/foreignreference"
+	"github.com/gitbundle/gitbundle/store/models/foreignreference"
 )
 
 // ForeignReference is the model entity for the ForeignReference schema.

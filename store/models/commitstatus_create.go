@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/commitstatus"
+	"github.com/gitbundle/gitbundle/store/models/commitstatus"
 )
 
 // CommitStatusCreate is the builder for creating a CommitStatus entity.

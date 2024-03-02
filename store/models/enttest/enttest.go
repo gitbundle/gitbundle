@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/gitbundle/server/store/models"
+	"github.com/gitbundle/gitbundle/store/models"
 	// required by schema hooks.
-	_ "github.com/gitbundle/server/store/models/runtime"
+	_ "github.com/gitbundle/gitbundle/store/models/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/gitbundle/server/store/models/migrate"
+	"github.com/gitbundle/gitbundle/store/models/migrate"
 )
 
 type (

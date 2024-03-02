@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/team"
+	"github.com/gitbundle/gitbundle/store/models/team"
 )
 
 // Team is the model entity for the Team schema.

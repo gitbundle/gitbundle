@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/oauth2grant"
+	"github.com/gitbundle/gitbundle/store/models/oauth2grant"
 )
 
 // Oauth2Grant is the model entity for the Oauth2Grant schema.

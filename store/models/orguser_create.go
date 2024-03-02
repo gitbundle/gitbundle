@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/orguser"
+	"github.com/gitbundle/gitbundle/store/models/orguser"
 )
 
 // OrgUserCreate is the builder for creating a OrgUser entity.

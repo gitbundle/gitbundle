@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/pkgversion"
+	"github.com/gitbundle/gitbundle/store/models/pkgversion"
 )
 
 // PkgVersion is the model entity for the PkgVersion schema.

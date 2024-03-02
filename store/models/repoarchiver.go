@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/repoarchiver"
+	"github.com/gitbundle/gitbundle/store/models/repoarchiver"
 )
 
 // RepoArchiver is the model entity for the RepoArchiver schema.

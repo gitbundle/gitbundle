@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/languagestat"
+	"github.com/gitbundle/gitbundle/store/models/languagestat"
 )
 
 // LanguageStat is the model entity for the LanguageStat schema.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/accesstoken"
+	"github.com/gitbundle/gitbundle/store/models/accesstoken"
 )
 
 // AccessToken is the model entity for the AccessToken schema.

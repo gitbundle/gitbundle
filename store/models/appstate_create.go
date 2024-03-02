@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/appstate"
+	"github.com/gitbundle/gitbundle/store/models/appstate"
 )
 
 // AppStateCreate is the builder for creating a AppState entity.

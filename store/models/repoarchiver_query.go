@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/predicate"
-	"github.com/gitbundle/server/store/models/repoarchiver"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/repoarchiver"
 )
 
 // RepoArchiverQuery is the builder for querying RepoArchiver entities.

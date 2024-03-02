@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/notice"
+	"github.com/gitbundle/gitbundle/store/models/notice"
 )
 
 // Notice is the model entity for the Notice schema.

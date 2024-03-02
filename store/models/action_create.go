@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/action"
+	"github.com/gitbundle/gitbundle/store/models/action"
 )
 
 // ActionCreate is the builder for creating a Action entity.

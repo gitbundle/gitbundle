@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/collaboration"
+	"github.com/gitbundle/gitbundle/store/models/collaboration"
 )
 
 // Collaboration is the model entity for the Collaboration schema.

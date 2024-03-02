@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/useropenid"
+	"github.com/gitbundle/gitbundle/store/models/useropenid"
 )
 
 // UserOpenid is the model entity for the UserOpenid schema.

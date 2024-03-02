@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/topic"
+	"github.com/gitbundle/gitbundle/store/models/topic"
 )
 
 // Topic is the model entity for the Topic schema.

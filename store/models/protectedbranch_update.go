@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/predicate"
-	"github.com/gitbundle/server/store/models/protectedbranch"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/protectedbranch"
 )
 
 // ProtectedBranchUpdate is the builder for updating ProtectedBranch entities.

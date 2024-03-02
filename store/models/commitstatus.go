@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/commitstatus"
+	"github.com/gitbundle/gitbundle/store/models/commitstatus"
 )
 
 // CommitStatus is the model entity for the CommitStatus schema.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/webauthncredential"
+	"github.com/gitbundle/gitbundle/store/models/webauthncredential"
 )
 
 // WebauthnCredential is the model entity for the WebauthnCredential schema.

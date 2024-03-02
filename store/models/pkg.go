@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/pkg"
+	"github.com/gitbundle/gitbundle/store/models/pkg"
 )
 
 // Pkg is the model entity for the Pkg schema.

@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/task"
+	"github.com/gitbundle/gitbundle/store/models/task"
 )
 
 // TaskCreate is the builder for creating a Task entity.

@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/emailhash"
+	"github.com/gitbundle/gitbundle/store/models/emailhash"
 )
 
 // EmailHash is the model entity for the EmailHash schema.

@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/collaboration"
+	"github.com/gitbundle/gitbundle/store/models/collaboration"
 )
 
 // CollaborationCreate is the builder for creating a Collaboration entity.

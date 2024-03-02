@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/deletedbranch"
+	"github.com/gitbundle/gitbundle/store/models/deletedbranch"
 )
 
 // DeletedBranch is the model entity for the DeletedBranch schema.

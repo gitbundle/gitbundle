@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/repoindexerstatus"
+	"github.com/gitbundle/gitbundle/store/models/repoindexerstatus"
 )
 
 // RepoIndexerStatus is the model entity for the RepoIndexerStatus schema.

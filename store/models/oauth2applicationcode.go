@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/oauth2applicationcode"
+	"github.com/gitbundle/gitbundle/store/models/oauth2applicationcode"
 )
 
 // Oauth2ApplicationCode is the model entity for the Oauth2ApplicationCode schema.

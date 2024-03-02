@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/lfsmetaobject"
+	"github.com/gitbundle/gitbundle/store/models/lfsmetaobject"
 )
 
 // LfsMetaObjectCreate is the builder for creating a LfsMetaObject entity.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/protectedbranch"
+	"github.com/gitbundle/gitbundle/store/models/protectedbranch"
 )
 
 // ProtectedBranch is the model entity for the ProtectedBranch schema.

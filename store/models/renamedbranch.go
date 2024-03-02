@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/renamedbranch"
+	"github.com/gitbundle/gitbundle/store/models/renamedbranch"
 )
 
 // RenamedBranch is the model entity for the RenamedBranch schema.

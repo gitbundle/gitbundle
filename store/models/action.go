@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/action"
+	"github.com/gitbundle/gitbundle/store/models/action"
 )
 
 // Action is the model entity for the Action schema.

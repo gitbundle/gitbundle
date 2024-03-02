@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/predicate"
-	"github.com/gitbundle/server/store/models/repo"
-	"github.com/gitbundle/server/store/models/user"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/repo"
+	"github.com/gitbundle/gitbundle/store/models/user"
 )
 
 // RepoQuery is the builder for querying Repo entities.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/pkgblob"
+	"github.com/gitbundle/gitbundle/store/models/pkgblob"
 )
 
 // PkgBlob is the model entity for the PkgBlob schema.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/lfslock"
+	"github.com/gitbundle/gitbundle/store/models/lfslock"
 )
 
 // LfsLock is the model entity for the LfsLock schema.

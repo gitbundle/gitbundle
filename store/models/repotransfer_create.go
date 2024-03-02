@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/repotransfer"
+	"github.com/gitbundle/gitbundle/store/models/repotransfer"
 )
 
 // RepoTransferCreate is the builder for creating a RepoTransfer entity.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/repoindexerstatus"
+	"github.com/gitbundle/gitbundle/store/models/repoindexerstatus"
 )
 
 // RepoIndexerStatusCreate is the builder for creating a RepoIndexerStatus entity.

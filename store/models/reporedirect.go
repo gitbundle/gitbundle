@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/reporedirect"
+	"github.com/gitbundle/gitbundle/store/models/reporedirect"
 )
 
 // RepoRedirect is the model entity for the RepoRedirect schema.

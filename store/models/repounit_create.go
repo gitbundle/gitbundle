@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/repounit"
+	"github.com/gitbundle/gitbundle/store/models/repounit"
 )
 
 // RepoUnitCreate is the builder for creating a RepoUnit entity.

@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/externalloginuser"
+	"github.com/gitbundle/gitbundle/store/models/externalloginuser"
 )
 
 // ExternalLoginUser is the model entity for the ExternalLoginUser schema.

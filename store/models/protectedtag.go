@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/protectedtag"
+	"github.com/gitbundle/gitbundle/store/models/protectedtag"
 )
 
 // ProtectedTag is the model entity for the ProtectedTag schema.

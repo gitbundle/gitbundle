@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/commitstatusindex"
+	"github.com/gitbundle/gitbundle/store/models/commitstatusindex"
 )
 
 // CommitStatusIndexCreate is the builder for creating a CommitStatusIndex entity.

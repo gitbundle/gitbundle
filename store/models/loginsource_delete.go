@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/loginsource"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/loginsource"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // LoginSourceDelete is the builder for deleting a LoginSource entity.

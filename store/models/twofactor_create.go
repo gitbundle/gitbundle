@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/twofactor"
+	"github.com/gitbundle/gitbundle/store/models/twofactor"
 )
 
 // TwoFactorCreate is the builder for creating a TwoFactor entity.

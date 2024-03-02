@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/pkgblobupload"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/pkgblobupload"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // PkgBlobUploadDelete is the builder for deleting a PkgBlobUpload entity.

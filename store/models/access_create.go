@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/access"
+	"github.com/gitbundle/gitbundle/store/models/access"
 )
 
 // AccessCreate is the builder for creating a Access entity.

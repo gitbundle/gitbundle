@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/externalloginuser"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/externalloginuser"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // ExternalLoginUserUpdate is the builder for updating ExternalLoginUser entities.

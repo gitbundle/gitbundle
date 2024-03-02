@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/pkgversion"
+	"github.com/gitbundle/gitbundle/store/models/pkgversion"
 )
 
 // PkgVersionCreate is the builder for creating a PkgVersion entity.

@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/lfsmetaobject"
-	"github.com/gitbundle/server/store/models/predicate"
+	"github.com/gitbundle/gitbundle/store/models/lfsmetaobject"
+	"github.com/gitbundle/gitbundle/store/models/predicate"
 )
 
 // LfsMetaObjectQuery is the builder for querying LfsMetaObject entities.

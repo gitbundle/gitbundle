@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/notice"
+	"github.com/gitbundle/gitbundle/store/models/notice"
 )
 
 // NoticeCreate is the builder for creating a Notice entity.

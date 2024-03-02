@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/mirror"
+	"github.com/gitbundle/gitbundle/store/models/mirror"
 )
 
 // Mirror is the model entity for the Mirror schema.

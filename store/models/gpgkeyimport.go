@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/gpgkeyimport"
+	"github.com/gitbundle/gitbundle/store/models/gpgkeyimport"
 )
 
 // GpgKeyImport is the model entity for the GpgKeyImport schema.

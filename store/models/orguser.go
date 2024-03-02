@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/orguser"
+	"github.com/gitbundle/gitbundle/store/models/orguser"
 )
 
 // OrgUser is the model entity for the OrgUser schema.

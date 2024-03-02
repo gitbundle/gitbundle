@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/oauth2applicationcode"
+	"github.com/gitbundle/gitbundle/store/models/oauth2applicationcode"
 )
 
 // Oauth2ApplicationCodeCreate is the builder for creating a Oauth2ApplicationCode entity.

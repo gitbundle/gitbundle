@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/pkg"
+	"github.com/gitbundle/gitbundle/store/models/pkg"
 )
 
 // PkgCreate is the builder for creating a Pkg entity.

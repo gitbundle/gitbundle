@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/repotransfer"
+	"github.com/gitbundle/gitbundle/store/models/repotransfer"
 )
 
 // RepoTransfer is the model entity for the RepoTransfer schema.

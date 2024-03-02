@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/emailhash"
+	"github.com/gitbundle/gitbundle/store/models/emailhash"
 )
 
 // EmailHashCreate is the builder for creating a EmailHash entity.

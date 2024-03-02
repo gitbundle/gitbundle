@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/attachment"
+	"github.com/gitbundle/gitbundle/store/models/attachment"
 	"github.com/google/uuid"
 )
 

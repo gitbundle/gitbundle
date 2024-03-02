@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/follow"
+	"github.com/gitbundle/gitbundle/store/models/follow"
 )
 
 // FollowCreate is the builder for creating a Follow entity.

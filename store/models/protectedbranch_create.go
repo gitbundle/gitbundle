@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/gitbundle/server/store/models/protectedbranch"
+	"github.com/gitbundle/gitbundle/store/models/protectedbranch"
 )
 
 // ProtectedBranchCreate is the builder for creating a ProtectedBranch entity.

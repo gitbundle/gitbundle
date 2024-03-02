@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/star"
+	"github.com/gitbundle/gitbundle/store/models/star"
 )
 
 // Star is the model entity for the Star schema.

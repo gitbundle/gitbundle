@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/gitbundle/server/store/models/lfsmetaobject"
+	"github.com/gitbundle/gitbundle/store/models/lfsmetaobject"
 )
 
 // LfsMetaObject is the model entity for the LfsMetaObject schema.
