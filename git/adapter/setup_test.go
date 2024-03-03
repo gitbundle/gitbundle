@@ -52,6 +52,7 @@ func (f *mockClientFactory) NewClient(_ context.Context, _ map[string]string) (h
 func setupGit(t *testing.T) adapter.Adapter {
 	t.Helper()
 	git, err := adapter.New(
+		context.TODO(),
 		types.Config{Trace: true},
 		adapter.NewInMemoryLastCommitCache(5*time.Minute),
 		&mockClientFactory{},
