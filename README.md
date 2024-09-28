@@ -26,6 +26,35 @@ GITBUNDLE_DATABASE_DRIVER=sqlite3
 GITBUNDLE_DATABASE_DATASOURCE=database.sqlite3
 ```
 
+## GOPRIVATE Configuration
+
+1. Add `id_rsa.pub` in your GitBundle account.
+
+2. Exec the following script, use your own domain
+
+```bash
+# Set GOPRIVATE env
+go env -w GOPRIVATE=gitbundle.com
+# Rewrite `go get` with ssh protocol
+git config --global url."git@gitbundle.com:".insteadOf "https://gitbundle.com/"
+```
+
+3. If you need to configure ssh for GitBundle singlly
+
+```console
+# ~/.ssh/config
+Host gitbundle.com
+    HostName gitbundle.com
+    User git
+    IdentityFile ~/.ssh/gitbundle/id_rsa
+```
+
+4. Test ssh, this is necessary for `go get`, as `go get` does not provide a prompt for asking your agreement.
+
+```bash
+ssh -T git@gitbundle.com -p 22
+```
+
 ## Notes
 
 Currently, GitBundle is only support linux/amd64, linux/arm64, other platforms are not available, as we have limited server resources. And a lot of features are still developing or testing.
