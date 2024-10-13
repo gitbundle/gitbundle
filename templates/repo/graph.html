@@ -1,0 +1,45 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository commits -->
+<div jq-repo-graph class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div id="git-graph-container" class="{{ if eq .Mode "monochrome" }}monochrome{{ end }}">
+      <h2 class="flex items-center justify-between rounded-t-lg border bg-base-200 px-4 py-2">
+        {{ .i18n.Tr "repo.commit_graph" }}
+        <div svelte-repo-graph-dropdown>
+          <input type="hidden" name="flow" />
+          <script>
+            ;(() => {
+              const AllRefs = []
+              AllRefs.push({RefGroup: '', Name: '...flow-hide-pr-refs', ShortName: {{ .i18n.Tr "repo.commit_graph.hide_pr_refs" }}, Object: '', label: '...flow-hide-pr-refs'})
+              {{ range .AllRefs }}
+              AllRefs.push({RefGroup: {{.RefGroup}}, Name: {{.Name}}, ShortName: {{.ShortName}}, Object: {{.Object}}, label: {{.Name}}})
+              {{end}}
+              const data = {
+                CommitGraphSelect: {{ .i18n.Tr "repo.commit_graph.select" }},
+                Mode: {{.Mode}},
+                CommitGraphMonochrome: {{ .i18n.Tr "repo.commit_graph.monochrome" }},
+                CommitGraphColor: {{ .i18n.Tr "repo.commit_graph.color" }},
+                AllRefs,
+              }
+              window.config.pageData.repoGraph = data
+            })()
+          </script>
+        </div>
+      </h2>
+      <!-- <div class="ui segment hide loading"></div> -->
+      <div id="loading-indicator" class="hidden text-center">
+        {{ template "base/loading" }}
+      </div>
+      <div class="flex w-full rounded-b-lg border border-t-0 px-4 py-2">
+        {{ template "repo/graph/svgcontainer" . }}
+        {{ template "repo/graph/commits" . }}
+      </div>
+    </div>
+  </div>
+</div>
+<div id="pagination">
+  {{ template "base/paginate" . }}
+</div>
+{{ Asset "js/repo-graph.js" }}
+{{ template "base/footer" . }}

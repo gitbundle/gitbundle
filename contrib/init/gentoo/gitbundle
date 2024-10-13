@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+
+DIR=/var/lib/gitbundle
+USER=git
+
+start_stop_daemon_args="--user ${USER} --chdir ${DIR}"
+command="/usr/local/bin/gitbundle"
+command_args="web -c /etc/gitbundle/app.ini"
+command_background=yes
+pidfile=/run/gitbundle.pid
+
+depend()
+{
+    need net
+}

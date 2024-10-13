@@ -1,0 +1,19 @@
+{{ if .dependencies }}
+  <p><strong>{{ .title }}</strong></p>
+  <table class="table max-w-full table-fixed">
+    <thead>
+      <tr>
+        <th>{{ .root.i18n.Tr "packages.dependency.id" }}</th>
+        <th>{{ .root.i18n.Tr "packages.dependency.version" }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .dependencies }}
+        <tr class="hover">
+          <td class="whitespace-normal break-words">{{ .Name }}</td>
+          <td class="whitespace-normal break-words">{{ range $i, $v := .Version }}{{ if gt $i 0 }},{{ end }}{{ $v.Restriction }}{{ $v.Version }}{{ end }}</td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+{{ end }}

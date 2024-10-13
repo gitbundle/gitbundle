@@ -1,0 +1,30 @@
+{{ template "base/head" . }}
+<!--  user link-account -->
+<div jq-user-link-account class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <div class="flex items-center justify-center rounded-t-lg bg-base-300 pt-4">
+      <div jq-tabs class="tabs">
+        <!-- TODO handle .ShowRegistrationButton once other login bugs are fixed -->
+        {{ if not .AllowOnlyInternalRegistration }}
+          <a class="{{ if not .user_exists }}tab-active{{ end }} tab-bordered tab" data-tab="auth-link-signup-tab">
+            {{ .i18n.Tr "auth.oauth_signup_tab" }}
+          </a>
+        {{ end }}
+        <a class="{{ if .user_exists }}tab-active{{ end }} tab-bordered tab" data-tab="auth-link-signin-tab">
+          {{ .i18n.Tr "auth.oauth_signin_tab" }}
+        </a>
+      </div>
+    </div>
+
+    <div jq-contents>
+      <div class="{{ if .user_exists }}hidden{{ end }}" data-tab="auth-link-signup-tab">
+        {{ template "user/auth/signup_inner" . }}
+      </div>
+      <div class="{{ if not .user_exists }}hidden{{ end }}" data-tab="auth-link-signin-tab">
+        {{ template "user/auth/signin_inner" . }}
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/user-auth-link_account.js" }}
+</div>
+{{ template "base/footer" . }}

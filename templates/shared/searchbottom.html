@@ -1,0 +1,12 @@
+<div class="flex items-center justify-between px-4 py-1">
+  <div class="flex items-center">
+    {{ if .result.Language }}
+      <span class="badge badge-sm mr-2" style="background-color: {{ .result.Color }}"></span>{{ .result.Language }}
+    {{ end }}
+  </div>
+  <div>
+    {{ if not .result.UpdatedUnix.IsZero }}
+      <span class="text-gray-500">{{ .root.i18n.Tr "explore.code_last_indexed_at" (TimeSinceUnix .result.UpdatedUnix .root.i18n.Lang) | Safe }}</span>
+    {{ end }}
+  </div>
+</div>

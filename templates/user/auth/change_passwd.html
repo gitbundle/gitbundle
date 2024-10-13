@@ -1,0 +1,8 @@
+{{ template "base/head" . }}
+<!-- user signin -->
+<div class="main-container {{ if .LinkAccountMode }}icon{{ end }}">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    {{ template "user/auth/change_passwd_inner" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

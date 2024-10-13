@@ -1,0 +1,261 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository settings options -->
+<div jq-repository-settings-options class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        {{ if .IsAdmin }}
+          <h4 class="text-xl font-bold">
+            {{ .i18n.Tr "repo.settings.admin_settings" }}
+          </h4>
+          <div class="divider my-2"></div>
+          <div class="mb-10">
+            <form class="flex flex-col gap-4" method="post">
+              {{ .CsrfTokenHtml }}
+              <input type="hidden" name="action" value="admin" />
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="enable_health_check" type="checkbox" {{ if .Repository.IsFsckEnabled }}checked{{ end }} />{{ .i18n.Tr "repo.settings.admin_enable_health_check" }}</label>
+              </div>
+
+              <div class="flex">
+                <button class="btn-primary btn">{{ $.i18n.Tr "repo.settings.admin_settings.update" }}</button>
+              </div>
+            </form>
+
+            <div class="divider my-0"></div>
+            <form class="flex flex-col gap-4" method="post">
+              {{ .CsrfTokenHtml }}
+              <input type="hidden" name="action" value="admin_index" />
+              {{ if .CodeIndexerEnabled }}
+                <h4 class="text-base font-bold">{{ .i18n.Tr "repo.settings.admin_code_indexer" }}</h4>
+                <div class="flex items-center gap-2">
+                  <label>{{ .i18n.Tr "repo.settings.admin_indexer_commit_sha" }}</label>
+                  {{ if .CodeIndexerStatus }}
+                    <a rel="nofollow" class="btn-sm btn" href="{{ .RepoLink }}/commit/{{ .CodeIndexerStatus.CommitSha }}">
+                      <span class="shortsha">{{ ShortSha .CodeIndexerStatus.CommitSha }}</span>
+                    </a>
+                  {{ else }}
+                    <span>{{ .i18n.Tr "repo.settings.admin_indexer_unindexed" }}</span>
+                  {{ end }}
+                  <button class="btn-primary btn-sm btn" name="request_reindex_type" value="code">{{ $.i18n.Tr "repo.settings.reindex_button" }}</button>
+                </div>
+              {{ end }}
+              <h4 class="text-base font-bold">{{ .i18n.Tr "repo.settings.admin_stats_indexer" }}</h4>
+              <div class="flex items-center gap-2">
+                <label>{{ .i18n.Tr "repo.settings.admin_indexer_commit_sha" }}</label>
+                {{ if .StatsIndexerStatus }}
+                  <a rel="nofollow" class="btn-sm btn" href="{{ .RepoLink }}/commit/{{ .StatsIndexerStatus.CommitSha }}">
+                    <span class="shortsha">{{ ShortSha .StatsIndexerStatus.CommitSha }}</span>
+                  </a>
+                {{ else }}
+                  <span>{{ .i18n.Tr "repo.settings.admin_indexer_unindexed" }}</span>
+                {{ end }}
+                <button class="btn-primary btn-sm btn" name="request_reindex_type" value="stats">{{ $.i18n.Tr "repo.settings.reindex_button" }}</button>
+              </div>
+            </form>
+          </div>
+        {{ end }}
+
+        {{ if .Permission.IsOwner }}
+          {{ $descClass := "my-4 flex items-center gap-2 break-words rounded-lg border !border-yellow-500 bg-yellow-500/10 p-2 text-yellow-500" }}
+          <h4 class="mb-2 text-xl font-bold text-red-600">
+            {{ .i18n.Tr "settings.danger_zone" }}
+          </h4>
+          <div class="rounded-lg border-2 !border-red-600 p-4">
+            {{ if .Repository.IsMirror }}
+              <div class="flex items-center justify-between">
+                <div>
+                  <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.convert" }}</h5>
+                  <p>{{ .i18n.Tr "repo.settings.convert_desc" }}</p>
+                </div>
+                <button svelte-simple-modal class="btn-outline-red btn-outline btn" data-async="false" data-href="{{ .Link }}" data-title-svg-name="fa-rotate-right-solid" data-title="{{ .i18n.Tr "repo.settings.convert" }}" data-desc="{{ .i18n.Tr "repo.settings.convert_notices_1" }}" data-desc-class="{{ $descClass }}" data-form-key[0]="action" data-form-val[0]="convert" data-form-key[1]="_empty" data-form-label[1]="{{ .i18n.Tr "repo.settings.transfer_form_title" }} {{ printf "<span class=\"text-red-600\">%s</span>" .Repository.Name }}" data-form-key[2]="repo_name" data-form-type[2]="text" data-form-required[2]="true" data-form-label[2]="{{ .i18n.Tr "repo.repo_name" }}" data-action-approve-text="{{ .i18n.Tr "repo.settings.convert_confirm" }}" data-action-approve-color="red" data-modal="#convert-mirror-repo-modal">{{ .i18n.Tr "repo.settings.convert" }}</button>
+              </div>
+              <div class="divider my-2"></div>
+            {{ end }}
+            {{ if and .Repository.IsFork .Repository.Owner.CanCreateRepo }}
+              <div class="flex items-center justify-between">
+                <div>
+                  <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.convert_fork" }}</h5>
+                  <p>{{ .i18n.Tr "repo.settings.convert_fork_desc" }}</p>
+                </div>
+                <button svelte-simple-modal class="btn-outline-red btn-outline btn" data-async="false" data-href="{{ .Link }}" data-title-svg-name="fa-arrows-rotate-solid" data-title="{{ .i18n.Tr "repo.settings.convert_fork" }}" data-desc="{{ .i18n.Tr "repo.settings.convert_fork_notices_1" }}" data-desc-class="{{ $descClass }}" data-form-key[0]="action" data-form-val[0]="convert_fork" data-form-key[1]="_empty" data-form-label[1]="{{ .i18n.Tr "repo.settings.transfer_form_title" }} {{ printf "<span class=\"text-red-600\">%s</span>" .Repository.Name }}" data-form-key[2]="repo_name" data-form-type[2]="text" data-form-label[2]="{{ .i18n.Tr "repo.repo_name" }}" data-form-required[2]="true" data-action-approve-text="{{ .i18n.Tr "repo.settings.convert_fork_confirm" }}" data-action-approve-color="red" data-modal="#convert-fork-repo-modal">{{ .i18n.Tr "repo.settings.convert_fork" }}</button>
+              </div>
+              <div class="divider my-2"></div>
+            {{ end }}
+            <div class="flex items-center justify-between">
+              <div>
+                <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.transfer" }}</h5>
+                {{ if .RepoTransfer }}
+                  <p>{{ .i18n.Tr "repo.settings.transfer_started" .RepoTransfer.Recipient.DisplayName }}</p>
+                {{ else }}
+                  <p>{{ .i18n.Tr "repo.settings.transfer_desc" }}</p>
+                {{ end }}
+              </div>
+              {{ if .RepoTransfer }}
+                <form action="{{ .Link }}" method="post">
+                  {{ .CsrfTokenHtml }}
+                  <input type="hidden" name="action" value="cancel_transfer" />
+                  <button class="btn-outline-red btn-outline btn">{{ .i18n.Tr "repo.settings.transfer_abort" }}</button>
+                </form>
+              {{ else }}
+                <button
+                  svelte-simple-modal
+                  class="btn-outline-red btn-outline btn"
+                  data-async="false"
+                  data-href="{{ .Link }}"
+                  data-title="{{ .i18n.Tr "repo.settings.transfer" }}"
+                  data-title-svg-name="fa-right-left"
+                  data-desc="{{ .i18n.Tr "repo.settings.transfer_notices_1" }} <br />
+					{{ .i18n.Tr "repo.settings.transfer_notices_2" }} <br />
+					{{ .i18n.Tr "repo.settings.transfer_notices_3" }}"
+                  data-desc-class="{{ $descClass }}"
+                  data-form-key[0]="action"
+                  data-form-val[0]="transfer"
+                  data-form-key[1]="_empty"
+                  data-form-label[1]="{{ .i18n.Tr "repo.settings.transfer_form_title" }} {{ printf "<span class=\"text-red-600\">%s</span>" .Repository.Name }}"
+                  data-form-key[2]="repo_name"
+                  data-form-label[2]="{{ .i18n.Tr "repo.repo_name" }}"
+                  data-form-type[2]="text"
+                  data-form-required[2]="true"
+                  data-form-key[3]="new_owner_name"
+                  data-form-type[3]="text"
+                  data-form-label[3]="{{ .i18n.Tr "repo.settings.transfer_owner" }}"
+                  data-form-required[3]="true"
+                  data-action-approve-text="{{ .i18n.Tr "repo.settings.transfer_perform" }}"
+                  data-action-approve-color="red"
+                  data-modal="#transfer-repo-modal"
+                >
+                  {{ .i18n.Tr "repo.settings.transfer" }}
+                </button>
+              {{ end }}
+            </div>
+
+            {{ if .Repository.UnitEnabled $.UnitTypeWiki }}
+              <div class="divider my-2"></div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.wiki_delete" }}</h5>
+                  <p>{{ .i18n.Tr "repo.settings.wiki_delete_desc" }}</p>
+                </div>
+                <button
+                  svelte-simple-modal
+                  class="btn-outline-red btn-outline btn"
+                  data-async="false"
+                  data-href="{{ .Link }}"
+                  data-title-svg-name="fa-trash"
+                  data-title="{{ .i18n.Tr "repo.settings.wiki_delete" }}"
+                  data-desc="{{ .i18n.Tr "repo.settings.delete_notices_1" | Safe }}<br />
+					{{ .i18n.Tr "repo.settings.wiki_delete_notices_1" .Repository.Name | Safe }}"
+                  data-desc-class="{{ $descClass }}"
+                  data-form-key[0]="action"
+                  data-form-val[0]="delete-wiki"
+                  data-form-key[1]="_empty"
+                  data-form-label[1]="{{ .i18n.Tr "repo.settings.transfer_form_title" }} {{ printf "<span class=\"text-red-600\">%s</span>" .Repository.Name }}"
+                  data-form-key[2]="repo_name"
+                  data-form-type[2]="text"
+                  data-form-label[2]="{{ .i18n.Tr "repo.repo_name" }}"
+                  data-form-required[2]="true"
+                  data-action-approve-text="{{ .i18n.Tr "repo.settings.confirm_wiki_delete" }}"
+                  data-action-approve-color="red"
+                  data-modal="#delete-wiki-modal"
+                >
+                  {{ .i18n.Tr "repo.settings.wiki_delete" }}
+                </button>
+              </div>
+            {{ end }}
+            <div class="divider my-2"></div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.delete" }}</h5>
+                <p>{{ .i18n.Tr "repo.settings.delete_desc" }}</p>
+              </div>
+              <button
+                svelte-simple-modal
+                class="btn-outline-red btn-outline btn"
+                data-async="false"
+                data-href="{{ .Link }}"
+                data-title-svg-name="fa-trash-xmark"
+                data-title="{{ .i18n.Tr "repo.settings.delete" }}"
+                data-desc="{{ .i18n.Tr "repo.settings.delete_notices_1" | Safe }}<br />
+				{{ .i18n.Tr "repo.settings.delete_notices_2" .Repository.FullName | Safe }}
+				{{ if .Repository.NumForks }}
+                  <br />
+                  {{ .i18n.Tr "repo.settings.delete_notices_fork_1" }}
+                {{ end }}"
+                data-desc-class="{{ $descClass }}"
+                data-form-key[0]="action"
+                data-form-val[0]="delete"
+                data-form-key[1]="_empty"
+                data-form-label[1]="{{ .i18n.Tr "repo.settings.transfer_form_title" }} {{ printf "<span class=\"text-red-600\">%s</span>" .Repository.Name }}"
+                data-form-key[2]="repo_name"
+                data-form-type[2]="text"
+                data-form-label[2]="{{ .i18n.Tr "repo.repo_name" }}"
+                data-form-required[2]="true"
+                data-action-approve-text="{{ .i18n.Tr "repo.settings.confirm_delete" }}"
+                data-action-approve-color="red"
+                data-modal="#delete-repo-modal"
+              >
+                {{ .i18n.Tr "repo.settings.delete" }}
+              </button>
+            </div>
+
+            {{ if not .Repository.IsMirror }}
+              <div class="divider my-2"></div>
+              <div class="flex items-center justify-between">
+                <div>
+                  {{ if .Repository.IsArchived }}
+                    <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.unarchive.header" }}</h5>
+                    <p>{{ .i18n.Tr "repo.settings.unarchive.text" }}</p>
+                  {{ else }}
+                    <h5 class="text-base font-bold">{{ .i18n.Tr "repo.settings.archive.header" }}</h5>
+                    <p>{{ .i18n.Tr "repo.settings.archive.text" }}</p>
+                  {{ end }}
+                </div>
+                <button
+                  svelte-simple-modal
+                  class="btn-outline-red btn-outline btn"
+                  data-async="false"
+                  data-href="{{ .Link }}"
+                  data-title="{{ if .Repository.IsArchived }}
+                    {{ .i18n.Tr "repo.settings.unarchive.header" }}
+                  {{ else }}
+                    {{ .i18n.Tr "repo.settings.archive.header" }}
+                  {{ end }}"
+                  data-title-svg-name="octicon-archive"
+                  data-desc="{{ if .Repository.IsArchived }}
+                    {{ .i18n.Tr "repo.settings.unarchive.text" }}
+                  {{ else }}
+                    {{ .i18n.Tr "repo.settings.archive.text" }}
+                  {{ end }}"
+                  data-desc-class="{{ $descClass }}"
+                  data-form-key[0]="action"
+                  data-form-val[0]="{{- if .Repository.IsArchived -}}
+                    unarchive
+                  {{- else -}}
+                    archive
+                  {{- end -}}"
+                  data-form-key[1]="repo_id"
+                  data-form-val[1]="{{ .Repository.ID }}"
+                  data-action-approve-color="yellow"
+                  data-modal="#archive-repo-modal"
+                >
+                  {{ if .Repository.IsArchived }}
+                    {{ .i18n.Tr "repo.settings.unarchive.button" }}
+                  {{ else }}
+                    {{ .i18n.Tr "repo.settings.archive.button" }}
+                  {{ end }}
+                </button>
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-settings-options.js" }}
+</div>
+{{ template "base/footer" . }}

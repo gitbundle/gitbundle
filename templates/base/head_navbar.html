@@ -1,0 +1,79 @@
+<script>
+(function() {
+  const data = {
+    avatarSignedUser: {{avatar .SignedUser 24}},
+
+    textLogoAlt: {{ .i18n.Tr "logo" }},
+    textIssues: {{ .i18n.Tr "issues" }},
+    textPullRequests: {{.i18n.Tr "pull_requests"}},
+    textMilestones:{{.i18n.Tr "milestones"}},
+    textExplore:{{.i18n.Tr "explore"}},
+    textUserProfileAndMore : {{.i18n.Tr "user_profile_and_more"}},
+    textSignOut: {{.i18n.Tr "sign_out"}},
+    textActiveStopwatch: {{.i18n.Tr "active_stopwatch"}},
+    textStopTracking: {{.i18n.Tr "repo.issues.stop_tracking"}},
+    textCancelTracking: {{.i18n.Tr "repo.issues.cancel_tracking"}},
+    textNotifications: {{.i18n.Tr "notifications"}},
+    textCreateNew: {{.i18n.Tr "create_new"}},
+    textNewRepo: {{.i18n.Tr "new_repo"}},
+    textNewMigrate: {{.i18n.Tr "new_migrate"}},
+    textNewOrg: {{.i18n.Tr "new_org"}},
+    textSignedInAs: {{.i18n.Tr "signed_in_as"}},
+    textYourProfile: {{.i18n.Tr "your_profile"}},
+    textYourStarred: {{.i18n.Tr "your_starred"}},
+    textYourSettings: {{.i18n.Tr "your_settings"}},
+    textHelp: {{.i18n.Tr "help"}},
+    textAdminPanel: {{.i18n.Tr "admin_panel"}},
+    textRegister: {{.i18n.Tr "register"}},
+    textSignUp: {{.i18n.Tr "sign_up"}},
+    textSignIn: {{.i18n.Tr "sign_in"}},
+
+    CurrentURL: {{.CurrentURL}},
+    PageIsExplore: {{.PageIsExplore}},
+    PageIsSignIn: {{.PageIsSignIn}},
+    PageIsSignUp: {{.PageIsSignUp}},
+    ShowRegistrationButton: {{.ShowRegistrationButton}},
+    IsAdmin: {{.IsAdmin}},
+    PageIsAdmin: {{.PageIsAdmin}},
+    PageIsUserSettings: {{.PageIsUserSettings}},
+    SignedUserCanCreateOrganization: {{.SignedUser.CanCreateOrganization}},
+    SignedUserName: {{.SignedUser.Name}},
+    SignedUserHomeLink: {{.SignedUser.HomeLink}},
+    DisableMigrations: {{.DisableMigrations}},
+
+    PageIsMarketplace: {{.PageIsMarketplace}},
+
+    IsSigned: {{.IsSigned}},
+    PageIsIssues: {{.PageIsIssues}},
+    MustChangePassword: {{.MustChangePassword}},
+    UnitIssuesGlobalDisabled:{{.UnitIssuesGlobalDisabled}},
+    UnitPullsGlobalDisabled: {{.UnitPullsGlobalDisabled}},
+    PageIsPulls: {{.PageIsPulls}},
+    ShowMilestonesDashboardPage: {{.ShowMilestonesDashboardPage}},
+    PageIsMilestonesDashboard: {{.PageIsMilestonesDashboard}},
+    PageIsExplore: {{.PageIsExplore}},
+    IsLandingPageOrganizations: {{.IsLandingPageOrganizations}},
+  };
+
+{{ if .IsSigned }}
+  {{ if .NotificationUnreadCount }}
+    data.NotificationUnreadCount = {{ call .NotificationUnreadCount }};
+  {{ end }}
+  {{ if .ActiveStopwatch }}
+    data.ActiveStopwatch = {{.ActiveStopwatch}};
+    data.ActiveStopwatchSeconds = {{Sec2Time .ActiveStopwatch.Seconds}};
+  {{end}}
+{{ end }}
+{{ if .IsSigned }}
+  data.textAriaLabel = {{ .i18n.Tr "dashboard" }};
+{{ else }}
+  data.textAriaLabel = {{ .i18n.Tr "home" }};
+{{ end }}
+
+  window.config.pageData.globalNavbar = data;
+})()
+</script>
+
+<div class="navbar h-16 w-full bg-base-200 px-4 text-base-content" id="global-navbar">
+  {{ template "base/loading_ellipsis" }}
+</div>

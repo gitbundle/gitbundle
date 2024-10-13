@@ -1,0 +1,9 @@
+<div jq-labels class="flex gap-x-1">
+  <strong jq-no-select class="{{ if .ctx.HasSelectedLabel }}hidden{{ end }} text-primary-content">{{ .ctx.i18n.Tr "repo.issues.new.no_label" }}</strong>
+  {{ range .ctx.Labels }}
+    {{ template "repo/issue/labels/label" dict "root" $.root "label" . }}
+  {{ end }}
+  {{ range .ctx.OrgLabels }}
+    {{ template "repo/issue/labels/label" dict "root" $.root "label" . }}
+  {{ end }}
+</div>

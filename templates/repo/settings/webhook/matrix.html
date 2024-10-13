@@ -1,0 +1,26 @@
+{{ if eq .HookType "matrix" }}
+  <p class="cu-links-primary">{{ .i18n.Tr "repo.settings.add_web_hook_desc" "https://matrix.org/" (.i18n.Tr "repo.settings.web_hook_name_matrix") | Str2html }}</p>
+  <form action="{{ .BaseLink }}/matrix/{{ or .Webhook.ID "new" }}" method="post">
+    {{ .CsrfTokenHtml }}
+    <div class="{{ if .Err_HomeserverURL }}error{{ end }} form-control required">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.matrix.homeserver_url" }}</span></label>
+      <input class="input-bordered input" id="homeserver_url" name="homeserver_url" type="url" value="{{ .MatrixHook.HomeserverURL }}" autofocus required />
+    </div>
+    <div class="{{ if .Err_Room }}error{{ end }} form-control required">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.matrix.room_id" }}</span></label>
+      <input class="input-bordered input" id="room_id" name="room_id" type="text" value="{{ .MatrixHook.Room }}" required />
+    </div>
+    <div class="{{ if .Err_AccessToken }}error{{ end }} form-control required">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.matrix.access_token" }}</span></label>
+      <input class="input-bordered input" id="access_token" name="access_token" type="text" value="{{ .MatrixHook.AccessToken }}" required />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.matrix.message_type" }}</span></label>
+      <select name="message_type" class="select-bordered select">
+        <option value="1" {{ if eq .MatrixHook.MessageType 1 }}selected{{ end }}>m.notice</option>
+        <option value="2" {{ if eq .MatrixHook.MessageType 2 }}selected{{ end }}>m.text</option>
+      </select>
+    </div>
+    {{ template "repo/settings/webhook/settings" . }}
+  </form>
+{{ end }}

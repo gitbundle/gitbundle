@@ -1,0 +1,19 @@
+/* can not have this selector in less because of https://github.com/less/less.js/issues/3027 */
+.view-raw img[src$='.svg' i] {
+  /* max-height: 600px !important;
+  max-width: 600px !important; */
+  @apply max-h-[600px] max-w-[600px];
+}
+
+/* .g-recaptcha,
+.h-captcha {
+  margin: 0 auto !important;
+  width: 304px;
+  padding-left: 30px;
+} */
+
+.g-recaptcha,
+.h-captcha {
+  transform: scale(0.77);
+  transform-origin: 0 0;
+}

@@ -1,0 +1,129 @@
+-
+  id: 1
+  org_id: 3
+  lower_name: owners
+  name: Owners
+  authorize: 4 # owner
+  num_repos: 3
+  num_members: 1
+  can_create_org_repo: true
+
+-
+  id: 2
+  org_id: 3
+  lower_name: team1
+  name: team1
+  authorize: 2 # write
+  num_repos: 1
+  num_members: 2
+  can_create_org_repo: false
+
+-
+  id: 3
+  org_id: 6
+  lower_name: owners
+  name: Owners
+  authorize: 4 # owner
+  num_repos: 0
+  num_members: 1
+  can_create_org_repo: true
+
+-
+  id: 4
+  org_id: 7
+  lower_name: owners
+  name: Owners
+  authorize: 4 # owner
+  num_repos: 0
+  num_members: 1
+  can_create_org_repo: true
+
+-
+  id: 5
+  org_id: 17
+  lower_name: owners
+  name: Owners
+  authorize: 4 # owner
+  num_repos: 2
+  num_members: 2
+  can_create_org_repo: true
+
+-
+  id: 6
+  org_id: 19
+  lower_name: owners
+  name: Owners
+  authorize: 4 # owner
+  num_repos: 2
+  num_members: 1
+  can_create_org_repo: true
+
+-
+  id: 7
+  org_id: 3
+  lower_name: test_team
+  name: test_team
+  authorize: 2 # write
+  num_repos: 1
+  num_members: 1
+  can_create_org_repo: false
+
+-
+  id: 8
+  org_id: 17
+  lower_name: test_team
+  name: test_team
+  authorize: 2 # write
+  num_repos: 1
+  num_members: 1
+  can_create_org_repo: false
+
+-
+  id: 9
+  org_id: 17
+  lower_name: review_team
+  name: review_team
+  authorize: 1 # read
+  num_repos: 1
+  num_members: 2
+  can_create_org_repo: false
+
+-
+  id: 10
+  org_id: 25
+  lower_name: notowners
+  name: NotOwners
+  authorize: 1 # owner
+  num_repos: 0
+  num_members: 1
+  can_create_org_repo: false
+
+-
+  id: 11
+  org_id: 26
+  lower_name: team11
+  name: team11
+  authorize: 1 # read
+  num_repos: 0
+  num_members: 0
+  can_create_org_repo: false
+
+-
+  id: 12
+  org_id: 3
+  lower_name: team12creators
+  name: team12Creators
+  authorize: 3 # admin
+  num_repos: 0
+  num_members: 1
+  can_create_org_repo: true
+
+-
+  id: 13
+  org_id: 6
+  lower_name: team13notcreators
+  name: team13NotCreators
+  authorize: 3 # admin
+  num_repos: 0
+  num_members: 1
+  can_create_org_repo: false

@@ -1,0 +1,11 @@
+{{ template "base/head" . }}
+<!--  explore repositories -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "explore/navbar" . }}
+    {{ template "explore/repo_search" . }}
+    {{ template "explore/repo_list" . }}
+    {{ template "base/paginate" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

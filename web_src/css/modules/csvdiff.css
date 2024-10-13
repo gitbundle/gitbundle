@@ -1,0 +1,46 @@
+.data-table {
+  @apply w-full;
+
+  tr {
+    @apply border-t-0;
+  }
+
+  td,
+  th {
+    @apply overflow-hidden whitespace-nowrap border border-base-content/10 p-1 text-left text-xs;
+  }
+
+  td {
+    @apply whitespace-pre-line;
+  }
+
+  th {
+    @apply border-t-0 bg-base-100 font-bold;
+  }
+
+  td.added,
+  th.added,
+  tr.added {
+    @apply bg-green-950;
+  }
+
+  td.removed,
+  th.removed,
+  tr.removed {
+    @apply bg-red-950;
+  }
+
+  td.moved,
+  th.moved,
+  tr.moved {
+    @apply bg-yellow-800;
+  }
+
+  tbody.section {
+    @apply border-t-2 border-base-content/10;
+  }
+
+  .line-num {
+    @apply w-[1%] min-w-[50px] cursor-pointer select-none whitespace-nowrap border-0 bg-base-100 text-right align-top leading-5;
+  }
+}

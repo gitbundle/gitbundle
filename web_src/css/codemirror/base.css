@@ -1,0 +1,57 @@
+/* .ui .field:not(:last-child) .EasyMDEContainer .editor-statusbar { */
+/* when there is a statusbar, the "margin-bottom: 1em" of the "field" is not needed, because the statusbar is likely a blank line */
+/* margin-bottom: -1em; */
+/* } */
+
+.EasyMDEContainer {
+  .editor-toolbar {
+    @apply overflow-x-auto rounded-t-lg border border-base-content/10 bg-base-300 text-base-content;
+    > button {
+      @apply hover:border-base-content/10 hover:bg-base-content/10;
+      &.active {
+        @apply border-base-content/10 bg-base-content/10;
+      }
+    }
+    .separator {
+      @apply border-base-content/10;
+    }
+  }
+  .CodeMirror {
+    @apply rounded-b-lg border border-base-content/10 bg-base-100 text-left font-mono text-sm text-primary-content;
+    &.cm-s-default {
+      @apply rounded-lg p-0;
+    }
+    &.CodeMirror-fullscreen.CodeMirror-focused {
+      @apply border border-r-primary-content;
+    }
+    .cm-comment {
+      @apply bg-inherit;
+    }
+    .CodeMirror-code {
+      @apply font-mono text-sm;
+    }
+    .editor-preview {
+      @apply bg-base-100;
+    }
+  }
+  .CodeMirror-focused {
+    @apply border-mako-600;
+
+    /* .CodeMirror-selected {
+      @apply text-primary-content bg-primary-focus/50;
+    } */
+  }
+  .CodeMirror-cursor {
+    @apply border-primary-content;
+  }
+  .CodeMirror-placeholder {
+    @apply text-base-content/40;
+  }
+
+  .CodeMirror-selectedtext::selection {
+    /* @apply !bg-primary/10 !text-primary-content; */
+    /* @apply bg-primary-focus/50 text-primary-content; */
+    /* background: hsl(var(--pf, var(--p)) / 0.5) !important; */
+    @apply !bg-primary-focus/50 !text-primary-content;
+  }
+}

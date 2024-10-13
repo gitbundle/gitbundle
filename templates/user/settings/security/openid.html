@@ -1,0 +1,44 @@
+<h4 class="mt-10 text-xl font-bold">
+  {{ .i18n.Tr "settings.manage_openid" }}
+</h4>
+<div class="divider my-2"></div>
+<div class="space-y-2">
+  <p>{{ .i18n.Tr "settings.openid_desc" }}</p>
+  <div class="ui openid list">
+    {{ range .OpenIDs }}
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <form action="{{ AppSubUrl }}/user/settings/security/openid/toggle_visibility" method="post">
+            {{ $.CsrfTokenHtml }}
+            <input name="id" type="hidden" value="{{ .ID }}" />
+            {{ if .Show }}
+              <button class="btn-xs btn gap-1">
+                {{ svg "octicon-eye" 16 }}
+                {{ $.i18n.Tr "settings.hide_openid" }}
+              </button>
+            {{ else }}
+              <button class="btn-xs btn gap-1">
+                {{ svg "octicon-eye-closed" 16 }}
+                {{ $.i18n.Tr "settings.show_openid" }}
+              </button>
+            {{ end }}
+          </form>
+          <strong>{{ .URI }}</strong>
+        </div>
+        <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="delete-openid" data-href="{{ AppSubUrl }}/user/settings/security/openid/delete" data-title="{{ $.i18n.Tr "settings.openid_deletion" }}" data-desc="{{ $.i18n.Tr "settings.openid_deletion_desc" }}" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">
+          {{ $.i18n.Tr "settings.delete_key" }}
+        </button>
+      </div>
+    {{ end }}
+  </div>
+</div>
+<form class="space-y-2" action="{{ AppSubUrl }}/user/settings/security/openid" method="post">
+  {{ .CsrfTokenHtml }}
+  <div class="required {{ if .Err_OpenID }}error{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "settings.add_new_openid" }}</span></label>
+    <input class="input-bordered input" id="openid" name="openid" type="text" required />
+  </div>
+  <button class="btn-primary btn">
+    {{ .i18n.Tr "settings.add_openid" }}
+  </button>
+</form>

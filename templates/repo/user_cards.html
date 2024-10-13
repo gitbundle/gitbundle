@@ -1,0 +1,36 @@
+<div class="mx-auto w-full max-w-[1280px] space-y-4">
+  <div>
+    <div class="rounded-lg border">
+      {{ if .CardsTitle }}
+        <h2 class="rounded-t-lg border-b bg-base-200 p-4">
+          {{ .CardsTitle }}
+        </h2>
+      {{ end }}
+      <div class="grid grid-cols-12 items-center gap-4 p-4">
+        {{ range .Cards }}
+          <div class="col-span-4 flex items-center gap-2 rounded-lg border p-2 hover:bg-base-content/10 hover:shadow-xl">
+            <a href="{{ .HomeLink }}">
+              {{ avatar . 40 "rounded-full" }}
+            </a>
+            <div class="flex flex-col">
+              <a class="link-hover link-primary link text-base" href="{{ .HomeLink }}">{{ .DisplayName }}</a>
+              <div class="flex items-center gap-1">
+                {{ if .Website }}
+                  {{ svg "octicon-link" }} <a href="{{ .Website }}" target="_blank" rel="noopener noreferrer">{{ .Website }}</a>
+                {{ else if .Location }}
+                  {{ svg "octicon-location" }}
+                  {{ .Location }}
+                {{ else }}
+                  {{ svg "octicon-clock" }}
+                  {{ $.i18n.Tr "user.join_on" }}
+                  {{ .CreatedUnix.FormatShort }}
+                {{ end }}
+              </div>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+    </div>
+    {{ template "base/paginate" . }}
+  </div>
+</div>

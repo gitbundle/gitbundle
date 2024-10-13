@@ -1,0 +1,25 @@
+<label for="commit-statuses-popup-{{ .Status.ID }}" class="cursor-pointer">{{ template "repo/commit_status" .Status }}</label>
+
+<input type="checkbox" id="commit-statuses-popup-{{ .Status.ID }}" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box relative">
+    <label for="commit-statuses-popup-{{ .Status.ID }}" class="btn-ghost btn-sm btn-circle btn absolute right-2 top-2">✕</label>
+    <div class="mt-6 flex flex-col">
+      {{ range .Statuses }}
+        <div class="flex w-full">
+          <div class="flex flex-1 items-center gap-x-2">
+            {{ template "repo/commit_status" . }}
+            <span>{{ .Context }}</span>
+            <span class="text-base-content">{{ .Description }}</span>
+          </div>
+          {{ if .TargetURL }}
+            <div class="flex-none">
+              <a class="link-hover !link-primary link" href="{{ .TargetURL }}" target="_blank" rel="noopener noreferrer">{{ $.root.i18n.Tr "repo.pulls.status_checks_details" }}</a>
+            </div>
+          {{ end }}
+        </div>
+        <div class="divider m-0"></div>
+      {{ end }}
+    </div>
+  </div>
+</div>

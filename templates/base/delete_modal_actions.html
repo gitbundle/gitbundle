@@ -1,0 +1,11 @@
+<script>
+  (function() {
+    const data = {
+      textModalYes: {{.i18n.Tr "modal.yes"}},
+      textModalNo: {{.i18n.Tr "modal.no"}},
+      defaultTextModalTitle: {{ .i18n.Tr "repo.branch.delete_html" }},
+      defaultTextModalDesc: {{ .i18n.Tr "repo.branch.delete_desc" | Str2html }},
+    };
+    window.config.pageData.modalDeletion = data;
+  })()
+</script>

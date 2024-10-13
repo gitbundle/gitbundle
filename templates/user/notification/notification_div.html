@@ -1,0 +1,122 @@
+<!-- user notification -->
+<div class="main-container" id="notification_div" data-params="{{ .Page.GetParams }}" data-sequence-number="{{ .SequenceNumber }}">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <h1 class="text-xl font-bold">{{ .i18n.Tr "notification.notifications" }}</h1>
+    <div class="divider my-0"></div>
+    <div class="tabs">
+      {{ $notificationUnreadCount := call .NotificationUnreadCount }}
+      <a href="{{ AppSubUrl }}/notifications?q=unread" class="{{ if eq .Status 1 }}tab-active{{ end }} tab-lifted tab">
+        {{ .i18n.Tr "notification.unread" }}
+        <div class="ui {{ if not $notificationUnreadCount }}hidden{{ end }} label">{{ $notificationUnreadCount }}</div>
+      </a>
+      <a href="{{ AppSubUrl }}/notifications?q=read" class="{{ if eq .Status 2 }}tab-active{{ end }} tab-lifted tab">
+        {{ .i18n.Tr "notification.read" }}
+      </a>
+      {{ if and (eq .Status 1) }}
+        <form action="{{ AppSubUrl }}/notifications/purge" method="POST" class="flex flex-1 justify-end">
+          {{ $.CsrfTokenHtml }}
+          <div class="{{ if not $notificationUnreadCount }}hidden{{ end }}">
+            <button class="btn-primary tooltip tooltip-bottom btn-xs btn" data-tip="{{ $.i18n.Tr "notification.mark_all_as_read" }}">
+              {{ svg "octicon-checklist" }}
+            </button>
+          </div>
+        </form>
+      {{ end }}
+    </div>
+    <div>
+      {{ if eq (len .Notifications) 0 }}
+        {{ if eq .Status 1 }}
+          {{ .i18n.Tr "notification.no_unread" }}
+        {{ else }}
+          {{ .i18n.Tr "notification.no_read" }}
+        {{ end }}
+      {{ else }}
+        <div class="divide-y" id="notification_table">
+          {{ range $notification := .Notifications }}
+            {{ $issue := .Issue }}
+            {{ $repo := .Repository }}
+            {{ $repoOwner := $repo.MustOwner }}
+            <div class="grid grid-cols-16 gap-4 px-4 py-2 hover:bg-base-content/10">
+              <div class="col-span-1" id="notification_{{ .ID }}">
+                <a href="{{ .HTMLURL }}">
+                  {{ if eq .Status 3 }}
+                    <span class="text-blue-600">{{ svg "octicon-pin" }}</span>
+                  {{ else if not $issue }}
+                    <span class="text-gray-500">{{ svg "octicon-repo" }}</span>
+                  {{ else if $issue.IsPull }}
+                    {{ if $issue.IsClosed }}
+                      {{ if $issue.GetPullRequest.HasMerged }}
+                        <span class="text-purple-600">{{ svg "octicon-git-merge" }}</span>
+                      {{ else }}
+                        <span class="text-red-600">{{ svg "octicon-git-pull-request" }}</span>
+                      {{ end }}
+                    {{ else }}
+                      <span class="text-green-600">{{ svg "octicon-git-pull-request" }}</span>
+                    {{ end }}
+                  {{ else }}
+                    {{ if $issue.IsClosed }}
+                      <span class="text-red-600">{{ svg "octicon-issue-closed" }}</span>
+                    {{ else }}
+                      <span class="text-green-600">{{ svg "octicon-issue-opened" }}</span>
+                    {{ end }}
+                  {{ end }}
+                </a>
+              </div>
+              <div class="col-span-8">
+                <a class="link-hover link-primary link" href="{{ .HTMLURL }}">
+                  {{ if $issue }}
+                    #{{ $issue.Index }} -
+                    {{ $issue.Title }}
+                  {{ else }}
+                    {{ $repo.FullName }}
+                  {{ end }}
+                </a>
+              </div>
+              <div class="col-span-5">
+                <a class="link-hover link-primary link" href="{{ $repo.Link }}">
+                  {{ $repoOwner.Name }}/{{ $repo.Name }}
+                </a>
+              </div>
+              <div class="col-span-1">
+                {{ if ne .Status 3 }}
+                  <form action="{{ AppSubUrl }}/notifications/status" method="POST" class="flex justify-end">
+                    {{ $.CsrfTokenHtml }}
+                    <input type="hidden" name="notification_id" value="{{ .ID }}" />
+                    <input type="hidden" name="status" value="pinned" />
+                    <button class="tooltip btn-xs btn" data-tip="{{ $.i18n.Tr "notification.pin" }}" data-url="{{ AppSubUrl }}/notifications/status" data-status="pinned" data-page="{{ $.Page.Paginater.Current }}" data-notification-id="{{ .ID }}" data-q="{{ $.Keyword }}">
+                      {{ svg "octicon-pin" }}
+                    </button>
+                  </form>
+                {{ end }}
+              </div>
+              <div class="col-span-1">
+                {{ if or (eq .Status 1) (eq .Status 3) }}
+                  <form action="{{ AppSubUrl }}/notifications/status" method="POST" class="flex justify-end">
+                    {{ $.CsrfTokenHtml }}
+                    <input type="hidden" name="notification_id" value="{{ .ID }}" />
+                    <input type="hidden" name="status" value="read" />
+                    <input type="hidden" name="page" value="{{ $.Page.Paginater.Current }}" />
+                    <button class="tooltip btn-xs btn" data-tip="{{ $.i18n.Tr "notification.mark_as_read" }}" data-url="{{ AppSubUrl }}/notifications/status" data-status="read" data-page="{{ $.Page.Paginater.Current }}" data-notification-id="{{ .ID }}" data-q="{{ $.Keyword }}">
+                      {{ svg "octicon-check" }}
+                    </button>
+                  </form>
+                {{ else if eq .Status 2 }}
+                  <form action="{{ AppSubUrl }}/notifications/status" method="POST" class="flex justify-end">
+                    {{ $.CsrfTokenHtml }}
+                    <input type="hidden" name="notification_id" value="{{ .ID }}" />
+                    <input type="hidden" name="status" value="unread" />
+                    <input type="hidden" name="page" value="{{ $.Page.Paginater.Current }}" />
+                    <button class="tooltip btn-xs btn" data-tip="{{ $.i18n.Tr "notification.mark_as_unread" }}" data-url="{{ AppSubUrl }}/notifications/status" data-status="unread" data-page="{{ $.Page.Paginater.Current }}" data-notification-id="{{ .ID }}" data-q="{{ $.Keyword }}">
+                      {{ svg "octicon-bell" }}
+                    </button>
+                  </form>
+                {{ end }}
+              </div>
+            </div>
+          {{ end }}
+        </div>
+      {{ end }}
+    </div>
+    {{ template "base/paginate" . }}
+  </div>
+</div>

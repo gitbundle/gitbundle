@@ -1,0 +1,73 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository settings lfs -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="flex items-center justify-between text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.lfs_pointers.found" .NumPointers .NumAssociated .NumNotAssociated .NumNoExist }}
+          {{ if gt .NumAssociatable 0 }}
+            <form method="post" action="{{ $.Link }}/associate">
+              {{ .CsrfTokenHtml }}
+              {{ range .Pointers }}
+                {{ if .Associatable }}
+                  <input type="hidden" name="oid" value="{{ .Oid }} {{ .Size }}" />
+                {{ end }}
+              {{ end }}
+              <button class="btn-primary btn-sm btn">{{ $.i18n.Tr "repo.settings.lfs_pointers.associateAccessible" $.NumAssociatable }}</button>
+            </form>
+          {{ end }}
+        </h4>
+        <div class="divider my-2"></div>
+        <table id="lfs-files-table" class="table w-full">
+          <thead>
+            <tr>
+              <th>{{ .i18n.Tr "repo.settings.lfs_pointers.sha" }}</th>
+              <th>{{ .i18n.Tr "repo.settings.lfs_pointers.oid" }}</th>
+              <th></th>
+              <th>{{ .i18n.Tr "repo.settings.lfs_pointers.inRepo" }}</th>
+              <th>{{ .i18n.Tr "repo.settings.lfs_pointers.exists" }}</th>
+              <th>{{ .i18n.Tr "repo.settings.lfs_pointers.accessible" }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Pointers }}
+              <tr>
+                <td>
+                  <span class="btn-outline btn-sm btn" title="{{ .SHA }}">
+                    <a href="{{ $.RepoLink }}/raw/blob/{{ .SHA }}" rel="nofollow" target="_blank" class="link-hover link-primary link truncate">
+                      {{ ShortSha .SHA }}
+                    </a>
+                  </span>
+                </td>
+                <td>
+                  <span class="btn-outline-orange btn-outline btn-sm btn" title="{{ .Oid }}">
+                    {{ if and .Exists .InRepo }}
+                      <a href="{{ $.LFSFilesLink }}/show/{{ .Oid }}" rel="nofollow" target="_blank" class="link-hover link-primary link truncate">
+                        {{ ShortSha .Oid }}
+                      </a>
+                    {{ else }}
+                      <span class="disabled truncate">
+                        {{ ShortSha .Oid }}
+                      </span>
+                    {{ end }}
+                  </span>
+                </td>
+                <td>
+                  <a class="btn-primary btn-xs btn" href="{{ $.LFSFilesLink }}/find?oid={{ .Oid }}&size={{ .Size }}&sha={{ .SHA }}">{{ $.i18n.Tr "repo.settings.lfs_findcommits" }}</a>
+                </td>
+                <td>{{ if .InRepo }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+                <td>{{ if .Exists }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+                <td>{{ if .Accessible }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+              </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

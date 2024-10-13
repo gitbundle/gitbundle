@@ -1,0 +1,48 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository settings options -->
+<div jq-repository-settings-options class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.signing_settings" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <div class="">
+          <form class="flex flex-col gap-4" method="post">
+            {{ .CsrfTokenHtml }}
+            <input type="hidden" name="action" value="signing" />
+            <div class="space-y-4">
+              <label>{{ .i18n.Tr "repo.settings.trust_model" }}</label><br />
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" id="trust_model_default" name="trust_model" {{ if eq .Repository.TrustModel.String "default" }}checked="checked"{{ end }} value="default" />{{ .i18n.Tr "repo.settings.trust_model.default" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.trust_model.default.desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" id="trust_model_collaborator" name="trust_model" {{ if eq .Repository.TrustModel.String "collaborator" }}checked="checked"{{ end }} value="collaborator" />{{ .i18n.Tr "repo.settings.trust_model.collaborator.long" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.trust_model.collaborator.desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="trust_model" id="trust_model_committer" {{ if eq .Repository.TrustModel.String "committer" }}checked="checked"{{ end }} value="committer" />{{ .i18n.Tr "repo.settings.trust_model.committer.long" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.trust_model.committer.desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="trust_model" id="trust_model_collaboratorcommitter" {{ if eq .Repository.TrustModel.String "collaboratorcommitter" }}checked="checked"{{ end }} value="collaboratorcommitter" />{{ .i18n.Tr "repo.settings.trust_model.collaboratorcommitter.long" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.trust_model.collaboratorcommitter.desc" }}</p>
+              </div>
+            </div>
+
+            <div class="flex">
+              <button class="btn-primary btn">{{ $.i18n.Tr "repo.settings.signing_settings.update" }}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-settings-options.js" }}
+</div>
+{{ template "base/footer" . }}

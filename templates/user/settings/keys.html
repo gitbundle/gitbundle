@@ -1,0 +1,17 @@
+{{ template "base/head" . }}
+<!--  user settings sshkeys -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "user/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        {{ template "user/settings/keys_ssh" . }}
+        {{ template "user/settings/keys_principal" . }}
+        {{ template "user/settings/keys_gpg" . }}
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ template "base/footer" . }}

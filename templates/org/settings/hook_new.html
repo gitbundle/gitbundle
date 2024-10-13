@@ -1,0 +1,59 @@
+{{ template "base/head" . }}
+<!--  organization settings new webhook -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    <div class="grid grid-cols-16 gap-8">
+      {{ template "org/settings/navbar" . }}
+      <div class="col-span-12">
+        {{ template "base/alert" . }}
+        <h4 class="flex items-center justify-between text-xl font-bold">
+          {{ if .PageIsSettingsHooksNew }}
+            {{ .i18n.Tr "repo.settings.add_webhook" }}
+          {{ else }}
+            {{ .i18n.Tr "repo.settings.update_webhook" }}
+          {{ end }}
+          <div class="ui right">
+            {{ if eq .HookType "gitbundle" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/logo.svg" />
+            {{ else if eq .HookType "slack" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/slack.png" />
+            {{ else if eq .HookType "discord" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/discord.png" />
+            {{ else if eq .HookType "dingtalk" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/dingtalk.ico" />
+            {{ else if eq .HookType "telegram" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/telegram.png" />
+            {{ else if eq .HookType "msteams" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/msteams.png" />
+            {{ else if eq .HookType "feishu" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/feishu.png" />
+            {{ else if eq .HookType "matrix" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/matrix.svg" />
+            {{ else if eq .HookType "wechatwork" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/wechatwork.png" />
+            {{ else if eq .HookType "packagist" }}
+              <img width="26" height="26" src="{{ AssetUrlPrefix }}/img/packagist.png" />
+            {{ end }}
+          </div>
+        </h4>
+        <div class="divider my-2"></div>
+        <div class="space-y-4">
+          {{ template "repo/settings/webhook/gitbundle" . }}
+          {{ template "repo/settings/webhook/slack" . }}
+          {{ template "repo/settings/webhook/discord" . }}
+          {{ template "repo/settings/webhook/dingtalk" . }}
+          {{ template "repo/settings/webhook/telegram" . }}
+          {{ template "repo/settings/webhook/msteams" . }}
+          {{ template "repo/settings/webhook/feishu" . }}
+          {{ template "repo/settings/webhook/matrix" . }}
+          {{ template "repo/settings/webhook/wechatwork" . }}
+          {{ template "repo/settings/webhook/packagist" . }}
+        </div>
+
+        {{ template "repo/settings/webhook/history" . }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

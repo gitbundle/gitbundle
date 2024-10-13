@@ -1,0 +1,4 @@
+{{ Add .file.Addition .file.Deletion }}
+<div class="diff-stats-bar tooltip tooltip-left" data-tip="{{ .root.i18n.Tr "repo.diff.stats_desc_file" (Add .file.Addition .file.Deletion) .file.Addition .file.Deletion | Str2html }}">
+  <div class="add-bar" style="width: {{ DiffStatsWidth .file.Addition .file.Deletion }}%"></div>
+</div>

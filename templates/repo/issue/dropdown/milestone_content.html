@@ -1,0 +1,44 @@
+<div class="card-body">
+  <h3 class="card-title transform-none text-base">{{ .i18n.Tr "repo.issues.new.add_milestone_title" }}</h3>
+  {{ if or .OpenMilestones .ClosedMilestones }}
+    <div class="relative">
+      <i class="absolute top-0 right-0 m-2">{{ svg "octicon-search" 16 }}</i>
+      <input jq-input-search type="text" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.issues.filter_milestones" }}" />
+    </div>
+  {{ end }}
+  <div jq-no-select-item class="cursor-pointer text-primary hover:underline">{{ .i18n.Tr "repo.issues.new.clear_milestone" }}</div>
+  {{ if or .OpenMilestones .ClosedMilestones }}
+    <ul class="cu-menu p-2">
+      {{ if .OpenMilestones }}
+        <div class="text-xs text-secondary-content">
+          {{ .i18n.Tr "repo.issues.new.open_milestone" }}
+        </div>
+        <div class="divider my-1"></div>
+        {{ range .OpenMilestones }}
+          <li jq-select-item data-id="{{ .ID }}">
+            <a data-href="{{ $.RepoLink }}/issues?milestone={{ .ID }}">
+              {{ svg "octicon-milestone" 16 }}
+              {{ .Name }}
+            </a>
+          </li>
+        {{ end }}
+      {{ end }}
+      {{ if .ClosedMilestones }}
+        <div class="divider my-1"></div>
+        <div class="text-xs text-mako-400">
+          {{ .i18n.Tr "repo.issues.new.closed_milestone" }}
+        </div>
+        {{ range .ClosedMilestones }}
+          <li jq-select-item class="text-mako-400" data-id="{{ .ID }}">
+            <a data-href="{{ $.RepoLink }}/issues?milestone={{ .ID }}">
+              {{ svg "octicon-milestone" 16 }}
+              {{ .Name }}
+            </a>
+          </li>
+        {{ end }}
+      {{ end }}
+    </ul>
+  {{ else }}
+    <strong class="text-sm text-secondary-content">{{ .i18n.Tr "repo.issues.new.no_items" }}</strong>
+  {{ end }}
+</div>

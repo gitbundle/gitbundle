@@ -1,0 +1,59 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.orgs.org_manage_panel" }} ({{ .i18n.Tr "admin.total" .Total }})
+      <a class="btn-primary btn-sm btn" href="{{ AppSubUrl }}/org/create">{{ .i18n.Tr "admin.orgs.new_orga" }}</a>
+    </h4>
+    {{ template "admin/base/search" . }}
+    <table class="table-zebra table w-full">
+      <thead>
+        <tr>
+          <th data-sortt-asc="oldest" data-sortt-desc="newest">
+            <div class="flex items-center gap-1">ID{{ SortArrow "oldest" "newest" $.SortType false }}</div>
+          </th>
+          <th data-sortt-asc="alphabetically" data-sortt-desc="reversealphabetically" data-sortt-default="true">
+            <div class="flex items-center gap-1">
+              {{ .i18n.Tr "admin.orgs.name" }}
+              {{ SortArrow "alphabetically" "reversealphabetically" $.SortType true }}
+            </div>
+          </th>
+          <th>{{ .i18n.Tr "admin.orgs.teams" }}</th>
+          <th>{{ .i18n.Tr "admin.orgs.members" }}</th>
+          <th>{{ .i18n.Tr "admin.users.repos" }}</th>
+          <th data-sortt-asc="recentupdate" data-sortt-desc="leastupdate">
+            <div class="flex items-center gap-1">
+              {{ .i18n.Tr "admin.users.created" }}
+              {{ SortArrow "recentupdate" "leastupdate" $.SortType false }}
+            </div>
+          </th>
+          <th>{{ .i18n.Tr "admin.users.edit" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Users }}
+          <tr>
+            <td>{{ .ID }}</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <a class="link-hover link-primary link" href="{{ .HomeLink }}">{{ .Name }}</a>
+                {{ if .Visibility.IsPrivate }}
+                  <span class="text-gold-500">{{ svg "octicon-lock" }}</span>
+                {{ end }}
+              </div>
+            </td>
+            <td>{{ .NumTeams }}</td>
+            <td>{{ .NumMembers }}</td>
+            <td>{{ .NumRepos }}</td>
+            <td><span title="{{ .CreatedUnix.FormatLong }}">{{ .CreatedUnix.FormatShort }}</span></td>
+            <td><a class="link-hover link-primary link" href="{{ .OrganisationLink }}/settings">{{ svg "octicon-pencil" }}</a></td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+
+  {{ template "base/paginate" . }}
+</div>
+{{ template "admin/base/footer" . }}

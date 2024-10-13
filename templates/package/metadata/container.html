@@ -1,0 +1,9 @@
+{{ if eq .PackageDescriptor.Package.Type "container" }}
+  <div class="cu-links-primary flex items-center gap-2" title="{{ .i18n.Tr "packages.container.details.type" }}">{{ svg "octicon-package" 16 }} {{ .PackageDescriptor.Metadata.Type.Name }}</div>
+  {{ if .PackageDescriptor.Metadata.Platform }}<div class="cu-links-primary flex items-center gap-2" title="{{ $.i18n.Tr "packages.container.details.platform" }}">{{ svg "octicon-cpu" 16 }} {{ .PackageDescriptor.Metadata.Platform }}</div>{{ end }}
+  {{ range .PackageDescriptor.Metadata.Authors }}<div class="cu-links-primary flex items-center gap-2" title="{{ $.i18n.Tr "packages.details.author" }}">{{ svg "octicon-person" 16 }} {{ . }}</div>{{ end }}
+  {{ if .PackageDescriptor.Metadata.Licenses }}<div class="cu-links-primary flex items-center gap-2">{{ svg "octicon-law" 16 }} {{ .PackageDescriptor.Metadata.Licenses }}</div>{{ end }}
+  {{ if .PackageDescriptor.Metadata.ProjectURL }}<div class="cu-links-primary flex items-center gap-2">{{ svg "octicon-link-external" 16 }} <a href="{{ .PackageDescriptor.Metadata.ProjectURL }}" target="_blank" rel="noopener noreferrer me">{{ .i18n.Tr "packages.details.project_site" }}</a></div>{{ end }}
+  {{ if .PackageDescriptor.Metadata.RepositoryURL }}<div class="cu-links-primary flex items-center gap-2">{{ svg "octicon-link-external" 16 }} <a href="{{ .PackageDescriptor.Metadata.RepositoryURL }}" target="_blank" rel="noopener noreferrer me">{{ .i18n.Tr "packages.container.details.repository_site" }}</a></div>{{ end }}
+  {{ if .PackageDescriptor.Metadata.DocumentationURL }}<div class="cu-links-primary flex items-center gap-2">{{ svg "octicon-link-external" 16 }} <a href="{{ .PackageDescriptor.Metadata.DocumentationURL }}" target="_blank" rel="noopener noreferrer me">{{ .i18n.Tr "packages.container.details.documentation_site" }}</a></div>{{ end }}
+{{ end }}

@@ -1,0 +1,46 @@
+{{ template "base/head" . }}
+<!--  user forgot password -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <h4 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.forgot_password_title" }}
+    </h4>
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <form class="ignore-dirty mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      {{ if .IsResetSent }}
+        <p>{{ .i18n.Tr "auth.reset_password_mail_sent_prompt" (Escape .Email) .ResetPwdCodeLives | Str2html }}</p>
+      {{ else if .IsResetRequest }}
+        <div class="required {{ if .Err_Email }}error{{ end }} form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "email" }}</span></label>
+          <input class="input-bordered input" id="email" name="email" type="email" value="{{ .Email }}" autofocus required />
+        </div>
+        <div class="form-control">
+          <button class="btn-primary btn">{{ .i18n.Tr "auth.send_reset_mail" }}</button>
+        </div>
+      {{ else if .IsResetDisable }}
+        <p class="text-center">
+          {{ if $.IsAdmin }}
+            {{ .i18n.Tr "auth.disable_forgot_password_mail_admin" }}
+          {{ else }}
+            {{ .i18n.Tr "auth.disable_forgot_password_mail" }}
+          {{ end }}
+        </p>
+      {{ else if .ResendLimited }}
+        <p class="text-center">{{ .i18n.Tr "auth.resent_limit_prompt" }}</p>
+      {{ end }}
+      <div class="form-control">
+        <a href="{{ AppSubUrl }}/user/login" class="link-hover link-primary link">
+          {{ if .LinkAccountMode }}
+            {{ .i18n.Tr "auth.oauth_signin_submit" }}
+          {{ else }}
+            {{ .i18n.Tr "back_to_signin" }}
+          {{ end }}
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

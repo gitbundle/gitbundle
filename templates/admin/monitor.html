@@ -1,0 +1,38 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  {{ template "admin/cron" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.monitor.queues" }}
+    </h4>
+
+    <table class="scrollbar table table-zebra w-full overflow-x-auto">
+      <thead>
+        <tr>
+          <th>{{ .i18n.Tr "admin.monitor.queue.name" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.type" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.exemplar" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.numberworkers" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.numberinqueue" }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Queues }}
+          <tr>
+            <td>{{ .Name }}</td>
+            <td>{{ .Type }}</td>
+            <td>{{ .ExemplarType }}</td>
+            <td>{{ $sum := .NumberOfWorkers }}{{ if lt $sum 0 }}-{{ else }}{{ $sum }}{{ end }}</td>
+            <td>{{ $sum := .NumberInQueue }}{{ if lt $sum 0 }}-{{ else }}{{ $sum }}{{ end }}</td>
+            <td><a href="{{ $.Link }}/queue/{{ .QID }}" class="btn-primary btn-xs btn">{{ if lt $sum 0 }}{{ $.i18n.Tr "admin.monitor.queue.review" }}{{ else }}{{ $.i18n.Tr "admin.monitor.queue.review_add" }}{{ end }}</a></td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+
+  {{ template "admin/process" . }}
+</div>
+{{ template "admin/base/footer" . }}

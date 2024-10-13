@@ -1,0 +1,57 @@
+{{template "base/head" .}}
+{{template "repo/header" .}}
+<!--  repository quickstart -->
+<div class="main-container">
+	<div class="mx-auto w-full max-w-[1280px] space-y-4">
+		{{template "base/alert" .}}
+		{{if .Repository.IsArchived}}
+      <div svelte-simple-alert data-type="warning" data-desc="{{.i18n.Tr "repo.archive.title"}}" data-icon="true"></div>
+		{{end}}
+		<div class="flex flex-col border rounded-lg">
+			{{if .Repository.IsBroken}}
+        <div svelte-simple-alert data-desc="{{.i18n.Tr "repo.broken_message"}}"></div>
+			{{else if .CanWriteCode}}
+				<h4 class="bg-base-200 p-4 rounded-t-lg">
+					{{.i18n.Tr "repo.quick_guide"}}
+				</h4>
+				<div class="px-4 py-2 border-t">
+					<div class="flex flex-col gap-2">
+						<h3 class="cu-links-primary">{{.i18n.Tr "repo.clone_this_repo"}} <small>{{.i18n.Tr "repo.clone_helper" "http://git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository" | Str2html}}</small></h3>
+						<div>
+							{{template "repo/clone_buttons" .}}
+							{{template "repo/clone_script" .}}
+						</div>
+					</div>
+
+					{{if not .Repository.IsArchived}}
+						<div class="divider my-1"></div>
+						<div>
+							<h3>{{.i18n.Tr "repo.create_new_repo_command"}}</h3>
+							<div class="markup">
+								<pre><code>touch README.md
+git init
+{{if ne .Repository.DefaultBranch "master"}}git checkout -b {{.Repository.DefaultBranch}}{{end}}
+git add README.md
+git commit -m "first commit"
+git remote add origin <span class="js-clone-url">{{$.CloneButtonOriginLink.HTTPS}}</span>
+git push -u origin {{.Repository.DefaultBranch}}</code></pre>
+							</div>
+						</div>
+
+						<div class="divider my-1"></div>
+						<div>
+							<h3>{{.i18n.Tr "repo.push_exist_repo"}}</h3>
+							<div class="markup">
+								<pre><code>git remote add origin <span class="js-clone-url">{{$.CloneButtonOriginLink.HTTPS}}</span>
+git push -u origin {{.Repository.DefaultBranch}}</code></pre>
+							</div>
+						</div>
+					{{end}}
+				{{else}}
+          <div svelte-simple-alert data-desc="{{.i18n.Tr "repo.empty_message"}}"></div>
+				{{end}}
+			</div>
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}

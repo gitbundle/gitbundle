@@ -1,0 +1,61 @@
+{{ template "base/head" . }}
+<!--  user reset password -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <h2 class="rounded-t-lg bg-base-300 px-4 py-2 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.reset_password" }}
+    </h2>
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <form class="ignore-dirty mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <input name="code" type="hidden" value="{{ .Code }}" />
+      {{ if .user_email }}
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "email" }}</span></label>
+          <input class="input-bordered input" id="user_name" type="text" value="{{ .user_email }}" disabled />
+        </div>
+      {{ end }}
+      {{ if .IsResetForm }}
+        <div class="required {{ if .Err_Password }}error{{ end }} form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "settings.new_password" }}</span></label>
+          <input class="input-bordered input" id="password" name="password" type="password" value="{{ .password }}" autocomplete="new-password" autofocus required />
+        </div>
+        {{ if not .user_signed_in }}
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="remember" type="checkbox" />{{ .i18n.Tr "auth.remember_me" }}</label>
+          </div>
+        {{ end }}
+        {{ if .has_two_factor }}
+          <h4 class="divider my-2">{{ .i18n.Tr "twofa" }}</h4>
+          <div svelte-simple-alert data-desc="{{ .i18n.Tr "settings.twofa_is_enrolled" | Str2html }}" data-type="warning" data-icon="true"></div>
+          {{ if .scratch_code }}
+            <div class="required {{ if .Err_Token }}error{{ end }} form-control">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "auth.scratch_code" }}</span></label>
+              <input class="input-bordered input" id="token" name="token" type="text" autocomplete="off" autofocus required />
+            </div>
+            <input type="hidden" name="scratch_code" value="true" />
+          {{ else }}
+            <div class="required {{ if .Err_Passcode }}error{{ end }} form-control">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "passcode" }}</span></label>
+              <input class="input-bordered input" id="passcode" name="passcode" type="number" autocomplete="off" autofocus required />
+            </div>
+          {{ end }}
+        {{ end }}
+        <!-- <div class="divider my-2"></div> -->
+        <div class="form-control">
+          <button class="btn-primary btn">{{ .i18n.Tr "auth.reset_password_helper" }}</button>
+        </div>
+        <div class="form-control">
+          {{ if and .has_two_factor (not .scratch_code) }}
+            <a class="link-hover link-primary link" href="{{ .Link }}?code={{ .Code }}&amp;scratch_code=true">{{ .i18n.Tr "auth.use_scratch_code" | Str2html }}</a>
+          {{ end }}
+        </div>
+      {{ else }}
+        <p class="text-center">{{ .i18n.Tr "auth.invalid_code" }}</p>
+      {{ end }}
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

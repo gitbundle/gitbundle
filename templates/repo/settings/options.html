@@ -1,0 +1,308 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository settings options -->
+<div jq-repository-settings-options class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.basic_settings" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <div class="">
+          <form class="flex flex-col gap-4" action="{{ .Link }}" method="post">
+            {{ template "base/disable_form_autofill" }}
+            {{ .CsrfTokenHtml }}
+            <input type="hidden" name="action" value="update" />
+            <div class="{{ if .Err_RepoName }}error{{ end }} form-control w-full required">
+              <label class="label">
+                <span class="label-text">{{ .i18n.Tr "repo.repo_name" }}</span>
+              </label>
+              <input id="repo_name" class="input-bordered input" name="repo_name" value="{{ .Repository.Name }}" data-repo-name="{{ .Repository.Name }}" autofocus required />
+            </div>
+            <div class="form-control flex w-full flex-row items-center gap-4">
+              <label>{{ .i18n.Tr "repo.repo_size" }}</label>
+              <span>{{ FileSize .Repository.Size }}</span>
+            </div>
+            <div class="form-control flex w-full flex-row items-center gap-4">
+              <label>{{ .i18n.Tr "repo.template" }}</label>
+              <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="template" type="checkbox" {{ if .Repository.IsTemplate }}checked{{ end }} />{{ .i18n.Tr "repo.template_helper" }}</label>
+            </div>
+            {{ if not .Repository.IsFork }}
+              <div class="form-control flex w-full flex-row items-center gap-4">
+                <label>{{ .i18n.Tr "repo.visibility" }}</label>
+                <label class="flex items-center gap-1"
+                  >{{ if .IsAdmin }}
+                    <input class="checkbox checkbox-sm" name="private" type="checkbox" {{ if .Repository.IsPrivate }}checked{{ end }} />
+                  {{ else }}
+                    <input class="checkbox checkbox-sm" name="private" type="checkbox" {{ if .Repository.IsPrivate }}checked{{ end }}{{ if and $.ForcePrivate .Repository.IsPrivate }}readonly{{ end }} />
+                  {{ end }}{{ .i18n.Tr "repo.visibility_helper" | Safe }}
+                  {{ if .Repository.NumForks }}<span class="text red">{{ .i18n.Tr "repo.visibility_fork_helper" }}</span>{{ end }}</label
+                >
+              </div>
+            {{ end }}
+            <div class="{{ if .Err_Description }}error{{ end }} form-control w-full">
+              <label class="label"><span class="label-text">{{ $.i18n.Tr "repo.repo_desc" }}</span></label>
+              <textarea class="textarea-bordered textarea" id="description" name="description" rows="2">{{ .Repository.Description }}</textarea>
+            </div>
+            <div class="{{ if .Err_Website }}error{{ end }} form-control w-full">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.site" }}</span></label>
+              <input class="input-bordered input" id="website" name="website" type="url" value="{{ .Repository.Website }}" />
+            </div>
+
+            <div class="form-control w-fit">
+              <button class="btn-primary btn">{{ $.i18n.Tr "repo.settings.update_settings" }}</button>
+            </div>
+          </form>
+
+          <div class="divider my-2"></div>
+          <form class="flex flex-col gap-4" action="{{ .Link }}/avatar" method="post" enctype="multipart/form-data">
+            {{ .CsrfTokenHtml }}
+            <div class="form-control w-full">
+              <label class="flex items-center gap-4">{{ .i18n.Tr "settings.choose_new_avatar" }}<input class="file-input-bordered file-input" name="avatar" type="file" /></label>
+            </div>
+
+            <div class="form-control flex flex-row items-center gap-2">
+              <button class="btn-primary btn">{{ $.i18n.Tr "settings.update_avatar" }}</button>
+              <a svelte-async-button class="btn btn-red" href="#" data-href="{{ .Link }}/avatar/delete" data-redirect="{{ .Link }}">{{ $.i18n.Tr "settings.delete_current_avatar" }}</a>
+            </div>
+          </form>
+        </div>
+
+        <h4 class="mt-10 text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.advanced_settings" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <div class="">
+          <form class="gap-4 flex flex-col" method="post">
+            {{.CsrfTokenHtml}}
+            <input type="hidden" name="action" value="advanced">
+
+            {{$isWikiEnabled := or (.Repository.UnitEnabled $.UnitTypeWiki) (.Repository.UnitEnabled $.UnitTypeExternalWiki)}}
+            <div class="form-control space-y-2">
+              <label class="label"><span class="label-text">{{.i18n.Tr "repo.wiki"}}</span></label>
+              {{if and (.UnitTypeWiki.UnitGlobalDisabled) (.UnitTypeExternalWiki.UnitGlobalDisabled)}}
+              <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+              {{else}}
+              <label class="flex items-center gap-1">
+              {{end}}
+                <input jq-enable-system name="enable_wiki" type="checkbox" data-target="#wiki_box" {{if $isWikiEnabled}}checked{{end}} />
+                {{.i18n.Tr "repo.settings.wiki_desc"}}
+              </label>
+
+              <div class="space-y-2 {{if not $isWikiEnabled}}disabled{{end}}" id="wiki_box">
+                {{if .UnitTypeWiki.UnitGlobalDisabled}}
+                <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+                {{else}}
+                <label class="flex items-center gap-1">
+                {{end}}
+                  <input jq-enable-system-radio class="radio radio-sm" tabindex="0" name="enable_external_wiki" type="radio" value="false" data-target="#external_wiki_box" {{if not (.Repository.UnitEnabled $.UnitTypeExternalWiki)}}checked{{end}} />
+                  {{.i18n.Tr "repo.settings.use_internal_wiki"}}
+                </label>
+
+                {{if .UnitTypeExternalWiki.UnitGlobalDisabled}}
+                <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+                {{else}}
+                <label class="flex items-center gap-1">
+                {{end}}
+                  <input jq-enable-system-radio class="radio radio-sm" tabindex="0" name="enable_external_wiki" type="radio" value="true" data-target="#external_wiki_box" {{if .Repository.UnitEnabled $.UnitTypeExternalWiki}}checked{{end}} />
+                  {{.i18n.Tr "repo.settings.use_external_wiki"}}
+                </label>
+
+                <div class="form-control {{if not (.Repository.UnitEnabled $.UnitTypeExternalWiki)}}disabled{{end}}" id="external_wiki_box">
+                  <label class="label"><span class="label-text">{{.i18n.Tr "repo.settings.external_wiki_url"}}</span></label>
+                  <input class="input input-bordered" id="external_wiki_url" name="external_wiki_url" type="url" value="{{(.Repository.MustGetUnit $.UnitTypeExternalWiki).ExternalWikiConfig.ExternalWikiURL}}" />
+                  <p class="help">{{.i18n.Tr "repo.settings.external_wiki_url_desc"}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="divider my-0"></div>
+
+            {{$isIssuesEnabled := or (.Repository.UnitEnabled $.UnitTypeIssues) (.Repository.UnitEnabled $.UnitTypeExternalTracker)}}
+            <div class="form-control space-y-2">
+              <label class="label"><span class="label-text">{{.i18n.Tr "repo.issues"}}</span></label>
+              {{if and (.UnitTypeIssues.UnitGlobalDisabled) (.UnitTypeExternalTracker.UnitGlobalDisabled)}}
+              <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+              {{else}}
+              <label class="flex items-center gap-1">
+              {{end}}
+                <input jq-enable-system class="checkbox checkbox-sm" name="enable_issues" type="checkbox" data-target="#issue_box" {{if $isIssuesEnabled}}checked{{end}} />
+                {{.i18n.Tr "repo.settings.issues_desc"}}
+              </label>
+
+              <div class="space-y-2 {{if not $isIssuesEnabled}}disabled{{end}}" id="issue_box">
+                {{if .UnitTypeIssues.UnitGlobalDisabled}}
+                <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+                {{else}}
+                <label class="flex items-center gap-1">
+                {{end}}
+                  <input jq-enable-system-radio class="radio radio-sm" tabindex="0" name="enable_external_tracker" type="radio" value="false" data-context="#internal_issue_box" data-target="#external_issue_box" {{if not (.Repository.UnitEnabled $.UnitTypeExternalTracker)}}checked{{end}} />
+                  {{.i18n.Tr "repo.settings.use_internal_issue_tracker"}}
+                </label>
+
+                <div class="space-y-2 {{if (.Repository.UnitEnabled $.UnitTypeExternalTracker)}}disabled{{end}}" id="internal_issue_box">
+                  {{if .Repository.CanEnableTimetracker}}
+                    <label class="flex items-center gap-1">
+                      <input jq-enable-system name="enable_timetracker" class="checkbox checkbox-sm" data-target="#only_contributors" type="checkbox" {{if .Repository.IsTimetrackerEnabled}}checked{{end}}>
+                      {{.i18n.Tr "repo.settings.enable_timetracker"}}
+                    </label>
+                    <div class="{{if not .Repository.IsTimetrackerEnabled}}disabled{{end}}" id="only_contributors">
+                      <label class="flex items-center gap-1">
+                        <input class="checkbox checkbox-sm"  name="allow_only_contributors_to_track_time" type="checkbox" {{if .Repository.AllowOnlyContributorsToTrackTime}}checked{{end}} />
+                        {{.i18n.Tr "repo.settings.allow_only_contributors_to_track_time"}}
+                      </label>
+                    </div>
+                  {{end}}
+                  <label class="flex items-center gap-1">
+                    <input class="checkbox checkbox-sm" name="enable_issue_dependencies" type="checkbox" {{if (.Repository.IsDependenciesEnabled)}}checked{{end}} />
+                    {{.i18n.Tr "repo.issues.dependency.setting"}}
+                  </label>
+                  <label class="flex items-center gap-1">
+                    <input class="checkbox checkbox-sm" name="enable_close_issues_via_commit_in_any_branch" type="checkbox" {{ if .Repository.CloseIssuesViaCommitInAnyBranch }}checked{{end}} />
+                    {{.i18n.Tr "repo.settings.admin_enable_close_issues_via_commit_in_any_branch"}}
+                  </label>
+                </div>
+                {{if .UnitTypeExternalTracker.UnitGlobalDisabled}}
+                <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+                {{else}}
+                <label class="flex items-center gap-1">
+                {{end}}
+                  <input jq-enable-system-radio class="radio radio-sm" tabindex="0" name="enable_external_tracker" type="radio" value="true" data-context="#internal_issue_box" data-target="#external_issue_box" {{if .Repository.UnitEnabled $.UnitTypeExternalTracker}}checked{{end}} />
+                  {{.i18n.Tr "repo.settings.use_external_issue_tracker"}}
+                </label>
+                <div class="space-y-2 {{if not (.Repository.UnitEnabled $.UnitTypeExternalTracker)}}disabled{{end}}" id="external_issue_box">
+                  <div class="flex flex-col">
+                    <label for="external_tracker_url">{{.i18n.Tr "repo.settings.external_tracker_url"}}</label>
+                    <input class="input input-bordered" id="external_tracker_url" name="external_tracker_url" type="url" value="{{(.Repository.MustGetUnit $.UnitTypeExternalTracker).ExternalTrackerConfig.ExternalTrackerURL}}" />
+                    <p class="help">{{.i18n.Tr "repo.settings.external_tracker_url_desc"}}</p>
+                  </div>
+                  <div class="flex flex-col">
+                    <label for="tracker_url_format">{{.i18n.Tr "repo.settings.tracker_url_format"}}</label>
+                    <input class="input input-bordered" id="tracker_url_format" name="tracker_url_format" type="url" value="{{(.Repository.MustGetUnit $.UnitTypeExternalTracker).ExternalTrackerConfig.ExternalTrackerFormat}}" placeholder="e.g. https://github.com/{user}/{repo}/issues/{index}" />
+                    <p class="help">{{.i18n.Tr "repo.settings.tracker_url_format_desc" | Str2html}}</p>
+                  </div>
+                  <div class="space-y-2">
+                    <label for="issue_style">{{.i18n.Tr "repo.settings.tracker_issue_style"}}</label>
+                    <div class="field">
+                      {{$externalTracker := (.Repository.MustGetUnit $.UnitTypeExternalTracker)}}
+                      {{$externalTrackerStyle := $externalTracker.ExternalTrackerConfig.ExternalTrackerStyle}}
+                      <label class="flex items-center gap-1"><input jq-tracker-issue-style class="radio radio-sm" name="tracker_issue_style" type="radio" value="numeric" {{if eq $externalTrackerStyle "numeric"}}checked{{end}}>{{.i18n.Tr "repo.settings.tracker_issue_style.numeric"}} <span class="text-gray-500">#1234</span></label>
+                    </div>
+                    <div class="field">
+                      <label class="flex items-center gap-1"><input jq-tracker-issue-style class="radio radio-sm" name="tracker_issue_style" type="radio" value="alphanumeric" {{if eq $externalTrackerStyle "alphanumeric"}}checked{{end}}>
+                      {{.i18n.Tr "repo.settings.tracker_issue_style.alphanumeric"}} <span class="text-gray-500">ABC-123 , DEFG-234</span></label>
+                    </div>
+                    <div class="field">
+                      <label class="flex items-center gap-1"><input jq-tracker-issue-style class="radio radio-sm" name="tracker_issue_style" type="radio" value="regexp" {{if eq $externalTrackerStyle "regexp"}}checked{{end}}>
+                      {{.i18n.Tr "repo.settings.tracker_issue_style.regexp"}} <span class="text-gray-500">(ISSUE-\d+) , ISSUE-(\d+)</span></label>
+                    </div>
+                  </div>
+                  <div class="flex flex-col {{if ne $externalTrackerStyle "regexp"}}disabled{{end}}" id="tracker-issue-style-regex-box">
+                    <label for="external_tracker_regexp_pattern">{{.i18n.Tr "repo.settings.tracker_issue_style.regexp_pattern"}}</label>
+                    <input class="input input-bordered" id="external_tracker_regexp_pattern" name="external_tracker_regexp_pattern" value="{{(.Repository.MustGetUnit $.UnitTypeExternalTracker).ExternalTrackerConfig.ExternalTrackerRegexpPattern}}" />
+                    <p class="help">{{.i18n.Tr "repo.settings.tracker_issue_style.regexp_pattern_desc" | Str2html}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="divider my-0"></div>
+
+            {{$isProjectsEnabled := .Repository.UnitEnabled $.UnitTypeProjects}}
+            <div class="form-control">
+              <label class="label"><span class="label-text">{{.i18n.Tr "repo.project_board"}}</span></label>
+              <label class="flex items-center gap-1 {{if .UnitTypeProjects.UnitGlobalDisabled}}tooltip disabled{{end}}" {{if .UnitTypeProjects.UnitGlobalDisabled}}data-tip="{{.i18n.Tr "repo.unit_disabled"}}"{{end}}>
+                <input jq-enable-system class="checkbox checkbox-sm" name="enable_projects" type="checkbox" {{if $isProjectsEnabled}}checked{{end}}>
+                {{.i18n.Tr "repo.settings.projects_desc"}}
+              </label>
+            </div>
+
+            {{$isPackagesEnabled := .Repository.UnitEnabled $.UnitTypePackages}}
+            <div class="form-control">
+              <label class="label"><span class="label-text">{{.i18n.Tr "repo.packages"}}</span></label>
+              {{if .UnitTypePackages.UnitGlobalDisabled}}
+              <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+              {{else}}
+              <label class="flex items-center gap-1">
+              {{end}}
+                <input jq-enable-system class="checkbox checkbox-sm" name="enable_packages" type="checkbox" {{if $isPackagesEnabled}}checked{{end}}>
+                {{.i18n.Tr "repo.settings.packages_desc"}}
+              </label>
+            </div>
+
+            {{if not .IsMirror}}
+              <div class="divider my-0"></div>
+              {{$pullRequestEnabled := .Repository.UnitEnabled $.UnitTypePullRequests}}
+              {{$prUnit := .Repository.MustGetUnit $.UnitTypePullRequests}}
+              <div class="form-control">
+                <label class="label"><span class="label-text">{{.i18n.Tr "repo.pulls"}}</span></label>
+                {{if .UnitTypePullRequests.UnitGlobalDisabled}}
+                <label class="flex items-center gap-1 tooltip disabled" data-tip="{{.i18n.Tr "repo.unit_disabled"}}">
+                {{else}}
+                <label class="flex items-center gap-1">
+                {{end}}
+                  <input jq-enable-system class="checkbox checkbox-sm" name="enable_pulls" type="checkbox" data-target="#pull_box" {{if $pullRequestEnabled}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls_desc"}}
+                </label>
+              </div>
+              <div class="form-control space-y-2 {{if not $pullRequestEnabled}} disabled{{end}}" id="pull_box">
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_ignore_whitespace" type="checkbox" {{if and $pullRequestEnabled ($prUnit.PullRequestsConfig.IgnoreWhitespaceConflicts)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.ignore_whitespace"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_allow_merge" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AllowMerge)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.allow_merge_commits"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_allow_rebase" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AllowRebase)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.allow_rebase_merge"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_allow_rebase_merge" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AllowRebaseMerge)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.allow_rebase_merge_commit"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_allow_squash" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AllowSquash)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.allow_squash_commits"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_allow_manual_merge" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AllowManualMerge)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.allow_manual_merge"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="enable_autodetect_manual_merge" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AutodetectManualMerge)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.enable_autodetect_manual_merge"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="pulls_allow_rebase_update" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.AllowRebaseUpdate)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.allow_rebase_update"}}
+                </label>
+                <label class="flex items-center gap-1">
+                  <input class="checkbox checkbox-sm" name="default_delete_branch_after_merge" type="checkbox" {{if or (not $pullRequestEnabled) ($prUnit.PullRequestsConfig.DefaultDeleteBranchAfterMerge)}}checked{{end}}>
+                  {{.i18n.Tr "repo.settings.pulls.default_delete_branch_after_merge"}}
+                </label>
+                <div class="flex flex-col">
+                  <p>{{.i18n.Tr "repo.settings.default_merge_style_desc"}}</p>
+                  <select class="select select-bordered" name="pulls_default_merge_style">
+                    <option value="merge" {{if or (not $pullRequestEnabled) (eq $prUnit.PullRequestsConfig.DefaultMergeStyle "merge")}}selected{{end}}>{{.i18n.Tr "repo.pulls.merge_pull_request"}}</option>
+                    <option value="rebase" {{if or (not $pullRequestEnabled) (eq $prUnit.PullRequestsConfig.DefaultMergeStyle "rebase")}}selected{{end}}>{{.i18n.Tr "repo.pulls.rebase_merge_pull_request"}}</option>
+                    <option value="rebase-merge" {{if or (not $pullRequestEnabled) (eq $prUnit.PullRequestsConfig.DefaultMergeStyle "rebase-merge")}}selected{{end}}>{{.i18n.Tr "repo.pulls.rebase_merge_commit_pull_request"}}</option>
+                    <option value="squash" {{if or (not $pullRequestEnabled) (eq $prUnit.PullRequestsConfig.DefaultMergeStyle "squash")}}selected{{end}}>{{.i18n.Tr "repo.pulls.squash_merge_pull_request"}}</option>
+                  </select>
+                </div>
+              </div>
+            {{end}}
+
+            <div class="flex">
+              <button class="btn btn-primary">{{$.i18n.Tr "repo.settings.update_settings"}}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-settings-options.js" }}
+</div>
+{{ template "base/footer" . }}

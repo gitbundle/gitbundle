@@ -1,0 +1,101 @@
+<div class="sticky top-0 col-span-10 h-fit px-2 md:col-span-2">
+  <div class="flex flex-col">
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsProfile }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsProfile }}active{{ end }}" href="{{ AppSubUrl }}/user/settings">
+          {{ svg "octicon-person" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.profile" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsAvatar }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsAvatar }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/avatar">
+          {{ svg "fa-image-user" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.avatar" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsAccount }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsAccount }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/account">
+          {{ svg "octicon-gear" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.account" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsAppearance }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsAppearance }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/appearance">
+          {{ svg "octicon-paintbrush" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.appearance" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="divider my-2"></div>
+  <div class="flex flex-col gap-2">
+    <h2 class="indent-5 text-base-content/60">{{ .i18n.Tr "settings.access" }}</h2>
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsEmails }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsEmails }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/account/emails">
+          {{ svg "octicon-mail" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.emails" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsPassword }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsPassword }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/account/password">
+          {{ svg "octicon-lock" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.password" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsSecurity }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsSecurity }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/security">
+          {{ svg "octicon-shield-lock" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.security" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsKeys }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsKeys }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/keys">
+          {{ svg "octicon-key" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.ssh_gpg_keys" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsOrganization }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsOrganization }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/organization">
+          {{ svg "octicon-organization" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.organization" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="divider my-2"></div>
+  <div class="flex flex-col gap-2">
+    <h2 class="indent-5 text-base-content/60">{{ .i18n.Tr "settings.code" }}</h2>
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsRepos }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsRepos }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/repos">
+          {{ svg "octicon-repo" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.repos" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="divider my-2"></div>
+  <div class="flex flex-col gap-2">
+    <h2 class="indent-5 text-base-content/60">{{ .i18n.Tr "settings.integrations" }}</h2>
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsApplications }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsApplications }}active{{ end }}" href="{{ AppSubUrl }}/user/settings/applications">
+          {{ svg "octicon-apps" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "settings.applications" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

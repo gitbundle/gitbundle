@@ -1,0 +1,134 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository new release -->
+<div jq-repository-new-release class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <div class="mx-auto w-full max-w-3xl">
+      <h2 class="flex flex-col">
+        {{ if .PageIsEditRelease }}
+          <span class="text-2xl font-bold">{{ .i18n.Tr "repo.release.edit_release" }}</span>
+          <div class="text-gray-500">{{ .i18n.Tr "repo.release.edit_subheader" }}</div>
+        {{ else }}
+          <span class="text-2xl font-bold">{{ .i18n.Tr "repo.release.new_release" }}</span>
+          <div class="text-gray-500">{{ .i18n.Tr "repo.release.new_subheader" }}</div>
+        {{ end }}
+      </h2>
+      <form class="mt-4" action="{{ .Link }}" method="post">
+        {{ .CsrfTokenHtml }}
+        <div class="{{ if .Err_TagName }}error{{ end }} form-control w-full max-w-xl">
+          <div class="flex items-center gap-1">
+            {{ if .PageIsEditRelease }}
+              <b>{{ .tag_name }}</b><span>@</span><strong>{{ .tag_target }}</strong>
+            {{ else }}
+              <input class="input-bordered input max-w-xs" id="tag-name" name="tag_name" value="{{ .tag_name }}" placeholder="{{ .i18n.Tr "repo.release.tag_name" }}" autofocus required maxlength="255" />
+              <span>@</span>
+              {{ .i18n.Tr "repo.release.target" }} :
+              <select class="select-bordered select" name="tag_target" required>
+                <option selected value="{{ .tag_target }}">{{ svg "octicon-git-branch" }} {{ .Repository.DefaultBranch }}</option>
+                {{ range .Branches }}
+                  <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+              </select>
+            {{ end }}
+          </div>
+          <label class="label">
+            <span class="label-text-alt text-sm text-gray-500">{{ .i18n.Tr "repo.release.tag_helper" }}</span>
+          </label>
+        </div>
+        <div class="form-control w-full max-w-3xl">
+          <label class="label">
+            <span class="{{ if .Err_Title }}error{{ end }} label-text">{{ .i18n.Tr "repo.release.title" }}</span>
+          </label>
+          <input class="input-bordered input" name="title" placeholder="{{ .i18n.Tr "repo.release.title" }}" value="{{ .title }}" autofocus required maxlength="255" />
+        </div>
+        <div jq-content-editor class="form-control w-full max-w-3xl">
+          <label class="label">
+            <span class="label-text">{{ .i18n.Tr "repo.release.content" }}</span>
+          </label>
+          <div class="flex flex-col space-y-4">
+            <div jq-tabs class="tabs" data-write="write" data-preview="preview">
+              <a class="tab-lifted tab tab-active" data-tab="write">{{ $.i18n.Tr "write" }}</a>
+              <a class="tab-lifted tab" data-tab="preview" data-url="{{ $.Repository.HTMLURL }}/markdown" data-context="{{ $.RepoLink }}">{{ $.i18n.Tr "preview" }}</a>
+            </div>
+            <div jq-contents>
+              <div data-tab="write">
+                <textarea class="textarea-bordered textarea w-full" rows="5" name="content">{{ .content }}</textarea>
+              </div>
+              <div class="markup hidden" data-tab="preview">
+                <div class="text-center">
+                  {{ template "base/loading" }}
+                  {{ .i18n.Tr "loading" }}
+                </div>
+              </div>
+            </div>
+            {{ range .attachments }}
+              <div class="flex items-center" id="attachment-{{ .ID }}">
+                <div class="flex flex-1 items-center gap-2">
+                  <input name="attachment-edit-{{ .UUID }}" class="input-bordered input w-3/5" required value="{{ .Name }}" />
+                  <input name="attachment-del-{{ .UUID }}" type="hidden" value="false" />
+                  <span class="text-gray-400">{{ .Size | FileSize }}</span>
+                  <span class="tooltip" data-tip="{{ $.i18n.Tr "repo.release.download_count" (.DownloadCount | PrettyNumber) }}">
+                    {{ svg "octicon-info" }}
+                  </span>
+                </div>
+                <a jq-remove-rel-attach class="btn-red btn-sm btn" data-id="{{ .ID }}" data-uuid="{{ .UUID }}">
+                  {{ $.i18n.Tr "remove" }}
+                </a>
+              </div>
+            {{ end }}
+            {{ if .IsAttachmentEnabled }}
+              {{ template "repo/upload" . }}
+            {{ end }}
+          </div>
+        </div>
+        <div class="mt-4 flex flex-col gap-2">
+          {{ if not .PageIsEditRelease }}
+            <label class="label flex cursor-pointer justify-start gap-2 py-0">
+              <input type="checkbox" class="checkbox checkbox-sm" name="add_tag_msg" />
+              <span class="label-text"><strong>{{ .i18n.Tr "repo.release.add_tag_msg" }}</strong></span>
+            </label>
+          {{ else }}
+            <input type="hidden" name="add_tag_msg" value="false" />
+          {{ end }}
+          <label class="label flex cursor-pointer justify-start gap-2 py-0">
+            <input type="checkbox" class="checkbox checkbox-sm" name="prerelease" {{ if .prerelease }}checked{{ end }} />
+            <span class="label-text"><strong>{{ .i18n.Tr "repo.release.prerelease_desc" }}</strong></span>
+          </label>
+          <span class="flex justify-start text-gray-500">{{ .i18n.Tr "repo.release.prerelease_helper" }}</span>
+          <div class="flex items-center justify-start gap-2">
+            {{ if .PageIsEditRelease }}
+              <a class="btn" href="{{ .RepoLink }}/releases">
+                {{ .i18n.Tr "repo.release.cancel" }}
+              </a>
+              <!-- delete-button -->
+              <a svelte-simple-modal class="btn-red btn" data-title="{{ .i18n.Tr "repo.release.deletion" }}" data-desc="{{ .i18n.Tr "repo.release.deletion_desc" }}" data-href="{{ $.RepoLink }}/releases/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">
+                {{ $.i18n.Tr "repo.release.delete_release" }}
+              </a>
+              {{ if .IsDraft }}
+                <input class="btn" type="submit" name="draft" value="{{ .i18n.Tr "repo.release.save_draft" }}" />
+                <button class="btn-primary btn">
+                  {{ .i18n.Tr "repo.release.publish" }}
+                </button>
+              {{ else }}
+                <button class="btn-primary btn">
+                  {{ .i18n.Tr "repo.release.edit_release" }}
+                </button>
+              {{ end }}
+            {{ else }}
+              {{ if not .tag_name }}
+                <input class="btn-gray btn" type="submit" name="tag_only" value="{{ .i18n.Tr "repo.release.add_tag" }}" />
+              {{ end }}
+              <input class="btn" type="submit" name="draft" value="{{ .i18n.Tr "repo.release.save_draft" }}" />
+              <button class="btn-primary btn">
+                {{ .i18n.Tr "repo.release.publish" }}
+              </button>
+            {{ end }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {{ Asset "js/repo-release-new.js" }}
+</div>
+{{ template "base/footer" . }}

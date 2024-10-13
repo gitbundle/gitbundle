@@ -1,0 +1,150 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  {{ if .NeedUpdate }}
+    <div svelte-simple-alert data-desc="{{ .i18n.Tr "admin.dashboard.new_version_hint" .RemoteVersion AppVer }}" data-type="error" data-extra-class="cu-links-primary"></div>
+  {{ end }}
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.dashboard.statistic" }}
+    </h4>
+    <p class="border-t px-4 py-2">
+      {{ .i18n.Tr "admin.dashboard.statistic_info" .Stats.Counter.User .Stats.Counter.Org .Stats.Counter.PublicKey .Stats.Counter.Repo .Stats.Counter.Watch .Stats.Counter.Star .Stats.Counter.Action .Stats.Counter.Access .Stats.Counter.Issue .Stats.Counter.Comment .Stats.Counter.Oauth .Stats.Counter.Follow .Stats.Counter.Mirror .Stats.Counter.Release .Stats.Counter.AuthSource .Stats.Counter.Webhook .Stats.Counter.Milestone .Stats.Counter.Label .Stats.Counter.HookTask .Stats.Counter.Team .Stats.Counter.UpdateTask .Stats.Counter.Attachment | Str2html }}
+    </p>
+  </div>
+
+  <form class="rounded-lg border" method="post" action="{{ AppSubUrl }}/admin">
+    <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.dashboard.operations" }}
+    </h4>
+    {{ .CsrfTokenHtml }}
+    <div class="w-full border-t">
+      <table class="table">
+        <tbody>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.delete_inactive_accounts" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="delete_inactive_accounts">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.delete_repo_archives" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="delete_repo_archives">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.delete_missing_repos" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="delete_missing_repos">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.git_gc_repos" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="git_gc_repos">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          {{ if and (not .SSH.Disabled) (not .SSH.StartBuiltinServer) }}
+            <tr>
+              <td>
+                {{ .i18n.Tr "admin.dashboard.resync_all_sshkeys" }}<br />
+                {{ .i18n.Tr "admin.dashboard.resync_all_sshkeys.desc" }}
+              </td>
+              <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="resync_all_sshkeys">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+            </tr>
+            <tr>
+              <td>
+                {{ .i18n.Tr "admin.dashboard.resync_all_sshprincipals" }}<br />
+                {{ .i18n.Tr "admin.dashboard.resync_all_sshprincipals.desc" }}
+              </td>
+              <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="resync_all_sshprincipals">{{ svg "octicon-play" 16 }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+            </tr>
+          {{ end }}
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.resync_all_hooks" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="resync_all_hooks">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.reinit_missing_repos" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="reinit_missing_repos">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.sync_external_users" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="sync_external_users">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.repo_health_check" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="repo_health_check">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+          <tr>
+            <td>{{ .i18n.Tr "admin.dashboard.delete_generated_repository_avatars" }}</td>
+            <td><button type="submit" class="btn-primary btn-sm btn gap-1" name="op" value="delete_generated_repository_avatars">{{ svg "octicon-play" }} {{ .i18n.Tr "admin.dashboard.operation_run" }}</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  <div class="table w-full rounded-lg border">
+    <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.dashboard.system_status" }}
+    </h4>
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.server_uptime" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.Uptime }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.current_goroutine" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.NumGoroutine }}</dd>
+      <div class="divider col-span-full"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.current_memory_usage" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MemAllocated }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.total_memory_allocated" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MemTotal }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.memory_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MemSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.pointer_lookup_times" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.Lookups }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.memory_allocate_times" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MemMallocs }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.memory_free_times" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MemFrees }}</dd>
+      <div class="divider col-span-full"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.current_heap_usage" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.HeapAlloc }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.heap_memory_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.HeapSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.heap_memory_idle" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.HeapIdle }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.heap_memory_in_use" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.HeapInuse }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.heap_memory_released" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.HeapReleased }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.heap_objects" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.HeapObjects }}</dd>
+      <div class="divider col-span-full"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.bootstrap_stack_usage" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.StackInuse }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.stack_memory_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.StackSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.mspan_structures_usage" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MSpanInuse }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.mspan_structures_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MSpanSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.mcache_structures_usage" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MCacheInuse }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.mcache_structures_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.MCacheSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.profiling_bucket_hash_table_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.BuckHashSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.gc_metadata_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.GCSys }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.other_system_allocation_obtained" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.OtherSys }}</dd>
+      <div class="divider col-span-full"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.next_gc_recycle" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.NextGC }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.last_gc_time" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.LastGC }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.total_gc_pause" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.PauseTotalNs }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.last_gc_pause" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.PauseNs }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.dashboard.gc_times" }}</dt>
+      <dd class="col-span-6">{{ .SysStatus.NumGC }}</dd>
+    </dl>
+  </div>
+</div>
+
+{{ template "admin/base/footer" . }}

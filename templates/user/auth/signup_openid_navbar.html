@@ -1,0 +1,12 @@
+<div class="flex items-center justify-center rounded-t-lg bg-base-200 pt-6 text-center">
+  <div class="tabs">
+    <a class="{{ if .PageIsOpenIDConnect }}tab-active{{ end }} tab-bordered tab" href="{{ AppSubUrl }}/user/openid/connect">
+      {{ .i18n.Tr "auth.openid_connect_title" }}
+    </a>
+    {{ if and .EnableOpenIDSignUp (not .AllowOnlyInternalRegistration) }}
+      <a class="{{ if .PageIsOpenIDRegister }}tab-active{{ end }} tab-bordered tab" href="{{ AppSubUrl }}/user/openid/register">
+        {{ .i18n.Tr "auth.openid_register_title" }}
+      </a>
+    {{ end }}
+  </div>
+</div>

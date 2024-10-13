@@ -1,0 +1,121 @@
+<div jq-repo-issue-view_title class="mb-6 flex flex-col gap-2">
+  <div jq-issue-title-wrapper class="issue-title flex items-center gap-x-2">
+    <h1 class="flex flex-1 items-center gap-x-1 text-3xl">
+      <span jq-issue-title>{{ RenderIssueTitle $.Context .Issue.Title $.RepoLink $.Repository.ComposeMetas }}</span>
+      <span class="index">#{{ .Issue.Index }}</span>
+      <div jq-edit-title-input class="hidden w-full">
+        <input value="{{ .Issue.Title }}" maxlength="255" autocomplete="off" class="input-bordered input w-full" />
+      </div>
+    </h1>
+
+    <div class="flex gap-x-2">
+      {{ if and (or .HasIssuesOrPullsWritePermission .IsIssuePoster) (not .Repository.IsArchived) }}
+        <div jq-edit-title jq-not-in-edit class="btn-outline btn">{{ .i18n.Tr "repo.issues.edit" }}</div>
+        <div jq-cancel-edit-title jq-in-edit class="btn-outline btn hidden">{{ .i18n.Tr "repo.issues.cancel" }}</div>
+        <div jq-save-edit-title jq-in-edit class="btn-primary btn hidden" data-update-url="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/title" {{ if .Issue.IsPull }}data-target-update-url="{{ $.RepoLink }}/pull/{{ .Issue.Index }}/target_branch"{{ end }}>{{ .i18n.Tr "repo.issues.save" }}</div>
+      {{ end }}
+      {{ if and (not .Repository.IsArchived) (not .Issue.IsPull) }}
+        {{ if .PageIsIssueList }}
+          <a class="btn-primary btn" href="{{ .RepoLink }}/issues/new{{ if .NewIssueChooseTemplate }}/choose{{ end }}">{{ .i18n.Tr "repo.issues.new" }}</a>
+        {{ else }}
+          <a class="{{ if not .PullRequestCtx.Allowed }}btn-disabled{{ end }} btn-primary btn" href="{{ .RepoLink }}/compare/{{ .BranchName | PathEscapeSegments }}...{{ .PullRequestCtx.HeadInfoSubURL }}">{{ .i18n.Tr "repo.pulls.new" }}</a>
+        {{ end }}
+      {{ end }}
+    </div>
+  </div>
+  <div class="cu-links-primary flex items-center gap-x-1">
+    {{ if .HasMerged }}
+      <div class="badge-purple badge badge-lg gap-x-1">{{ svg "octicon-git-merge" 16 }} {{ if eq .Issue.PullRequest.Status 3 }}{{ .i18n.Tr "repo.pulls.manually_merged" }}{{ else }}{{ .i18n.Tr "repo.pulls.merged" }}{{ end }}</div>
+    {{ else if .Issue.IsClosed }}
+      <div class="badge-red badge badge-lg gap-x-1">{{ if .Issue.IsPull }}{{ svg "octicon-git-pull-request" }}{{ else }}{{ svg "octicon-issue-closed" }}{{ end }} {{ .i18n.Tr "repo.issues.closed_title" }}</div>
+    {{ else if .Issue.IsPull }}
+      <div class="badge-green badge badge-lg gap-x-1">{{ svg "octicon-git-pull-request" }} {{ .i18n.Tr "repo.issues.open_title" }}</div>
+    {{ else }}
+      <div class="badge-green badge badge-lg gap-x-1">{{ svg "octicon-issue-opened" }} {{ .i18n.Tr "repo.issues.open_title" }}</div>
+    {{ end }}
+
+    {{ if .Issue.IsPull }}
+      {{ $headHref := .HeadTarget|Escape }}
+      {{ if .HeadBranchHTMLURL }}
+        {{ $headHref = printf "<a href=\"%s\">%s</a>" (.HeadBranchHTMLURL | Escape) $headHref }}
+      {{ end }}
+      {{ $headHref = printf "%s <a class=\"tooltip\" data-tip=\"%s\" data-clipboard-text=\"%s\">%s</a>" $headHref (.i18n.Tr "copy_branch") (.HeadTarget | Escape) (svg "octicon-copy" 14) }}
+      {{ $baseHref := .BaseTarget|Escape }}
+      {{ if .BaseBranchHTMLURL }}
+        {{ $baseHref = printf "<a href=\"%s\">%s</a>" (.BaseBranchHTMLURL | Escape) $baseHref }}
+      {{ end }}
+      {{ if .Issue.PullRequest.HasMerged }}
+        {{ $mergedStr:= TimeSinceUnix .Issue.PullRequest.MergedUnix $.i18n.Lang }}
+        <span class="flex items-center gap-x-1">
+          {{ if .Issue.OriginalAuthor }}
+            {{ .Issue.OriginalAuthor }}
+            <!-- {{ $.i18n.Tr "repo.pulls.merged_title_desc" .NumCommits $headHref $baseHref $mergedStr | Safe }} -->
+          {{ else }}
+            <a {{ if gt .Issue.PullRequest.Merger.ID 0 }}href="{{ .Issue.PullRequest.Merger.HomeLink }}"{{ end }}>{{ .Issue.PullRequest.Merger.GetDisplayName }}</a>
+            <!-- {{ $.i18n.Tr "repo.pulls.merged_title_desc" .NumCommits $headHref $baseHref $mergedStr | Safe }} -->
+          {{ end }}
+          {{ $.i18n.Tr "repo.pulls.merged_title_desc" .NumCommits (printf "<span class=\"flex items-center gap-x-1\">%s</span>" $headHref) $baseHref $mergedStr | Safe }}
+        </span>
+      {{ else }}
+        <span jq-pull-desc class="flex items-center gap-x-1">
+          {{ if .Issue.OriginalAuthor }}
+            {{ .Issue.OriginalAuthor }}
+            <!-- {{ $.i18n.Tr "repo.pulls.title_desc" .NumCommits $headHref $baseHref | Safe }} -->
+            <!-- {{ $.i18n.Tr "repo.pulls.title_desc" .NumCommits (printf "<span class=\"flex items-center gap-x-1\">%s</span>" $headHref) (printf "<span jq-branch-target class=\"text-primary hover:underline\">%s</span>" $baseHref) | Safe }} -->
+          {{ else }}
+            <a {{ if gt .Issue.Poster.ID 0 }}href="{{ .Issue.Poster.HomeLink }}"{{ end }}>{{ .Issue.Poster.GetDisplayName }}</a>
+            <!-- {{ $.i18n.Tr "repo.pulls.title_desc" .NumCommits (printf "<span class=\"flex items-center gap-x-1\">%s</span>" $headHref) (printf "<span jq-branch-target class=\"text-primary hover:underline\">%s</span>" $baseHref) | Safe }} -->
+          {{ end }}
+          {{ $.i18n.Tr "repo.pulls.title_desc" .NumCommits (printf "<span class=\"flex items-center gap-x-1\">%s</span>" $headHref) (printf "<span jq-branch-target class=\"text-primary hover:underline\">%s</span>" $baseHref) | Safe }}
+        </span>
+        <span jq-pull-desc-edit class="flex hidden items-center gap-x-1">
+          <div class="dropdown">
+            <label tabindex="0" class="btn-outline btn-sm btn">
+              <span class="text">{{ .i18n.Tr "repo.pulls.compare_compare" }}: {{ $.HeadTarget }}</span>
+            </label>
+          </div>
+          {{ svg "octicon-arrow-right" }}
+          <div jq-branch-select-dropdown class="dropdown" data-no-results="{{ .i18n.Tr "repo.pulls.no_results" }}">
+            <label tabindex="0" class="btn-outline btn-sm btn">
+              <span jq-pull-target-branch class="text" data-basename="{{ $.BaseName }}" data-branch="{{ $.BaseBranch }}">{{ .i18n.Tr "repo.pulls.compare_base" }}: {{ $.BaseName }}:{{ $.BaseBranch }}</span>
+              {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+            </label>
+            <div class="card dropdown-content card-compact">
+              <div class="card-body">
+                <div class="relative">
+                  <i class="absolute right-0 top-0 m-2">{{ svg "octicon-filter" 16 }}</i>
+                  <input jq-input-search name="search" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.pulls.filter_branch" }}..." />
+                </div>
+                <ul jq-branch-select class="cu-menu p-2">
+                  {{ range .Branches }}
+                    {{ $sameBase := ne $.BaseName $.HeadUserName }}
+                    {{ $differentBranch := ne . $.HeadBranch }}
+                    {{ if or $sameBase $differentBranch }}
+                      <li class="{{ if eq $.BaseBranch . }}checked{{ end }}" data-branch="{{ . }}">
+                        <div>{{ $.BaseName }}{{ if $.HeadRepo }}/{{ $.HeadRepo }}{{ end }}:{{ . }}</div>
+                      </li>
+                    {{ end }}
+                  {{ end }}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </span>
+      {{ end }}
+    {{ else }}
+      {{ $createdStr:= TimeSinceUnix .Issue.CreatedUnix $.i18n.Lang }}
+      <span>
+        {{ if .Issue.OriginalAuthor }}
+          {{ $.i18n.Tr "repo.issues.opened_by_fake" $createdStr (.Issue.OriginalAuthor|Escape) | Safe }}
+        {{ else if gt .Issue.Poster.ID 0 }}
+          {{ $.i18n.Tr "repo.issues.opened_by" $createdStr (.Issue.Poster.HomeLink|Escape) (.Issue.Poster.GetDisplayName|Escape) | Safe }}
+        {{ else }}
+          {{ $.i18n.Tr "repo.issues.opened_by_fake" $createdStr (.Issue.Poster.GetDisplayName|Escape) | Safe }}
+        {{ end }}
+        ·
+        {{ $.i18n.Tr "repo.issues.num_comments" .Issue.NumComments }}
+      </span>
+    {{ end }}
+  </div>
+</div>
+{{ Asset "js/repo-issue-view_title.js" }}

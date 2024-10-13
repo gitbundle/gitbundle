@@ -1,0 +1,43 @@
+<div class="smtp {{ if not (eq .type 3) }}hidden{{ end }} space-y-2">
+  <div class="required form-control flex-row items-center gap-2">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.smtp_auth" }}</span></label>
+    <select name="smtp_auth" id="smtp_auth" class="select-bordered select">
+      {{ range .SMTPAuths }}
+        <option value="{{ . }}" {{ if eq $.smtp_auth . }}selected{{ end }}>{{ . }}</option>
+      {{ end }}
+    </select>
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.smtphost" }}</span></label>
+    <input class="input-bordered input" id="smtp_host" name="smtp_host" value="{{ .smtp_host }}" />
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.smtpport" }}</span></label>
+    <input class="input-bordered input" id="smtp_port" name="smtp_port" value="{{ .smtp_port }}" />
+  </div>
+  <div class="form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="force_smtps" name="force_smtps" type="checkbox" {{ if .force_smtps }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.force_smtps" }}</strong></label>
+
+    <p class="help">{{ .i18n.Tr "admin.auths.force_smtps_helper" }}</p>
+  </div>
+  <div class="form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="skip_verify" type="checkbox" {{ if .skip_verify }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_tls_verify" }}</strong></label>
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.helo_hostname" }}</span></label>
+    <input class="input-bordered input" id="helo_hostname" name="helo_hostname" value="{{ .helo_hostname }}" />
+    <p class="help">{{ .i18n.Tr "admin.auths.helo_hostname_helper" }}</p>
+  </div>
+  <div class="form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="disable_helo" name="disable_helo" type="checkbox" {{ if .disable_helo }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.disable_helo" }}</strong></label>
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.allowed_domains" }}</span></label>
+    <input class="input-bordered input" id="allowed_domains" name="allowed_domains" value="{{ .allowed_domains }}" />
+    <p class="help">{{ .i18n.Tr "admin.auths.allowed_domains_helper" }}</p>
+  </div>
+  <div class="optional form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if .skip_local_two_fa }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+    <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+  </div>
+</div>

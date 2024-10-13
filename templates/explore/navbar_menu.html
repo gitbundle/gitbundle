@@ -1,0 +1,65 @@
+<ul class="cu-bordered-menu p-4">
+  {{ if .IsRepoIndexerEnabled }}
+    <li class="{{ if .PageIsExploreCode }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsExploreCode }}active{{ end }}" href="{{ AppSubUrl }}/explore/code?q={{ $.Keyword }}">
+        {{ svg "octicon-code" }}
+        {{ .i18n.Tr "explore.code" }}
+      </a>
+    </li>
+  {{ end }}
+  <li class="{{ if .PageIsExploreRepositories }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if .PageIsExploreRepositories }}active{{ end }}" href="{{ AppSubUrl }}/explore/repos?q={{ $.Keyword }}">
+      {{ svg "octicon-repo" }}
+      {{ .i18n.Tr "explore.repos" }}
+    </a>
+  </li>
+  {{ if .IsSigned }}
+    {{ if not .UnitIssuesGlobalDisabled }}
+      <li class="{{ if .PageIsExploreIssues }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsExploreIssues }}active{{ end }}" href="{{ AppSubUrl }}/explore/issues?q={{ $.Keyword }}">
+          {{ svg "octicon-issue-opened" }}
+          {{ .i18n.Tr "issues" }}
+        </a>
+      </li>
+    {{ end }}
+    {{ if not .UnitPullsGlobalDisabled }}
+      <li class="{{ if .PageIsExplorePulls }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsExplorePulls }}active{{ end }}" href="{{ AppSubUrl }}/explore/pulls?q={{ $.Keyword }}">
+          {{ svg "octicon-git-pull-request" }}
+          {{ .i18n.Tr "pull_requests" }}
+        </a>
+      </li>
+    {{ end }}
+    {{ if not (and .UnitIssuesGlobalDisabled .UnitPullsGlobalDisabled) }}
+      {{ if .ShowMilestonesDashboardPage }}
+        <li class="{{ if .PageIsExploreMilestones }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsExploreMilestones }}active{{ end }}" href="{{ AppSubUrl }}/explore/milestones?q={{ $.Keyword }}">
+            {{ svg "octicon-milestone" }}
+            {{ .i18n.Tr "milestones" }}
+          </a>
+        </li>
+      {{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if not .UsersIsDisabled }}
+    <li class="{{ if .PageIsExploreUsers }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsExploreUsers }}active{{ end }}" href="{{ AppSubUrl }}/explore/users?q={{ $.Keyword }}">
+        {{ svg "octicon-person" }}
+        {{ .i18n.Tr "explore.users" }}
+      </a>
+    </li>
+  {{ end }}
+  <li class="{{ if .PageIsExploreOrganizations }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if .PageIsExploreOrganizations }}active{{ end }}" href="{{ AppSubUrl }}/explore/organizations?q={{ $.Keyword }}">
+      {{ svg "octicon-organization" }}
+      {{ .i18n.Tr "explore.organizations" }}
+    </a>
+  </li>
+</ul>

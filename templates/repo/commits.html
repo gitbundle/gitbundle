@@ -1,0 +1,17 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository commits -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{/* template "repo/sub_menu" . */}}
+    <div class="flex items-center gap-x-2">
+      {{ template "repo/branch_dropdown" dict "root" . }}
+      <a href="{{ .RepoLink }}/graph" class="btn-outline btn gap-1">
+        {{ svg "octicon-git-branch" }}
+        {{ .i18n.Tr "repo.commit_graph" }}
+      </a>
+    </div>
+    {{ template "repo/commits_table" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

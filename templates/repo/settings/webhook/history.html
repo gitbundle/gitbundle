@@ -1,0 +1,93 @@
+{{ if .PageIsSettingsHooksEdit }}
+  <div jq-repo-settings-webhook-history>
+    <h4 class="mt-10 flex items-center justify-between text-xl font-bold">
+      {{ .i18n.Tr "repo.settings.recent_deliveries" }}
+      {{ if .Permission.IsAdmin }}
+        <button jq-test-delivery class="btn-primary btn-sm btn" data-link="{{ .Link }}/test" data-redirect="{{ .Link }}">
+          <span class="tooltip tooltip-left" data-tip="{{ .i18n.Tr "repo.settings.webhook.test_delivery_desc" }}">{{ .i18n.Tr "repo.settings.webhook.test_delivery" }}</span>
+        </button>
+      {{ end }}
+    </h4>
+    <div class="divider my-2"></div>
+    <div class="space-y-2">
+      {{ range .History }}
+        <div jq-repository-settings-history>
+          <div class="flex items-center">
+            <div class="flex flex-1 items-center gap-1">
+              {{ if .IsSucceed }}
+                <span class="text-green-600">{{ svg "octicon-check" }}</span>
+              {{ else }}
+                <span class="text-red-600">{{ svg "octicon-alert" }}</span>
+              {{ end }}
+              <a jq-toggle-button class="sha btn-primary btn-sm btn" data-target="#info-{{ .ID }}">{{ .UUID }}</a>
+            </div>
+            <span class="flex text-gray-500">
+              {{ .DeliveredString }}
+            </span>
+          </div>
+          <div jq-toggle-content class="mt-4 hidden" id="info-{{ .ID }}">
+            <div jq-tabs class="tabs">
+              <a class="tab-lifted tab tab-active" data-tab="request-{{ .ID }}">{{ $.i18n.Tr "repo.settings.webhook.request" }}</a>
+              <a class="tab-lifted tab" data-tab="response-{{ .ID }}">
+                {{ $.i18n.Tr "repo.settings.webhook.response" }}
+                {{ if .ResponseInfo }}
+                  {{ if .IsSucceed }}
+                    <span class="badge-green badge">{{ .ResponseInfo.Status }}</span>
+                  {{ else }}
+                    <span class="badge-red badge">{{ .ResponseInfo.Status }}</span>
+                  {{ end }}
+                {{ else }}
+                  <span class="badge">N/A</span>
+                {{ end }}
+              </a>
+              {{ if or $.Permission.IsAdmin $.IsOrganizationOwner $.PageIsAdmin }}
+                <form class="flex flex-1 justify-end" action="{{ $.Link }}/replay/{{ .UUID }}" method="post">
+                  {{ $.CsrfTokenHtml }}
+                  <button class="btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "repo.settings.webhook.replay.description" }}" data-variation="inverted tiny">{{ svg "octicon-sync" }}</button>
+                </form>
+              {{ end }}
+            </div>
+            <div jq-contents>
+              <div class="flex flex-col gap-2" data-tab="request-{{ .ID }}">
+                {{ if .RequestInfo }}
+                  <h5 class="mt-2">{{ $.i18n.Tr "repo.settings.webhook.headers" }}</h5>
+                  <div class="flex flex-col overflow-auto rounded-lg border bg-base-300 p-2">
+                    <span>
+                      <strong>Request URL:</strong> {{ .RequestInfo.URL }} <strong>Request method:</strong> {{- if .RequestInfo.HTTPMethod -}}
+                        {{- .RequestInfo.HTTPMethod -}}
+                      {{- else -}}
+                        POST
+                      {{- end -}}
+                    </span>
+                    {{ range $key, $val := .RequestInfo.Headers }}
+                      <span><strong>{{ $key }}:</strong> {{ $val }}</span>
+                    {{ end }}
+                  </div>
+                  <h5>{{ $.i18n.Tr "repo.settings.webhook.payload" }}</h5>
+                  <pre class="flex flex-col overflow-auto rounded-lg border bg-base-300 p-2"><code jq-json>{{ .PayloadContent }}</code></pre>
+                {{ else }}
+                  N/A
+                {{ end }}
+              </div>
+              <div class="flex hidden flex-col gap-2" data-tab="response-{{ .ID }}">
+                {{ if .ResponseInfo }}
+                  <h5 class="mt-2">{{ $.i18n.Tr "repo.settings.webhook.headers" }}</h5>
+                  <div class="flex flex-col overflow-auto rounded-lg border bg-base-300 p-2">
+                    {{ range $key, $val := .ResponseInfo.Headers }}
+                      <span><strong>{{ $key }}:</strong> {{ $val }}</span>
+                    {{ end }}
+                  </div>
+                  <h5>{{ $.i18n.Tr "repo.settings.webhook.body" }}</h5>
+                  <pre class="flex flex-col overflow-auto rounded-lg border bg-base-300 p-2"><code jq-json>{{ .ResponseInfo.Body }}</code></pre>
+                {{ else }}
+                  N/A
+                {{ end }}
+              </div>
+            </div>
+          </div>
+        </div>
+      {{ end }}
+    </div>
+    {{ Asset "js/repo-settings-webhook-history.js" }}
+  </div>
+{{ end }}

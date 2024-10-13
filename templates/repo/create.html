@@ -1,0 +1,267 @@
+{{ template "base/head" . }}
+<!--  repository new repo -->
+<div jq-repository-new-repo class="main-container">
+  <div class="mx-auto h-fit w-full max-w-2xl">
+    {{ template "base/alert" . }}
+    <form action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <h1 class="mb-4 text-2xl">{{ .i18n.Tr "new_repo" }}</h1>
+      {{ if not $.DisableMigrations }}
+        <p class="cu-links-primary">{{ .i18n.Tr "repo.new_repo_helper" ((printf "%s%s" AppSubUrl "/repo/migrate")|Escape) | Safe }}</p>
+      {{ end }}
+      {{ if not .CanCreateRepo }}
+        <div svelte-simple-alert data-type="error" data-icon="true" data-desc="{{ .i18n.TrN .MaxCreationLimit "repo.form.reach_limit_of_creation_1" "repo.form.reach_limit_of_creation_n" .MaxCreationLimit }}"></div>
+      {{ end }}
+      <div class="{{ if .Err_Owner }}error{{ end }} required form-control w-full">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.owner" }}</span></label>
+        <div svelte-repo-owner-select>
+            <script>
+              (() => {
+                const items = []
+                items.push({value: {{ .SignedUser.ID }}, Name: {{ .SignedUser.Name }}, Avatar: {{ avatar .SignedUser 28 "!w-7 !h-7 rounded" }}, label: {{ .SignedUser.ShortName 40 }}})
+                {{ range .Orgs }}
+                items.push({value: {{.ID}}, Name: {{.Name}}, Avatar: {{ avatar . 28 "!w-7 !h-7 rounded" }}, label: {{ .ShortName 40 }}})
+                {{ end }}
+
+                window.config.pageData.repoOwnerSelect = {
+                  ContextUserValue: {{.ContextUser.ID}},
+                  ContextUserName: {{.ContextUser.Name}},
+                  ContextUserAvatar: {{ avatar .ContextUser 28 "!w-7 !h-7 rounded" }},
+                  ContextUserLabel: {{ .ContextUser.ShortName 40 }},
+                  items,
+                  ClassName: "!select-bordered !select w-full h-full",
+                  Name: "uid",
+                  Required: true,
+                }
+              })()
+            </script>
+        </div>
+        <div class="label">
+          <span class="label-text-alt text-gray-500">{{ .i18n.Tr "repo.owner_helper" }}</span>
+        </div>
+      </div>
+
+      <div class="{{ if .Err_RepoName }}error{{ end }} required form-control w-full">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.repo_name" }}</span></label>
+        <input class="input-bordered input w-full" id="repo_name" name="repo_name" value="{{ .repo_name }}" autofocus required />
+        <div class="label">
+          <span class="label-text-alt text-gray-500">{{ .i18n.Tr "repo.repo_name_helper" }}</span>
+        </div>
+      </div>
+
+      <div class="form-control w-full flex-row items-start gap-2">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.visibility" }}</span></label>
+        <div class="mt-2 flex flex-col">
+          {{ if .IsForcedPrivate }}
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="private" type="checkbox" checked readonly />{{ .i18n.Tr "repo.visibility_helper_forced" | Safe }}</label>
+          {{ else }}
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="private" type="checkbox" {{ if .private }}checked{{ end }} />{{ .i18n.Tr "repo.visibility_helper" | Safe }}</label>
+          {{ end }}
+          <div class="label">
+            <span class="label-text-alt text-gray-500">{{ .i18n.Tr "repo.visibility_description" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="{{ if .Err_Description }}error{{ end }} form-control w-full">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.repo_desc" }}</span></label>
+        <textarea class="textarea-bordered textarea w-full" rows="5" id="description" name="description" placeholder="{{ .i18n.Tr "repo.repo_desc_helper" }}">{{ .description }}</textarea>
+      </div>
+
+      <div class="form-control w-full">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.template" }}</span></label>
+        <div svelte-repo-template-select>
+          <script>
+            (() => {
+              window.config.pageData.repoTemplate = {
+                RepoTemplate: {{.repo_template}},
+                RepoTemplateName: {{.repo_template_name}},
+                ClassName: "!select-bordered !select w-full",
+              }
+            })()
+          </script>
+        </div>
+      </div>
+
+      <div jq-template_units class="hidden">
+        <div class="form-control w-full flex-row items-start gap-2">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.template.items" }}</span></label>
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="git_content" type="checkbox" tabindex="0" {{ if .git_content }}checked{{ end }} />{{ .i18n.Tr "repo.template.git_content" }}</label>
+
+            <label class="{{ if not .SignedUser.CanEditGitHook }}tooltip{{ end }} flex items-center gap-1" {{ if not .SignedUser.CanEditGitHook }}data-tip="{{ .i18n.Tr "repo.template.git_hooks_tooltip" }}"{{ end }}>
+              <input class="checkbox checkbox-sm" name="git_hooks" type="checkbox" tabindex="0" {{ if .git_hooks }}checked{{ end }} />
+              {{ .i18n.Tr "repo.template.git_hooks" }}
+            </label>
+
+            <label class="flex items-center gap-1">
+              <input class="checkbox checkbox-sm" name="webhooks" type="checkbox" tabindex="0" {{ if .webhooks }}checked{{ end }} />
+              {{ .i18n.Tr "repo.template.webhooks" }}
+            </label>
+
+            <label class="flex items-center gap-1">
+              <input class="checkbox checkbox-sm" name="topics" type="checkbox" tabindex="0" {{ if .topics }}checked{{ end }} />
+              {{ .i18n.Tr "repo.template.topics" }}
+            </label>
+
+            <label class="flex items-center gap-1">
+              <input class="checkbox checkbox-sm" name="avatar" type="checkbox" tabindex="0" {{ if .avatar }}checked{{ end }} />
+              {{ .i18n.Tr "repo.template.avatar" }}
+            </label>
+            <label class="flex items-center gap-1">
+              <input class="checkbox checkbox-sm" name="labels" type="checkbox" tabindex="0" {{ if .labels }}checked{{ end }} />
+              {{ .i18n.Tr "repo.template.issue_labels" }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div jq-non_template>
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.issue_labels" }}</span></label>
+          <div svelte-repo-issue-label>
+            <script>
+              (() => {
+                const items = []
+                {{ range $template, $labels := .LabelTemplates }}
+                items.push({value: {{$template}}, label: {{$template}}, desc: {{$labels}}})
+                {{ end }}
+                window.config.pageData.repoIssueLabel = {
+                  items,
+                  IssueLabels: {{.issueLabels}},
+                  IssueLabelsHelper: {{.i18n.Tr "repo.issue_labels_helper"}},
+                  ClassName: "!select-bordered !select w-full"
+                }
+              })()
+            </script>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text font-bold">.gitignore</span></label>
+          <div svelte-repo-gitignore>
+            <script>
+              (() => {
+                window.config.pageData.repoGitignore={
+                  items: {{ .Gitignores }},
+                  defaultValue: {{.gitignore}},
+                  placeholder: {{.i18n.Tr "repo.repo_gitignore_helper"}},
+                  fieldName: 'gitignores',
+                  multiple: true,
+                  ClassName: "!select-bordered !select w-full"
+                }
+              })()
+            </script>
+          </div>
+          <div class="label">
+            <span class="cu-links-primary label-text-alt text-gray-500">{{ .i18n.Tr "repo.repo_gitignore_helper_desc" }}</span>
+          </div>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.license" }}</span></label>
+          <div svelte-repo-license>
+            <script>
+              (() => {
+                window.config.pageData.repoLicense={
+                  items: {{ .Licenses }},
+                  defaultValue: {{ .license }},
+                  placeholder: {{ .i18n.Tr "repo.license_helper" }},
+                  fieldName: 'license',
+                  ClassName: "!select-bordered !select w-full"
+                }
+              })()
+            </script>
+          </div>
+          <div class="label">
+            <span class="cu-links-primary label-text-alt text-gray-500">{{ .i18n.Tr "repo.license_helper_desc" "https://choosealicense.com/" | Str2html }}</span>
+          </div>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.readme" }}</span></label>
+          <div svelte-repo-readmes class="col-span-9">
+            <script>
+              (() => {
+                window.config.pageData.repoReadmes = {
+                  items: {{.Readmes}},
+                  defaultValue: {{.readme}},
+                  placeholder: {{ .i18n.Tr "repo.readme_helper" }},
+                  fieldName: 'readme',
+                  ClassName: "!select-bordered !select w-full"
+                }
+              })()
+            </script>
+          </div>
+          <div class="label">
+            <span class="label-text-alt text-gray-500">{{ .i18n.Tr "repo.readme_helper_desc" }}</span>
+          </div>
+        </div>
+
+        <div class="form-control w-full">
+          <!-- NOTE: just mark checked for this checkbox -->
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="auto_init" type="checkbox" tabindex="0" checked />{{ .i18n.Tr "repo.auto_init" }}</label>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.default_branch" }}</span></label>
+          <input class="input-border input w-full" id="default_branch" name="default_branch" value="{{ .default_branch }}" placeholder="{{ .default_branch }}" />
+          <div class="label">
+            <span class="label-text-alt text-gray-500">{{ .i18n.Tr "repo.default_branch_helper" }}</span>
+          </div>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.settings.trust_model" }}</span></label>
+          <div svelte-repo-trust_model>
+            <script>
+              (() => {
+                window.config.pageData.repoTrustModel = {
+                  items: [
+                    {value: 'default', label: {{ .i18n.Tr "repo.settings.trust_model.default" }}},
+                    {value: 'collaborator', label: {{ .i18n.Tr "repo.settings.trust_model.collaborator" }}},
+                    {value: 'committer', label: {{ .i18n.Tr "repo.settings.trust_model.committer" }}},
+                    {value: 'collaboratorcommitter', label: {{ .i18n.Tr "repo.settings.trust_model.collaboratorcommitter" }}}
+                  ],
+                  defaultValue: 'default',
+                  placeholder: {{ .i18n.Tr "repo.settings.trust_model" }},
+                  fieldName: 'trust_model',
+                  ClassName: '!select-bordered !select w-full',
+                }
+              })()
+            </script>
+          </div>
+          <div class="label">
+            <div class="label-text-alt text-gray-500">
+              {{ .i18n.Tr "repo.trust_model_helper" }}
+              <ul class="ml-4 list-disc">
+                <li>{{ .i18n.Tr "repo.trust_model_helper_collaborator" }}</li>
+                <li>{{ .i18n.Tr "repo.trust_model_helper_committer" }}</li>
+                <li>{{ .i18n.Tr "repo.trust_model_helper_collaborator_committer" }}</li>
+                <li>{{ .i18n.Tr "repo.trust_model_helper_default" }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-control w-full flex-row gap-2">
+          <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "repo.template" }}</span></label>
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="template" type="checkbox" tabindex="0" />{{ .i18n.Tr "repo.template_helper" }}</label>
+        </div>
+      </div>
+
+      <div class="form-control flex flex-row justify-end">
+        <div class="grid max-w-xs grid-cols-2 gap-2">
+          <a class="btn" href="{{ AppSubUrl }}/">{{ .i18n.Tr "cancel" }}</a>
+          <button class="{{ if not .CanCreateRepo }}btn-disabled{{ end }} btn-primary btn">
+            {{ .i18n.Tr "repo.create_repo" }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  {{ Asset "js/repo-create.js" }}
+</div>
+{{ template "base/footer" . }}

@@ -1,0 +1,51 @@
+<div class="space-y-4">
+  <!-- TODO: make template org and user can share -->
+  {{ with .ContextUser }}
+    <div class="flex items-start gap-4 text-3xl font-bold">
+      {{ avatar . 140 "rounded" }}
+      <div class="flex items-center gap-1">
+        <a class="link-hover link hover:link-primary" href="{{ .HomeLink }}">{{ .DisplayName }}</a>
+        {{ if .Visibility.IsLimited }}<div class="badge-outline-yellow badge badge-outline font-normal opacity-60">{{ $.i18n.Tr "org.settings.visibility.limited_shortname" }}</div>{{ end }}
+        {{ if .Visibility.IsPrivate }}<div class="badge-outline-red badge badge-outline font-normal opacity-60">{{ $.i18n.Tr "org.settings.visibility.private_shortname" }}</div>{{ end }}
+      </div>
+    </div>
+  {{ end }}
+  <div class="tabs">
+    <a class="tab-lifted tab" href="{{ .ContextUser.HomeLink }}">
+      {{ svg "octicon-repo" }}
+      {{ .i18n.Tr "user.repositories" }}
+    </a>
+    {{ if (not .UnitPackagesGlobalDisabled) }}
+      <a href="{{ .ContextUser.HTMLURL }}/-/packages" class="{{ if .IsPackagesPage }}tab-active{{ end }} tab-lifted tab">
+        {{ svg "octicon-package" }}
+        {{ .i18n.Tr "packages.title" }}
+      </a>
+    {{ end }}
+
+    {{ if .ContextUser.IsOrganization }}
+      {{ if .IsOrganizationMember }}
+        <a class="tab-lifted tab" href="{{ $.OrgLink }}/members">
+          {{ svg "octicon-organization" }}&nbsp;{{ $.i18n.Tr "org.people" }}
+          {{ if .NumMembers }}
+            <div class="ui primary label">{{ .NumMembers }}</div>
+          {{ end }}
+        </a>
+        <a class="tab-lifted tab" href="{{ $.OrgLink }}/teams">
+          {{ svg "octicon-people" }}&nbsp;{{ $.i18n.Tr "org.teams" }}
+          {{ if .NumTeams }}
+            <div class="ui black label">{{ .NumTeams }}</div>
+          {{ end }}
+        </a>
+      {{ end }}
+
+      {{ if .IsOrganizationOwner }}
+        <div class="flex flex-1 justify-end">
+          <a class="tab-lifted tab" href="{{ .OrgLink }}/settings">
+            {{ svg "octicon-gear" }}
+            {{ .i18n.Tr "repo.settings" }}
+          </a>
+        </div>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>

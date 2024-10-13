@@ -1,0 +1,85 @@
+{{ $BaseCompareName := $.BaseName -}}
+{{- $HeadCompareName := $.HeadRepo.OwnerName -}}
+{{- if and (eq $.BaseName $.HeadRepo.OwnerName) (ne $.Repository.Name $.HeadRepo.Name) -}}
+  {{- $HeadCompareName = printf "%s/%s" $.HeadRepo.OwnerName $.HeadRepo.Name -}}
+{{- end -}}
+{{- $OwnForkCompareName := "" -}}
+{{- if .OwnForkRepo -}}
+  {{- $OwnForkCompareName = .OwnForkRepo.OwnerName -}}
+{{- end -}}
+{{- $RootRepoCompareName := "" -}}
+{{- if .RootRepo -}}
+  {{- $RootRepoCompareName = .RootRepo.OwnerName -}}
+  {{- if eq $.HeadRepo.OwnerName .RootRepo.OwnerName -}}
+    {{- $HeadCompareName = printf "%s/%s" $.HeadRepo.OwnerName $.HeadRepo.Name -}}
+  {{- end -}}
+  {{- if .OwnForkRepo -}}
+    {{- if eq $.OwnForkRepo.OwnerName .RootRepo.OwnerName -}}
+      {{- $OwnForkRepoCompareName = printf "%s/%s" $.OwnForkRepo.OwnerName $.OwnForkRepo.Name -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<script>
+  (function() {
+    const data = {
+      'textBranches': {{$.i18n.Tr "repo.branches"}},
+      'textTags': {{$.i18n.Tr "repo.tags"}},
+
+      'headUserName': {{$.HeadUser.Name}},
+      'headBranch': {{$.HeadBranch}},
+      'headCompareName': {{$.HeadCompareName}},
+      'compareSeparator': {{$.CompareSeparator}},
+      'baseName': {{$.BaseName}},
+      'baseBranch': {{$.BaseBranch}},
+      'textPullsSwitchHeadAndBase': {{$.i18n.Tr "repo.pulls.switch_head_and_base"}},
+
+      'pageIsComparePull': {{$.PageIsComparePull}},
+      'textPullsCompareBase': {{$.i18n.Tr "repo.pulls.compare_base"}},
+      'textCompareCompareBase': {{$.i18n.Tr "repo.compare.compare_base"}},
+      'textPullsCompareCompare': {{$.i18n.Tr "repo.pulls.compare_compare"}},
+      'textCompareCompareHead': {{$.i18n.Tr "repo.compare.compare_head"}},
+
+      'searchFieldPlaceholder': '{{$.i18n.Tr "repo.filter_branch_and_tag"}}...',
+
+      'repoLink': '{{$.RepoLink}}',
+      'branches': {{$.Branches}},
+      'tags': {{$.Tags}},
+      'baseCompareName': {{ $BaseCompareName }},
+
+
+      'notPullRequestCtxSameRepo': {{not $.PullRequestCtx.SameRepo}},
+      'headRepoLink': '{{$.HeadRepo.Link}}',
+      'headBranches': {{$.HeadBranches}},
+      'headTags': {{$.HeadTags}},
+      'headRepoName': {{$.HeadRepo.Name}},
+      'headCompareName':{{$HeadCompareName}},
+      'repositoryName': {{$.Repository.Name}},
+
+      'isOwnForkRepo': {{if $.OwnForkRepo}}true{{else}}false{{end}},
+      'ownForkRepoLink': '{{$.OwnForkRepo.Link}}',
+      'ownForkRepoBranches': {{$.OwnForkRepoBranches}},
+      'ownForkRepoTags': {{$.OwnForkRepoTags}},
+      'ownForkCompareName': {{$OwnForkCompareName}},
+      'ownForkRepoOwnerName': {{$.OwnForkRepo.OwnerName}},
+      'ownForkRepoName': {{$.OwnForkRepo.Name}},
+
+      'rootRepoLink': '{{$.RootRepo.Link}}',
+      'isRootRepo': {{if $.RootRepo}}true{{else}}false{{end}},
+      'rootRepoBranches': {{$.RootRepoBranches}},
+      'rootRepoTags': {{$.RootRepoTags}},
+      'rootRepoCompareName': {{$RootRepoCompareName}},
+      'rootRepoOwnerName': {{$.RootRepo.OwnerName}},
+      'rootRepoName': {{$.RootRepo.Name}},
+
+      'noResults': {{$.i18n.Tr "repo.pulls.no_results"}},
+    };
+    window.config.pageData.repoBranchTagCompare = data;
+  })()
+</script>
+<h4 class="flex items-center gap-1 rounded-lg bg-base-200 px-4 py-1 font-bold leading-10 border">
+  <a href="{{ $.HeadRepo.Link }}/compare/{{ PathEscapeSegments $.HeadBranch }}{{ $.CompareSeparator }}{{ if not $.PullRequestCtx.SameRepo }}{{ PathEscape $.BaseName }}/{{ PathEscape $.Repository.Name }}:{{ end }}{{ PathEscapeSegments $.BaseBranch }}" title="{{ .i18n.Tr "repo.pulls.switch_head_and_base" }}">{{ svg "octicon-git-compare" }}</a>
+  <div id="repo-branch-tag-compare-base" data-base="yes"></div>
+  <a href="{{ .RepoLink }}/compare/{{ PathEscapeSegments .BaseBranch }}{{ .OtherCompareSeparator }}{{ if not $.PullRequestCtx.SameRepo }}{{ PathEscape $.HeadUser.Name }}/{{ PathEscape $.HeadRepo.Name }}:{{ end }}{{ PathEscapeSegments $.HeadBranch }}" title="{{ .i18n.Tr "repo.pulls.switch_comparison_type" }}">{{ .CompareSeparator }}</a>
+  <div id="repo-branch-tag-compare-target"></div>
+</h4>

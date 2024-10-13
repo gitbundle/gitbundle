@@ -1,0 +1,56 @@
+{{ template "base/alert" . }}
+<form class="ignore-dirty mx-auto flex w-full max-w-3xl items-center gap-2">
+  <input class="input-bordered input w-full" name="q" value="{{ .Query }}" placeholder="{{ .i18n.Tr "explore.search" }}..." autofocus />
+  <select class="select-bordered select" name="type">
+    <option value="">{{ .i18n.Tr "packages.filter.type" }}</option>
+    <option value="all">{{ .i18n.Tr "packages.filter.type.all" }}</option>
+    <option value="composer" {{ if eq .PackageType "composer" }}selected="selected"{{ end }}>Composer</option>
+    <option value="conan" {{ if eq .PackageType "conan" }}selected="selected"{{ end }}>Conan</option>
+    <option value="container" {{ if eq .PackageType "container" }}selected="selected"{{ end }}>Container</option>
+    <option value="generic" {{ if eq .PackageType "generic" }}selected="selected"{{ end }}>Generic</option>
+    <option value="helm" {{ if eq .PackageType "helm" }}selected="selected"{{ end }}>Helm</option>
+    <option value="maven" {{ if eq .PackageType "maven" }}selected="selected"{{ end }}>Maven</option>
+    <option value="npm" {{ if eq .PackageType "npm" }}selected="selected"{{ end }}>npm</option>
+    <option value="nuget" {{ if eq .PackageType "nuget" }}selected="selected"{{ end }}>NuGet</option>
+    <option value="pypi" {{ if eq .PackageType "pypi" }}selected="selected"{{ end }}>PyPi</option>
+    <option value="rubygems" {{ if eq .PackageType "rubygems" }}selected="selected"{{ end }}>RubyGems</option>
+  </select>
+  <button class="btn-primary btn">{{ .i18n.Tr "explore.search" }}</button>
+</form>
+<div class="{{ if not .PackageDescriptors }}flex-1{{ end }} flex flex-wrap gap-4">
+  {{ range .PackageDescriptors }}
+    <div class="cu-links-primary flex w-full justify-between rounded-lg bg-base-300 p-4 shadow">
+      <div class="flex items-center gap-4">
+        <a href="{{ .FullWebLink }}">{{ .Package.Name }}</a>
+        <span class="badge badge-sm gap-2">{{ svg .Package.Type.SVGName 16 }} {{ .Package.Type.Name }}</span>
+      </div>
+      <div class="flex items-center gap-1">
+        {{ $timeStr := TimeSinceUnix .Version.CreatedUnix $.i18n.Lang }}
+        {{ $hasRepositoryAccess := false }}
+        {{ if .Repository }}
+          {{ $hasRepositoryAccess = index $.RepositoryAccessMap .Repository.ID }}
+        {{ end }}
+        {{ if $hasRepositoryAccess }}
+          {{ $.i18n.Tr "packages.published_by_in" $timeStr .Creator.HomeLink (.Creator.GetDisplayName | Escape) .Repository.HTMLURL (.Repository.FullName | Escape) | Safe }}
+        {{ else }}
+          {{ $.i18n.Tr "packages.published_by" $timeStr .Creator.HomeLink (.Creator.GetDisplayName | Escape) | Safe }}
+        {{ end }}
+      </div>
+    </div>
+  {{ else }}
+    {{ if not .HasPackages }}
+      <div class="cu-links-primary m-auto flex flex-col text-center">
+        {{ svg "octicon-package" 32 "!w-8 !h-8 mx-auto" }}
+        <h2>{{ .i18n.Tr "packages.empty" }}</h2>
+        {{ if and .Repository .CanWritePackages }}
+          {{ $packagesUrl := URLJoin .Owner.HTMLURL "-" "packages" }}
+          <p>{{ .i18n.Tr "packages.empty.repo" $packagesUrl | Safe }}</p>
+        {{ end }}
+        <p>{{ .i18n.Tr "packages.empty.documentation" | Safe }}</p>
+      </div>
+    {{ else }}
+      <div class="mx-auto">{{ .i18n.Tr "packages.filter.no_result" }}</div>
+    {{ end }}
+  {{ end }}
+  {{ template "base/paginate" . }}
+</div>

@@ -1,0 +1,73 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<div class="main-container repository" {{ if .PageIsComparePull }}jq-compare-pull{{ end }}>
+  <div class="{{ if .IsSplitStyle }}w-full{{ else }}mx-auto max-w-[1280px] w-full{{ end }} space-y-4">
+    <h2 class="py-1 text-xl leading-8">
+      {{ if and $.PageIsComparePull $.IsSigned (not .Repository.IsArchived) }}
+        {{ .i18n.Tr "repo.pulls.compare_changes" }}
+        <div class="text-sm font-normal text-base-content">{{ .i18n.Tr "repo.pulls.compare_changes_desc" }}</div>
+      {{ else }}
+        {{ .i18n.Tr "action.compare_commits_general" }}
+      {{ end }}
+    </h2>
+
+    {{ template "repo/diff/compare_head" . }}
+
+    {{ if .IsNothingToCompare }}
+      {{ if and $.IsSigned $.AllowEmptyPr (not .Repository.IsArchived) }}
+        <div>{{ .i18n.Tr "repo.pulls.nothing_to_compare_and_allow_empty_pr" }}</div>
+        <div class="show-form-container {{ if .Flash }}hidden{{ end }}">
+          <button jq-show-form-button class="btn-primary btn-md btn">{{ .i18n.Tr "repo.pulls.new" }}</button>
+        </div>
+        <div jq-pullrequest-form class="{{ if not .Flash }}hidden{{ end }}">
+          {{ template "repo/issue/new_form" . }}
+        </div>
+      {{ else }}
+        <div class="rounded-lg bg-base-200 px-4 py-1 font-bold leading-10">{{ .i18n.Tr "repo.pulls.nothing_to_compare" }}</div>
+      {{ end }}
+    {{ else if and .PageIsComparePull (gt .CommitCount 0) }}
+      {{ if .HasPullRequest }}
+        <div class="flex items-center rounded-lg border bg-base-200 p-4">
+          <div class="cu-links-primary flex-1">
+            {{ .i18n.Tr "repo.pulls.has_pull_request" (Escape $.RepoLink) (Escape $.RepoRelPath) .PullRequest.Index | Safe }}
+            <h5 class="text-xl">
+              <span id="issue-title">{{ RenderIssueTitle $.Context .PullRequest.Issue.Title $.RepoLink $.Repository.ComposeMetas }}</span>
+              <span class="index">#{{ .PullRequest.Issue.Index }}</span>
+            </h5>
+          </div>
+          <div class="flex">
+            {{- if .PullRequest.HasMerged -}}
+              <a href="{{ Escape $.RepoLink }}/pulls/{{ .PullRequest.Issue.Index }}" class="btn-purple show-form btn">{{ svg "octicon-git-merge" 16 }} {{ .i18n.Tr "repo.pulls.view" }}</a>
+            {{ else if .Issue.IsClosed }}
+              <a href="{{ Escape $.RepoLink }}/pulls/{{ .PullRequest.Issue.Index }}" class="btn-red show-form btn">{{ svg "octicon-issue-closed" 16 }} {{ .i18n.Tr "repo.pulls.view" }}</a>
+            {{ else }}
+              <a href="{{ Escape $.RepoLink }}/pulls/{{ .PullRequest.Issue.Index }}" class="show-form btn-primary btn">{{ svg "octicon-git-pull-request" 16 }} {{ .i18n.Tr "repo.pulls.view" }}</a>
+            {{ end }}
+          </div>
+        </div>
+      {{ else }}
+        {{ if and $.IsSigned (not .Repository.IsArchived) }}
+          <div class="show-form-container {{ if .Flash }}hidden{{ end }}">
+            <button jq-show-form-button class="btn-primary btn-md btn">{{ .i18n.Tr "repo.pulls.new" }}</button>
+          </div>
+        {{ else if .Repository.IsArchived }}
+          <div class="ui warning message">
+            {{ .i18n.Tr "repo.archive.title" }}
+          </div>
+        {{ end }}
+        {{ if $.IsSigned }}
+          <div jq-pullrequest-form class="{{ if not .Flash }}hidden{{ end }}">
+            {{ template "repo/issue/new_form" . }}
+          </div>
+        {{ end }}
+        {{ template "repo/commits_table" . }}
+        {{ template "repo/diff/box" . }}
+      {{ end }}
+    {{ else }}
+      {{ template "repo/commits_table" . }}
+      {{ template "repo/diff/box" . }}
+    {{ end }}
+  </div>
+</div>
+{{ Asset "js/repo-diff-compare.js" }}
+{{ template "base/footer" . }}

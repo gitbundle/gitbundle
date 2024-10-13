@@ -1,0 +1,73 @@
+{{ template "base/head" . }}
+<!--  organization profile -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    <div class="grid grid-cols-16 gap-8">
+      <div class="col-span-full md:col-span-11">
+        {{ template "explore/repo_search" . }}
+        {{ template "explore/repo_list" . }}
+        {{ template "base/paginate" . }}
+      </div>
+
+      <div class="sticky top-0 col-span-full h-fit md:col-span-5">
+        {{ if .CanCreateOrgRepo }}
+          <div class="grid max-w-xs grid-cols-2 gap-2">
+            <a class="btn-primary btn" href="{{ AppSubUrl }}/repo/create?org={{ .Org.ID }}">{{ .i18n.Tr "new_repo" }}</a>
+            {{ if not .DisableNewPullMirrors }}
+              <a class="btn-primary btn" href="{{ AppSubUrl }}/repo/migrate?org={{ .Org.ID }}&mirror=1">{{ .i18n.Tr "new_migrate" }}</a>
+            {{ end }}
+          </div>
+          <div class="divider my-2"></div>
+        {{ end }}
+        <div class="flex flex-col gap-4 divide-y">
+          <div class="flex flex-col gap-2">
+            <h4 class="flex items-center">
+              <strong class="flex flex-1">{{ .i18n.Tr "org.people" }}</strong>
+              {{ if .IsOrganizationMember }}
+                <a class="link-hover link flex items-center hover:link-primary" href="{{ .OrgLink }}/members"><span>{{ .Org.NumMembers }}</span> {{ svg "octicon-chevron-right" }}</a>
+              {{ end }}
+            </h4>
+
+            <div class="flex flex-wrap items-center gap-2">
+              {{ $isMember := .IsOrganizationMember }}
+              {{ range .Members }}
+                {{ if or $isMember (call $.IsPublicMember .ID) }}
+                  <a class="avatar" href="{{ .HomeLink }}" title="{{ .Name }}{{ if .FullName }}({{ .FullName }}){{ end }}">
+                    <div class="h-8 w-8 rounded-full">
+                      {{ avatar . }}
+                    </div>
+                  </a>
+                {{ end }}
+              {{ end }}
+            </div>
+          </div>
+
+          {{ if .IsOrganizationMember }}
+            <div class="flex flex-col gap-2 pt-2">
+              <h4 class="flex items-center">
+                <strong class="flex flex-1">{{ .i18n.Tr "org.teams" }}</strong>
+                <a class="link-hover link flex items-center hover:link-primary" href="{{ .OrgLink }}/teams"><span>{{ .Org.NumTeams }}</span> {{ svg "octicon-chevron-right" }}</a>
+              </h4>
+              <div class="flex flex-wrap items-center gap-2">
+                {{ range .Teams }}
+                  <div class="flex flex-col gap-1">
+                    <a class="link-hover link-primary link" href="{{ $.OrgLink }}/teams/{{ .LowerName | PathEscape }}"><strong class="team-name">{{ .Name }}</strong></a>
+                    <p class="cu-links-primary-hover text-gray-400">
+                      <a href="{{ $.OrgLink }}/teams/{{ .LowerName | PathEscape }}"><strong>{{ .NumMembers }}</strong> {{ $.i18n.Tr "org.lower_members" }}</a> ·
+                      <a href="{{ $.OrgLink }}/teams/{{ .LowerName | PathEscape }}/repositories"><strong>{{ .NumRepos }}</strong> {{ $.i18n.Tr "org.lower_repositories" }}</a>
+                    </p>
+                  </div>
+                {{ end }}
+              </div>
+              {{ if .IsOrganizationOwner }}
+                <a class="btn-primary btn-sm btn w-fit" href="{{ .OrgLink }}/teams/new">{{ .i18n.Tr "org.create_new_team" }}</a>
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

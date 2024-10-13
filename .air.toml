@@ -1,0 +1,14 @@
+root = "."
+tmp_dir = ".air"
+
+[build]
+cmd = "TAGS='no_plugin_meta fast_dev' make backend-debug"
+bin = "gitbundle-debug" # --verbose -C /var/gitbundle -c gitbundle/conf/app-dev.ini
+include_ext = ["go", "svg"]
+exclude_dir = [
+  "pkg/git/gitdiff/testdata",
+  "public",
+  "web_src",
+]
+include_dir = ["cmd", "pkg", "options", "public/img/svg"]
+exclude_regex = ["_test.go$"]

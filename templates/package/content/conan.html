@@ -1,0 +1,34 @@
+{{ if eq .PackageDescriptor.Package.Type "conan" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.conan.registry" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>conan remote add gitea {{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/conan</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.conan.install" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>conan install --remote=gitea {{ .PackageDescriptor.Package.Name }}/{{ .PackageDescriptor.Version.Version }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.conan.documentation" | Safe }}</p>
+  </div>
+
+  {{ if .PackageDescriptor.Metadata.Description }}
+    <h4 class="!mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <div class="cu-links-primary">
+      {{ if .PackageDescriptor.Metadata.Description }}{{ .PackageDescriptor.Metadata.Description }}{{ end }}
+    </div>
+  {{ end }}
+
+  {{ if or .PackageDescriptor.Metadata.Keywords }}
+    <h4 class="!mt-10 text-lg">{{ .i18n.Tr "packages.keywords" }}</h4>
+    <div class="flex flex-wrap items-center gap-2">
+      {{ range .PackageDescriptor.Metadata.Keywords }}
+        <div class="badge-ghost badge">{{ . }}</div>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ end }}

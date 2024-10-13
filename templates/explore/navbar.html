@@ -1,0 +1,9 @@
+<div class="bg-base-300">
+  {{ template "explore/navbar_menu" . }}
+
+  {{ if or .PageIsExploreIssues .PageIsExplorePulls }}
+    {{ template "explore/issue_menu" . }}
+  {{ else if .PageIsExploreMilestones }}
+    {{ template "explore/milestone_menu" . }}
+  {{ end }}
+</div>

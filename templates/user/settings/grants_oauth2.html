@@ -1,0 +1,27 @@
+<h4 class="mt-10 text-xl font-bold">
+  {{ .i18n.Tr "settings.authorized_oauth2_applications" }}
+</h4>
+<div class="divider my-2"></div>
+<div class="space-y-2">
+  <p>
+    {{ .i18n.Tr "settings.authorized_oauth2_applications_description" }}
+  </p>
+  <div class="divide-y">
+    {{ range $grant := .Grants }}
+      <div class="flex items-center justify-between py-2">
+        <div class="flex items-center gap-2">
+          <div>
+            {{ svg "octicon-key" }}
+          </div>
+          <div class="flex flex-col gap-1">
+            <strong>{{ $grant.Application.Name }}</strong>
+            <i>{{ $.i18n.Tr "settings.add_on" }} <span>{{ $grant.CreatedUnix.FormatShort }}</span></i>
+          </div>
+        </div>
+        <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="revoke-gitea-oauth2-grant" data-href="{{ AppSubUrl }}/user/settings/applications/oauth2/revoke" data-form-key[0]="id" data-form-val[0]="{{ $grant.ID }}" data-title="{{ $.i18n.Tr "settings.revoke_oauth2_grant" }}" data-desc="{{ $.i18n.Tr "settings.revoke_oauth2_grant_description" }}">
+          {{ $.i18n.Tr "settings.revoke_key" }}
+        </button>
+      </div>
+    {{ end }}
+  </div>
+</div>

@@ -1,0 +1,67 @@
+{{ template "base/head" . }}
+<!--  organization members -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    {{ template "base/alert" . }}
+    <div class="space-y-2 divide-y">
+      {{ range .Members }}
+        <div class="grid grid-cols-16 pt-2">
+          <div class="col-span-4 flex items-center gap-2">
+            {{ avatar . 32 "rounded-full" }}
+            <div class="flex flex-col gap-1">
+              <a class="link-hover link-primary link" href="{{ .HomeLink }}">{{ .Name }}</a>
+              <div>{{ .FullName }}</div>
+            </div>
+          </div>
+          <div class="col-span-4 grid justify-center">
+            <div>
+              {{ $.i18n.Tr "org.members.membership_visibility" }}
+            </div>
+            <div>
+              {{ $isPublic := index $.MembersIsPublicMember .ID }}
+              {{ if $isPublic }}
+                <strong>{{ $.i18n.Tr "org.members.public" }}</strong>
+                {{ if or (eq $.SignedUser.ID .ID) $.IsOrganizationOwner }}(<a svelte-async-button class="link-hover link-primary link" href="#" data-href="{{ $.OrgLink }}/members/action/private?uid={{ .ID }}">{{ $.i18n.Tr "org.members.public_helper" }}</a>){{ end }}
+              {{ else }}
+                <strong>{{ $.i18n.Tr "org.members.private" }}</strong>
+                {{ if or (eq $.SignedUser.ID .ID) $.IsOrganizationOwner }}(<a svelte-async-button class="link-hover link-primary link" href="#" data-href="{{ $.OrgLink }}/members/action/public?uid={{ .ID }}">{{ $.i18n.Tr "org.members.private_helper" }}</a>){{ end }}
+              {{ end }}
+            </div>
+          </div>
+          <div class="col-span-3 grid justify-center">
+            <div>
+              {{ $.i18n.Tr "org.members.member_role" }}
+            </div>
+            <div>
+              <strong class="flex items-center gap-1">{{ if index $.MembersIsUserOrgOwner .ID }}{{ svg "octicon-shield-lock" }} {{ $.i18n.Tr "org.members.owner" }}{{ else }}{{ $.i18n.Tr "org.members.member" }}{{ end }}</strong>
+            </div>
+          </div>
+          <div class="col-span-2 grid justify-center">
+            <div>
+              {{ $.i18n.Tr "admin.users.2fa" }}
+            </div>
+            <div>
+              <strong class="flex justify-center">
+                {{ if index $.MembersTwoFaStatus .ID }}
+                  <span class="text-green-600">{{ svg "octicon-check" }}</span>
+                {{ else }}
+                  {{ svg "octicon-x" }}
+                {{ end }}
+              </strong>
+            </div>
+          </div>
+          <div class="col-span-3 grid justify-end">
+            {{ if eq $.SignedUser.ID .ID }}
+              <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="leave-organization" data-title="{{ $.i18n.Tr "org.members.leave" }}" data-desc="{{ $.i18n.Tr "org.members.leave.detail" $.Org.DisplayName | Safe }}" data-href="{{ $.OrgLink }}/members/action/leave" data-form-key[0]="uid" data-form-val[0]="{{ .ID }}">{{ $.i18n.Tr "org.members.leave" }}</button>
+            {{ else if $.IsOrganizationOwner }}
+              <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="remove-organization-member" data-title="{{ $.i18n.Tr "org.members.remove" }}" data-desc="{{ $.i18n.Tr "org.members.remove.detail" .DisplayName $.Org.DisplayName | Safe }}" data-href="{{ $.OrgLink }}/members/action/remove" data-form-key[0]="uid" data-form-val[0]="{{ .ID }}">{{ $.i18n.Tr "org.members.remove" }}</button>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+    </div>
+    {{ template "base/paginate" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

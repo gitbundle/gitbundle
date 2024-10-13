@@ -1,0 +1,59 @@
+<script>
+(function() {
+  const data = {
+    ...window.config.pageData.dashboardRepoList, // it only contains searchLimit and uid
+
+    isMirrorsEnabled: {{.IsMirrorsEnabled}},
+    isStarsEnabled: {{not .IsDisableStars}},
+
+    textRepository: {{.i18n.Tr "repository"}},
+    textOrganization: {{.i18n.Tr "organization"}},
+    textMyRepos: {{.i18n.Tr "home.my_repos"}},
+    textNewRepo: {{.i18n.Tr "new_repo"}},
+    textSearchRepos: {{.i18n.Tr "home.search_repos"}},
+    textFilter: {{.i18n.Tr "home.filter"}},
+    textShowArchived: {{.i18n.Tr "home.show_archived"}},
+    textShowPrivate: {{.i18n.Tr "home.show_private"}},
+
+    textShowBothArchivedUnarchived: {{.i18n.Tr "home.show_both_archived_unarchived"}},
+    textShowOnlyUnarchived: {{.i18n.Tr "home.show_only_unarchived"}},
+    textShowOnlyArchived: {{.i18n.Tr "home.show_only_archived"}},
+
+    textShowBothPrivatePublic: {{.i18n.Tr "home.show_both_private_public"}},
+    textShowOnlyPublic: {{.i18n.Tr "home.show_only_public"}},
+    textShowOnlyPrivate: {{.i18n.Tr "home.show_only_private"}},
+
+    textAll: {{.i18n.Tr "all"}},
+    textSources: {{.i18n.Tr "sources"}},
+    textForks: {{.i18n.Tr "forks"}},
+    textMirrors: {{.i18n.Tr "mirrors"}},
+    textCollaborative: {{.i18n.Tr "collaborative"}},
+
+    textFirstPage: {{.i18n.Tr "admin.first_page"}},
+    textPreviousPage: {{.i18n.Tr "repo.issues.previous"}},
+    textNextPage: {{.i18n.Tr "repo.issues.next"}},
+    textLastPage: {{.i18n.Tr "admin.last_page"}},
+
+    textMyOrgs: {{.i18n.Tr "home.my_orgs"}},
+    textNewOrg: {{.i18n.Tr "new_org"}},
+    textLoadMore: {{.i18n.Tr "load_more"}},
+  };
+
+  {{if .Team}}
+  data.teamId = {{.Team.ID}};
+  {{end}}
+
+  {{if not .ContextUser.IsOrganization}}
+  data.organizations = [{{range .Orgs}}{'name': {{.Name}}, 'num_repos': {{.NumRepos}}},{{end}}];
+  data.isOrganization = false;
+  data.organizationsTotalCount = {{.UserOrgsCount}}
+  data.canCreateOrganization = {{.SignedUser.CanCreateOrganization}}
+  {{end}}
+
+  window.config.pageData.dashboardRepoList = data;
+})()
+</script>
+
+<div id="dashboard-repo-list" class="w-full">
+  {{ template "base/loading_ellipsis" }}
+</div>

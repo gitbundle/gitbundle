@@ -1,0 +1,18 @@
+<div class="flex items-start gap-4">
+  {{ avatar .Org 140 "rounded" }}
+  <div id="org-info" class="space-y-2">
+    <div class="flex items-center gap-1 text-3xl font-bold">
+      <a class="link-hover link hover:link-primary" href="{{ .HomeLink }}">{{ .Org.DisplayName }}</a>
+      <a href="{{ .Org.HomeLink }}.rss"><i class="tooltip text-base-content/40" data-tip="{{ .i18n.Tr "rss_feed" }}">{{ svg "octicon-rss" 20 "!w-5 !h-5" }}</i></a>
+      {{ if .Org.Visibility.IsLimited }}<div class="badge-outline-yellow badge-outline badge font-normal opacity-60">{{ .i18n.Tr "org.settings.visibility.limited_shortname" }}</div>{{ end }}
+      {{ if .Org.Visibility.IsPrivate }}<div class="badge-outline-red badge-outline badge font-normal opacity-60">{{ .i18n.Tr "org.settings.visibility.private_shortname" }}</div>{{ end }}
+    </div>
+    {{ if $.RenderedDescription }}<p class="render-content markup">{{ $.RenderedDescription|Str2html }}</p>{{ end }}
+    <div class="flex items-center gap-4 text-base-content/80">
+      {{ if .Org.Location }}<div class="flex items-center gap-1">{{ svg "octicon-location" }} <span>{{ .Org.Location }}</span></div>{{ end }}
+      {{ if .Org.Website }}<div class="flex items-center gap-1">{{ svg "octicon-link" }} <a class="link-hover link hover:link-primary" target="_blank" rel="noopener noreferrer" href="{{ .Org.Website }}">{{ .Org.Website }}</a></div>{{ end }}
+    </div>
+  </div>
+</div>
+
+{{ template "org/menu" . }}

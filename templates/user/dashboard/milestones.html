@@ -1,0 +1,165 @@
+{{ template "user/dashboard/header" . }}
+<div class="my-4 flex flex-1 justify-between gap-8 px-8">
+  <div class="mx-auto flex w-full max-w-7xl gap-8">
+    <!-- <div class="mx-auto flex w-full flex-col space-y-4 xl:w-[70%] cu-w:max-w-[calc((2560px-20rem)*0.7)]"> -->
+    <div class="flex w-full max-w-4xl flex-col space-y-4">
+      <div class="flex items-center justify-between">
+        <ul class="menu rounded-box menu-horizontal bg-base-200">
+          <li>
+            <a class="{{ if not .IsShowClosed }}active{{ end }} flex items-center gap-1" href="{{ .Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state=open&q={{ $.Keyword }}">
+              {{ svg "octicon-milestone" }}
+              {{ JsPrettyNumber .MilestoneStats.OpenCount }}&nbsp;{{ .i18n.Tr "repo.issues.open_title" }}
+            </a>
+          </li>
+          <li>
+            <a class="{{ if .IsShowClosed }}active{{ end }} flex items-center gap-1" href="{{ .Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state=closed&q={{ $.Keyword }}">
+              {{ svg "octicon-check" }}
+              {{ JsPrettyNumber .MilestoneStats.ClosedCount }}&nbsp;{{ .i18n.Tr "repo.issues.closed_title" }}
+            </a>
+          </li>
+        </ul>
+        <form class="ignore-dirty w-2/5">
+          <input type="hidden" name="type" value="{{ $.ViewType }}" />
+          <input type="hidden" name="repos" value="[{{ range $.RepoIDs }}{{ . }},{{ end }}]" />
+          <input type="hidden" name="sort" value="{{ $.SortType }}" />
+          <input type="hidden" name="state" value="{{ $.State }}" />
+          <div class="input-group">
+            <input class="input-bordered input w-full" name="q" value="{{ $.Keyword }}" placeholder="{{ .i18n.Tr "explore.search" }}..." />
+            <button class="btn-primary btn" type="submit">{{ .i18n.Tr "explore.search" }}</button>
+          </div>
+        </form>
+        <!-- Sort -->
+        <div class="dropdown-end dropdown">
+          <label tabindex="0" class="btn-normal btn-outline btn flex items-center gap-1">
+            <span> {{ .i18n.Tr "repo.issues.filter_sort" }}</span>
+            <span> by: </span>
+            <span>{{ $.SortType }}</span>
+            {{ svg "octicon-triangle-down" 14 }}
+          </label>
+          <ul class="dropdown-content menu p-2">
+            <li>
+              <a class="{{ if or (eq .SortType "closestduedate") (not .SortType) }}active{{ end }} item" href="{{ $.Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=closestduedate&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.milestones.filter_sort.closest_due_date" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "furthestduedate" }}active{{ end }} item" href="{{ $.Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=furthestduedate&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.milestones.filter_sort.furthest_due_date" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "leastcomplete" }}active{{ end }} item" href="{{ $.Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=leastcomplete&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.milestones.filter_sort.least_complete" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "mostcomplete" }}active{{ end }} item" href="{{ $.Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=mostcomplete&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.milestones.filter_sort.most_complete" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "mostissues" }}active{{ end }} item" href="{{ $.Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=mostissues&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.milestones.filter_sort.most_issues" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "leastissues" }}active{{ end }} item" href="{{ $.Link }}?repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=leastissues&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.milestones.filter_sort.least_issues" }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex flex-col divide-y">
+        {{ range .Milestones }}
+          <div class="flex items-center gap-2 px-1 py-4 hover:bg-base-content/10">
+            <div class="flex flex-1 flex-col gap-2">
+              <h2 class="flex items-center gap-1">
+                <span class="badge-ghost badge">{{ .Repo.FullName }}</span>
+                {{ svg "octicon-milestone" 16 }}<a class="link-hover link-primary link" href="{{ .Repo.Link }}/milestone/{{ .ID }}">{{ .Name }}</a>
+              </h2>
+              <div class="flex items-center gap-1 text-gray-500">
+                {{ $closedDate:= TimeSinceUnix .ClosedDateUnix $.i18n.Lang }}
+                {{ if .IsClosed }}
+                  {{ svg "octicon-clock" }}
+                  {{ $.i18n.Tr "repo.milestones.closed" $closedDate|Str2html }}
+                {{ else }}
+                  {{ svg "octicon-calendar" }}
+                  {{ if .DeadlineString }}
+                    <span {{ if .IsOverdue }}class="text-red-600"{{ end }}>{{ .DeadlineString }}</span>
+                  {{ else }}
+                    {{ $.i18n.Tr "repo.milestones.no_due_date" }}
+                  {{ end }}
+                {{ end }}
+                <span class="flex items-center gap-1">
+                  {{ svg "octicon-issue-opened" }}
+                  {{ JsPrettyNumber .NumOpenIssues }}&nbsp;{{ $.i18n.Tr "repo.issues.open_title" }}
+                  {{ svg "octicon-check" }}
+                  {{ JsPrettyNumber .NumClosedIssues }}&nbsp;{{ $.i18n.Tr "repo.issues.closed_title" }}
+                  {{ if .TotalTrackedTime }}
+                    {{ svg "octicon-clock" }}
+                    {{ .TotalTrackedTime|Sec2Time }}
+                  {{ end }}
+                </span>
+              </div>
+              {{ if .Content }}
+                <div class="markup">
+                  {{ .RenderedContent|Str2html }}
+                </div>
+              {{ end }}
+            </div>
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-end">
+                <span class="mr-3">{{ .Completeness }}%</span>
+                <progress class="cu-progress !h-3 !w-32" value="{{ .Completeness }}" max="100"></progress>
+              </div>
+
+              {{ if and (or $.CanWriteIssues $.CanWritePulls) (not $.Repository.IsArchived) }}
+                <div class="cu-links-primary-hover flex items-center justify-end gap-2">
+                  <a class="flex items-center" href="{{ $.Link }}/{{ .ID }}/edit" data-id="{{ .ID }}" title="{{ .Name }}">{{ svg "octicon-pencil" }} {{ $.i18n.Tr "repo.issues.label_edit" }}</a>
+                  {{ if .IsClosed }}
+                    <a class="flex items-center" href="{{ $.Link }}/{{ .ID }}/open" data-id="{{ .ID }}" title="{{ .Name }}">{{ svg "octicon-check" }} {{ $.i18n.Tr "repo.milestones.open" }}</a>
+                  {{ else }}
+                    <a class="flex items-center" href="{{ $.Link }}/{{ .ID }}/close" data-id="{{ .ID }}" title="{{ .Name }}">{{ svg "octicon-x" }} {{ $.i18n.Tr "repo.milestones.close" }}</a>
+                  {{ end }}
+                  <a svelte-simple-modal class="delete-button" href="#" data-title="{{ $.i18n.Tr "repo.milestones.deletion" }}" data-desc="{{ $.i18n.Tr "repo.milestones.deletion_desc" }}" data-href="{{ $.RepoLink }}/milestones/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">{{ svg "octicon-trash" }} {{ $.i18n.Tr "repo.issues.label_delete" }}</a>
+                </div>
+              {{ end }}
+            </div>
+          </div>
+        {{ end }}
+      </div>
+      {{ template "base/paginate" . }}
+    </div>
+    <!-- <div class="hidden xl:flex xl:w-[30%] cu-w:max-w-[calc((2560px-20rem)*0.3)]"> -->
+    <div class="hidden h-fit w-full max-w-sm xl:flex">
+      <ul class="cu-bordered-menu rounded-box w-full bg-base-200 p-2">
+        <li>
+          <div class="divider-y"></div>
+          <a class="flex items-center justify-between" href="{{ .Link }}?type=your_repositories&sort={{ $.SortType }}&state={{ .State }}&q={{ $.Keyword }}">
+            {{ .i18n.Tr "home.issues.in_your_repos" }}
+            <strong class="badge">{{ .Total }}</strong>
+          </a>
+        </li>
+        <div class="divider my-2"></div>
+        {{ range .Repos }}
+          {{ with $Repo := . }}
+            <li class="{{ range $.RepoIDs }}{{ if eq . $Repo.ID }}cu-bordered{{ end }}{{ end }}">
+              <div class="divider-y"></div>
+              <a
+                class="{{ range $.RepoIDs }}{{ if eq . $Repo.ID }}active{{ end }}{{ end }} flex items-center justify-between"
+                href="{{ $.Link }}?repos=[
+                  {{- with $include := true -}}
+                  {{- range $.RepoIDs -}}
+                    {{- if eq . $Repo.ID -}}
+                      {{ $include = false }}
+                    {{- else -}}
+                      {{ . }}%2C
+                    {{- end -}}
+                  {{- end -}}
+                  {{- if eq $include true -}}
+                    {{ $Repo.ID }}%2C
+                  {{- end -}}
+                {{- end -}}
+                  ]&sort={{ $.SortType }}&state={{ $.State }}&q={{ $.Keyword }}"
+                title="{{ .FullName }}"
+              >
+                <span class="truncate">{{ $Repo.FullName }}</span>
+                <div class="{{ if $.IsShowClosed }}badge-red{{ else }}badge-primary{{ end }} badge">{{ index $.Counts $Repo.ID }}</div>
+              </a>
+            </li>
+          {{ end }}
+        {{ end }}
+      </ul>
+    </div>
+  </div>
+</div>
+{{ template "user/dashboard/footer" . }}

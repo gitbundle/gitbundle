@@ -1,0 +1,28 @@
+.diff-container {
+  .diff-stats-bar {
+    @apply inline-block h-3 w-10 bg-red-900;
+    .add-bar {
+      @apply h-full bg-green-900;
+    }
+  }
+  .diff-stats {
+    .status {
+      @apply mr-2 inline-flex h-3 w-3;
+      &.modify {
+        @apply bg-yellow-800;
+      }
+      &.add {
+        @apply bg-green-800;
+      }
+      &.del {
+        @apply bg-red-800;
+      }
+      &.rename {
+        @apply bg-teal-800;
+      }
+      &.copy {
+        @apply bg-lime-800;
+      }
+    }
+  }
+}

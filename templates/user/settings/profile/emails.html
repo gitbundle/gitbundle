@@ -1,0 +1,86 @@
+{{ template "base/head" . }}
+<!--  user settings account -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "user/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="text-xl font-bold">
+          {{ .i18n.Tr "settings.manage_emails" }}
+        </h4>
+        <div class="divider my-2"></div>
+        {{ if $.EnableNotifyMail }}
+          <form action="{{ .Link }}" class="flex items-center justify-between" method="post">
+            {{ .i18n.Tr "settings.email_desc" }}
+            {{ $.CsrfTokenHtml }}
+            <input name="_method" type="hidden" value="NOTIFICATION" />
+            <div class="flex items-center gap-2">
+              <select class="select-bordered select" name="preference">
+                <option value="enabled" {{ if eq .EmailNotificationsPreference "enabled" }}selected{{ end }}>{{ $.i18n.Tr "settings.email_notifications.enable" }}</option>
+                <option value="onmention" {{ if eq .EmailNotificationsPreference "onmention" }}selected{{ end }}>{{ $.i18n.Tr "settings.email_notifications.onmention" }}</option>
+                <option value="disabled" {{ if eq .EmailNotificationsPreference "disabled" }}selected{{ end }}>{{ $.i18n.Tr "settings.email_notifications.disable" }}</option>
+              </select>
+              <button class="btn-primary btn">{{ $.i18n.Tr "settings.email_notifications.submit" }}</button>
+            </div>
+          </form>
+        {{ end }}
+        <div class="divide-y">
+          {{ range .Emails }}
+            <div class="flex items-center justify-between py-2">
+              <div class="flex items-center gap-1">
+                <strong>{{ .Email }}</strong>
+                {{ if .IsPrimary }}
+                  <div class="badge-primary badge badge-sm">{{ $.i18n.Tr "settings.primary" }}</div>
+                {{ end }}
+                {{ if .IsActivated }}
+                  <div class="badge-primary badge badge-sm">{{ $.i18n.Tr "settings.activated" }}</div>
+                {{ else }}
+                  <div class="badge-ghost badge">{{ $.i18n.Tr "settings.requires_activation" }}</div>
+                {{ end }}
+              </div>
+              <div class="flex items-center gap-1">
+                {{ if not .IsActivated }}
+                  <form action="{{ $.Link }}" method="post">
+                    {{ $.CsrfTokenHtml }}
+                    <input name="_method" type="hidden" value="SENDACTIVATION" />
+                    <input name="id" type="hidden" value="{{ .ID }}" />
+                    {{ if $.ActivationsPending }}
+                      <button disabled class="btn-primary btn-xs btn">{{ $.i18n.Tr "settings.activations_pending" }}</button>
+                    {{ else }}
+                      <button class="btn-primary btn-xs btn">{{ $.i18n.Tr "settings.activate_email" }}</button>
+                    {{ end }}
+                  </form>
+                {{ end }}
+                {{ if not .IsPrimary }}
+                  {{ if .CanBePrimary }}
+                    <form action="{{ $.Link }}" method="post">
+                      {{ $.CsrfTokenHtml }}
+                      <input name="_method" type="hidden" value="PRIMARY" />
+                      <input name="id" type="hidden" value="{{ .ID }}" />
+                      <button class="btn-primary btn-xs btn">{{ $.i18n.Tr "settings.primary_email" }}</button>
+                    </form>
+                  {{ end }}
+                  <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="delete-email" data-title="{{ $.i18n.Tr "settings.email_deletion" }}" data-desc="{{ $.i18n.Tr "settings.email_deletion_desc" }}" data-href="{{ AppSubUrl }}/user/settings/account/emails/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">
+                    {{ $.i18n.Tr "settings.delete_email" }}
+                  </button>
+                {{ end }}
+              </div>
+            </div>
+          {{ end }}
+          <form action="{{ .Link }}" method="post">
+            {{ .CsrfTokenHtml }}
+            <div class="required {{ if .Err_Email }}error{{ end }} form-control">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "settings.add_new_email" }}</span></label>
+              <input class="input-bordered input" id="email" name="email" type="email" required {{ if not .CanAddEmails }}disabled{{ end }} />
+            </div>
+            <button class="btn-primary btn mt-2" {{ if not .CanAddEmails }}disabled{{ end }}>
+              {{ .i18n.Tr "settings.add_email" }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

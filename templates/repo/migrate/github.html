@@ -1,0 +1,18 @@
+{{ template "repo/migrate/top" . }}
+<div class="{{ if .Err_Auth }}error{{ end }} form-control w-full">
+  <label for="auth_token" class="label">
+    <span class="label-text flex items-center font-bold">
+      {{ .i18n.Tr "access_token" }}
+      <a target="_blank" class="link-primary link" href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token">{{ svg "octicon-question" }}</a>
+    </span>
+  </label>
+  <input id="auth_token" class="input-bordered input w-full" name="auth_token" value="{{ .auth_token }}" {{ if not .auth_token }}data-need-clear="true"{{ end }} />
+  <div class="label">
+    <span class="help label-text-alt">
+      {{ .i18n.Tr "repo.migrate.github_token_desc" }}
+    </span>
+  </div>
+</div>
+{{ template "repo/migrate/options" . }}
+{{ template "repo/migrate/extra_options" . }}
+{{ template "repo/migrate/bottom" . }}

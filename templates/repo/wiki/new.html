@@ -1,0 +1,50 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository wiki new -->
+<div jq-repository-wiki-new class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <div class="mx-auto w-full max-w-5xl">
+      <div class="flex items-start justify-between">
+        <span class="text-2xl font-bold">{{ .i18n.Tr "repo.wiki.new_page" }}</span>
+        {{ if .PageIsWikiEdit }}
+          <a class="btn-primary btn" href="{{ .RepoLink }}/wiki?action=_new">{{ .i18n.Tr "repo.wiki.new_page_button" }}</a>
+        {{ end }}
+      </div>
+      <form jq-form class="mt-2" action="{{ .Link }}" method="post">
+        {{ .CsrfTokenHtml }}
+        <div class="{{ if .Err_Title }}error{{ end }} form-control w-full">
+          <input class="input-bordered input w-full" name="title" value="{{ .title }}" autofocus required />
+          <label class="label">
+            <span class="label-text-alt text-gray-500">{{ .i18n.Tr "repo.wiki.page_name_desc" }}</span>
+          </label>
+        </div>
+
+        <div jq-content-editor class="flex flex-col space-y-4">
+          <div jq-tabs jq-previewtabs class="tabs" data-write="write" data-preview="preview">
+            <a class="tab-lifted tab tab-active" data-tab="write">{{ .i18n.Tr "write" }}</a>
+            <a class="tab-lifted tab" data-tab="preview" data-url="{{ $.Repository.HTMLURL }}/markdown" data-context="{{ $.RepoLink }}">{{ $.i18n.Tr "preview" }}</a>
+          </div>
+          <div jq-contents>
+            <div data-tab="write">
+              <textarea class="js-quick-submit textarea-bordered textarea w-full" rows="8" id="edit_area" name="content" data-id="wiki-{{ .title }}" data-url="{{ .Repository.HTMLURL }}/markdown" data-context="{{ .RepoLink }}">{{ if .PageIsWikiEdit }}{{ .content }}{{ else }}{{ .i18n.Tr "repo.wiki.welcome" }}{{ end }}</textarea>
+            </div>
+            <div class="markup hidden" data-tab="preview">
+              <div class="text-center">
+                {{ template "base/loading" }}
+                {{ .i18n.Tr "loading" }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <input class="input-bordered input mt-4 w-full" name="message" placeholder="{{ .i18n.Tr "repo.wiki.default_commit_message" }}" />
+        <button class="btn-primary btn mt-4">
+          {{ .i18n.Tr "repo.wiki.save_page" }}
+        </button>
+      </form>
+    </div>
+  </div>
+  {{ Asset "js/repo-wiki-new.js" }}
+</div>
+{{ template "base/footer" . }}

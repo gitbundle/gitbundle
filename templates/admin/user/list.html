@@ -1,0 +1,145 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.users.user_manage_panel" }} ({{ .i18n.Tr "admin.total" .Total }})
+      <a class="btn-primary btn-xs btn" href="{{ AppSubUrl }}/admin/users/new">{{ .i18n.Tr "admin.users.new_account" }}</a>
+    </h4>
+    <form class="ignore-dirty flex items-center justify-between gap-4 border-t px-4 py-2" id="user-list-search-form">
+      <!-- Search Text -->
+      <div class="input-group flex-1">
+        <input class="input-bordered input input-sm w-full" name="q" value="{{ .Keyword }}" placeholder="{{ .i18n.Tr "explore.search" }}..." autofocus />
+        <button class="btn-primary btn-sm btn">{{ .i18n.Tr "explore.search" }}</button>
+      </div>
+
+      <!-- Right Menu -->
+      <div class="flex items-center gap-2">
+        <!-- Status Filter Menu Item -->
+        <div jq-dropdown class="dropdown-end dropdown">
+          <label tabindex="0" class="flex items-center gap-1">{{ .i18n.Tr "admin.users.list_status_filter.menu_text" }} {{ svg "octicon-triangle-down" }}</label>
+          <ul class="dropdown-content menu p-2">
+            <li>
+              <a class="j-reset-status-filter menu-title">{{ .i18n.Tr "admin.users.list_status_filter.reset" }}</a>
+            </li>
+            <div class="divider my-0"></div>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_admin]" value="1" /> {{ .i18n.Tr "admin.users.list_status_filter.is_admin" }}</label>
+            </li>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_admin]" value="0" /> {{ .i18n.Tr "admin.users.list_status_filter.not_admin" }}</label>
+            </li>
+            <div class="divider my-0"></div>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_active]" value="1" /> {{ .i18n.Tr "admin.users.list_status_filter.is_active" }}</label>
+            </li>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_active]" value="0" /> {{ .i18n.Tr "admin.users.list_status_filter.not_active" }}</label>
+            </li>
+            <div class="divider my-0"></div>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_restricted]" value="0" /> {{ .i18n.Tr "admin.users.list_status_filter.not_restricted" }}</label>
+            </li>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_restricted]" value="1" /> {{ .i18n.Tr "admin.users.list_status_filter.is_restricted" }}</label>
+            </li>
+            <div class="divider my-0"></div>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_prohibit_login]" value="0" /> {{ .i18n.Tr "admin.users.list_status_filter.not_prohibit_login" }}</label>
+            </li>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_prohibit_login]" value="1" /> {{ .i18n.Tr "admin.users.list_status_filter.is_prohibit_login" }}</label>
+            </li>
+            <div class="divider my-0"></div>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_2fa_enabled]" value="1" /> {{ .i18n.Tr "admin.users.list_status_filter.is_2fa_enabled" }}</label>
+            </li>
+            <li>
+              <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="status_filter[is_2fa_enabled]" value="0" /> {{ .i18n.Tr "admin.users.list_status_filter.not_2fa_enabled" }}</label>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Sort Menu Item -->
+        <div class="dropdown-end dropdown">
+          <label tabindex="0" class="flex items-center gap-1">
+            {{ .i18n.Tr "repo.issues.filter_sort" }}
+            {{ svg "octicon-triangle-down" }}
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2">
+            <li>
+              <button name="sort" value="oldest">{{ .i18n.Tr "repo.issues.filter_sort.oldest" }}</button>
+            </li>
+            <li>
+              <button name="sort" value="newest">{{ .i18n.Tr "repo.issues.filter_sort.latest" }}</button>
+            </li>
+            <li>
+              <button name="sort" value="alphabetically">{{ .i18n.Tr "repo.issues.label.filter_sort.alphabetically" }}</button>
+            </li>
+            <li>
+              <button name="sort" value="reversealphabetically">{{ .i18n.Tr "repo.issues.label.filter_sort.reverse_alphabetically" }}</button>
+            </li>
+            <li>
+              <button name="sort" value="recentupdate">{{ .i18n.Tr "repo.issues.filter_sort.recentupdate" }}</button>
+            </li>
+            <li>
+              <button name="sort" value="leastupdate">{{ .i18n.Tr "repo.issues.filter_sort.leastupdate" }}</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </form>
+    <table class="table table-zebra w-full border-t">
+      <thead>
+        <tr>
+          <th data-sortt-asc="oldest" data-sortt-desc="newest"><div class="flex items-center gap-1">ID{{ SortArrow "oldest" "newest" .SortType false }}</div></th>
+          <th data-sortt-asc="alphabetically" data-sortt-desc="reversealphabetically" data-sortt-default="true">
+            <div class="flex items-center gap-1">
+              {{ .i18n.Tr "admin.users.name" }}
+              {{ SortArrow "alphabetically" "reversealphabetically" $.SortType true }}
+            </div>
+          </th>
+          <th>{{ .i18n.Tr "email" }}</th>
+          <th>{{ .i18n.Tr "admin.users.activated" }}</th>
+          <th>{{ .i18n.Tr "admin.users.admin" }}</th>
+          <th>{{ .i18n.Tr "admin.users.restricted" }}</th>
+          <th>{{ .i18n.Tr "admin.users.2fa" }}</th>
+          <th>{{ .i18n.Tr "admin.users.repos" }}</th>
+          <th>{{ .i18n.Tr "admin.users.created" }}</th>
+          <th data-sortt-asc="leastupdate" data-sortt-desc="recentupdate">
+            <div class="flex items-center gap-1">
+              {{ .i18n.Tr "admin.users.last_login" }}
+              {{ SortArrow "leastupdate" "recentupdate" $.SortType false }}
+            </div>
+          </th>
+          <th>{{ .i18n.Tr "admin.users.edit" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Users }}
+          <tr>
+            <td>{{ .ID }}</td>
+            <td><a href="{{ .HomeLink }}">{{ .Name }}</a></td>
+            <td><span class="text email truncate">{{ .Email }}</span></td>
+            <td>{{ if .IsActive }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+            <td>{{ if .IsAdmin }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+            <td>{{ if .IsRestricted }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+            <td>{{ if index $.UsersTwoFaStatus .ID }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+            <td>{{ .NumRepos }}</td>
+            <td><span title="{{ .CreatedUnix.FormatLong }}">{{ .CreatedUnix.FormatShort }}</span></td>
+            {{ if .LastLoginUnix }}
+              <td><span title="{{ .LastLoginUnix.FormatLong }}">{{ .LastLoginUnix.FormatShort }}</span></td>
+            {{ else }}
+              <td><span>{{ $.i18n.Tr "admin.users.never_login" }}</span></td>
+            {{ end }}
+            <td><a class="link-hover link-primary link" href="{{ $.Link }}/{{ .ID }}">{{ svg "octicon-pencil" }}</a></td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+
+  {{ template "base/paginate" . }}
+  {{ Asset "js/admin-user-list.js" }}
+</div>
+{{ template "admin/base/footer" . }}

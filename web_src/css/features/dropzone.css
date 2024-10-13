@@ -1,0 +1,49 @@
+.dropzone {
+  @apply flex !min-h-0 w-full flex-wrap !rounded-lg border !border-dashed !border-base-content/10 bg-transparent !p-1 text-base-content;
+}
+
+.dropzone .dz-message {
+  @apply !m-3 w-full;
+}
+
+.dropzone .dz-button {
+  @apply btn-outline btn-xs btn;
+}
+
+.dropzone .dz-error-message {
+  top: 145px !important;
+}
+
+.dropzone .dz-preview {
+  @apply m-0;
+}
+
+.dropzone .dz-image {
+  @apply flex items-center justify-center rounded-none;
+}
+
+.dropzone .dz-image img {
+  @apply max-h-full max-w-full object-contain;
+}
+
+.dropzone .dz-preview.dz-image-preview,
+.dropzone-attachments .thumbnails img {
+  @apply !bg-transparent;
+}
+
+.dropzone-attachments .thumbnails img {
+  @apply mb-0 flex h-fit w-fit object-contain;
+}
+
+.dropzone .dz-preview:hover .dz-image img {
+  @apply backdrop-opacity-5;
+}
+
+.dropzone-attachments .divider {
+  @apply my-0;
+}
+
+.dropzone-attachments .grid,
+.dropzone-attachments .thumbnails {
+  @apply px-4 py-2;
+}

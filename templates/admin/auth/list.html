@@ -1,0 +1,40 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+
+
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.auths.auth_manage_panel" }} ({{ .i18n.Tr "admin.total" .Total }})
+      <a class="btn-primary btn-sm btn" href="{{ AppSubUrl }}/admin/auths/new">{{ .i18n.Tr "admin.auths.new" }}</a>
+    </h4>
+
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>{{ .i18n.Tr "admin.auths.name" }}</th>
+          <th>{{ .i18n.Tr "admin.auths.type" }}</th>
+          <th>{{ .i18n.Tr "admin.auths.enabled" }}</th>
+          <th>{{ .i18n.Tr "admin.auths.updated" }}</th>
+          <th>{{ .i18n.Tr "admin.users.created" }}</th>
+          <th>{{ .i18n.Tr "admin.users.edit" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Sources }}
+          <tr>
+            <td>{{ .ID }}</td>
+            <td><a href="{{ AppSubUrl }}/admin/auths/{{ .ID }}">{{ .Name }}</a></td>
+            <td>{{ .TypeName }}</td>
+            <td>{{ if .IsActive }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</td>
+            <td><span class="tooltip w-fit" data-tip="{{ .UpdatedUnix.FormatShort }}">{{ .UpdatedUnix.FormatShort }}</span></td>
+            <td><span class="tooltip w-fit" data-tip="{{ .CreatedUnix.FormatLong }}">{{ .CreatedUnix.FormatShort }}</span></td>
+            <td><a class="link-hover link-primary link" href="{{ AppSubUrl }}/admin/auths/{{ .ID }}">{{ svg "octicon-pencil" }}</a></td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

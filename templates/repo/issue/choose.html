@@ -1,0 +1,31 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository new issue -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "repo/issue/navbar" . }}
+    <div class="divide-y rounded-lg border">
+      {{ range .IssueTemplates }}
+        <div class="flex items-center px-4 py-2 hover:bg-base-content/10 hover:first:rounded-t-lg">
+          <div class="flex flex-1 flex-col">
+            <strong>{{ .Name | RenderEmojiPlain }}</strong>
+            {{ .About | RenderEmojiPlain }}
+          </div>
+          <div class="flex">
+            <a class="btn-primary btn-sm btn" href="{{ $.RepoLink }}/issues/new?template={{ .FileName }}{{ if $.milestone }}&milestone={{ $.milestone }}{{ end }}{{ if $.project }}&project={{ $.project }}{{ end }}" class="ui green button">{{ $.i18n.Tr "repo.issues.choose.get_started" }}</a>
+          </div>
+        </div>
+      {{ end }}
+      <div class="flex items-center px-4 py-2 hover:rounded-b-lg hover:bg-base-content/10">
+        <div class="flex flex-1 flex-col">
+          <strong>{{ .i18n.Tr "repo.issues.choose.blank" }}</strong>
+          {{ .i18n.Tr "repo.issues.choose.blank_about" }}
+        </div>
+        <div class="flex">
+          <a class="btn-primary btn-sm btn" href="{{ .RepoLink }}/issues/new?{{ if .milestone }}&milestone={{ .milestone }}{{ end }}{{ if $.project }}&project={{ $.project }}{{ end }}" class="ui green button">{{ $.i18n.Tr "repo.issues.choose.get_started" }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

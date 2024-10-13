@@ -1,0 +1,73 @@
+<div class="!z-auto flex flex-col justify-between bg-base-300 p-2">
+  <ul class="cu-bordered-menu">
+    <li class="{{ if .PageIsAdminDashboard }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminDashboard }}active{{ end }}" href="{{ AppSubUrl }}/admin">
+        {{ .i18n.Tr "admin.dashboard" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminUsers }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminUsers }}active{{ end }}" href="{{ AppSubUrl }}/admin/users">
+        {{ .i18n.Tr "admin.users" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminOrganizations }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminOrganizations }}active{{ end }}" href="{{ AppSubUrl }}/admin/orgs">
+        {{ .i18n.Tr "admin.organizations" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminRepositories }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminRepositories }}active{{ end }}" href="{{ AppSubUrl }}/admin/repos">
+        {{ .i18n.Tr "admin.repositories" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminPackages }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminPackages }}active{{ end }}" href="{{ AppSubUrl }}/admin/packages">
+        {{ .i18n.Tr "packages.title" }}
+      </a>
+    </li>
+    {{ if not DisableWebhooks }}
+      <li class="{{ if or .PageIsAdminDefaultHooks .PageIsAdminSystemHooks }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if or .PageIsAdminDefaultHooks .PageIsAdminSystemHooks }}active{{ end }}" href="{{ AppSubUrl }}/admin/hooks">
+          {{ .i18n.Tr "admin.hooks" }}
+        </a>
+      </li>
+    {{ end }}
+    <li class="{{ if .PageIsAdminAuthentications }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminAuthentications }}active{{ end }}" href="{{ AppSubUrl }}/admin/auths">
+        {{ .i18n.Tr "admin.authentication" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminEmails }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminEmails }}active{{ end }}" href="{{ AppSubUrl }}/admin/emails">
+        {{ .i18n.Tr "admin.emails" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminConfig }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminConfig }}active{{ end }}" href="{{ AppSubUrl }}/admin/config">
+        {{ .i18n.Tr "admin.config" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminNotices }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminNotices }}active{{ end }}" href="{{ AppSubUrl }}/admin/notices">
+        {{ .i18n.Tr "admin.notices" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsAdminMonitor }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsAdminMonitor }}active{{ end }}" href="{{ AppSubUrl }}/admin/monitor">
+        {{ .i18n.Tr "admin.monitor" }}
+      </a>
+    </li>
+  </ul>
+  <p class="pl-4 text-xs text-base-content/40">{{ .i18n.Tr "version" }}: {{ AppVer }}</p>
+</div>

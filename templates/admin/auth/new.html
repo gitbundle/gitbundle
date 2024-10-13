@@ -1,0 +1,114 @@
+{{ template "admin/base/header" . }}
+<!-- new authentication -->
+<div jq-new-authentication class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.auths.new" }}
+    </h4>
+
+    <form class="space-y-2 px-4 py-2" action="{{ .Link }}" method="post">
+      {{ template "base/disable_form_autofill" }}
+      {{ .CsrfTokenHtml }}
+      <!-- Types and name -->
+      <div class="required {{ if .Err_Type }}error{{ end }} form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.auth_type" }}</span></label>
+        <select name="type" id="auth_type" class="select-bordered select">
+          {{ range .AuthSources }}
+            <option value="{{ .Type.Int }}" {{ if and ( eq $.type .Type.Int ) ( eq $.CurrentTypeName .Name) }}selected{{ end }}>{{ .Name }}</option>
+          {{ end }}
+        </select>
+      </div>
+      <div class="required {{ if .Err_Name }}error{{ end }} form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.auth_name" }}</span></label>
+        <input class="input-bordered input" id="name" name="name" value="{{ .name }}" autofocus required />
+      </div>
+
+      <!-- LDAP and DLDAP -->
+      {{ template "admin/auth/source/ldap" . }}
+      <!-- SMTP -->
+      {{ template "admin/auth/source/smtp" . }}
+
+
+      <!-- PAM -->
+      <div class="pam required {{ if not (eq .type 4) }}hidden{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.pam_service_name" }}</span></label>
+        <input class="input-bordered input w-full" id="pam_service_name" name="pam_service_name" value="{{ .pam_service_name }}" />
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.pam_email_domain" }}</span></label>
+        <input class="input-bordered input w-full" id="pam_email_domain" name="pam_email_domain" value="{{ .pam_email_domain }}" />
+      </div>
+      <div class="pam optional {{ if not (eq .type 4) }}hidden{{ end }} form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if .skip_local_two_fa }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+        <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+      </div>
+
+      <!-- OAuth2 -->
+      {{ template "admin/auth/source/oauth" . }}
+      <!-- SSPI -->
+      {{ template "admin/auth/source/sspi" . }}
+
+
+      <div class="ldap form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="attributes_in_bind" type="checkbox" {{ if .attributes_in_bind }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.attributes_in_bind" }}</strong></label>
+      </div>
+      <div class="ldap {{ if not (eq .type 2) }}hidden{{ end }} form-control flex-row items-center gap-2">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="is_sync_enabled" type="checkbox" {{ if .is_sync_enabled }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.syncenabled" }}</strong></label>
+      </div>
+      <div class="form-control flex-row items-center gap-2">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="is_active" type="checkbox" {{ if .is_active }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.activated" }}</strong></label>
+      </div>
+
+      <div class="form-control flex-row">
+        <button class="btn-primary btn">{{ .i18n.Tr "admin.auths.new" }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.auths.tips" }}
+    </h4>
+
+    <div class="mb-4 space-y-2 px-4">
+      <h5>GMail Settings:</h5>
+      <p>Host: smtp.gmail.com, Port: 587, Enable TLS Encryption: true</p>
+
+      <h5>{{ .i18n.Tr "admin.auths.tips.oauth2.general" }}:</h5>
+      <p>{{ .i18n.Tr "admin.auths.tips.oauth2.general.tip" }}</p>
+
+      <div class="rounded-lg border">
+        <h5 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">{{ .i18n.Tr "admin.auths.tip.oauth2_provider" }}</h5>
+
+        <ul class="ml-4 list-disc px-4 py-2">
+          <li>Bitbucket</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.bitbucket" }}</span>
+          <li>Dropbox</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.dropbox" }}</span>
+          <li>Facebook</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.facebook" }}</span>
+          <li>GitHub</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.github" }}</span>
+          <li>GitLab</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.gitlab" }}</span>
+          <li>Google</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.google_plus" }}</span>
+          <li>OpenID Connect</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.openid_connect" }}</span>
+          <li>Twitter</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.twitter" }}</span>
+          <li>Discord</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.discord" }}</span>
+          <li>GitBundle</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.gitea" }}</span>
+          <li>Nextcloud</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.nextcloud" }}</span>
+          <li>Yandex</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.yandex" }}</span>
+          <li>Mastodon</li>
+          <span>{{ .i18n.Tr "admin.auths.tip.mastodon" }}</span>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

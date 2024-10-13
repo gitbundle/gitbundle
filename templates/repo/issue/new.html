@@ -1,0 +1,9 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "repo/issue/navbar" . }}
+    {{ template "repo/issue/new_form" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

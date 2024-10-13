@@ -1,0 +1,96 @@
+<h4 class="flex items-center justify-between text-xl font-bold">
+  {{ .Title }}
+  <div class="dropdown dropdown-end flex-1 text-right text-base font-normal">
+    <label tabindex="0" class="btn-primary btn-sm btn">{{ .i18n.Tr "repo.settings.add_webhook" }}</label>
+    <ul tabindex="0" class="dropdown-content menu p-2">
+      <li>
+        <a class="item" href="{{ .BaseLinkNew }}/gitbundle/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/logo.svg" />{{ .i18n.Tr "repo.settings.web_hook_name_gitbundle" }}
+        </a>
+      </li>
+      {{/*
+        <li>
+          <a class="item" href="{{ .BaseLinkNew }}/gitea/new">
+            <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/gitea.svg" />{{ .i18n.Tr "repo.settings.web_hook_name_gitea" }}
+          </a>
+        </li>
+        <li>
+          <a class="item" href="{{ .BaseLinkNew }}/gogs/new">
+            <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/gogs.ico" />{{ .i18n.Tr "repo.settings.web_hook_name_gogs" }}
+          </a>
+        </li>
+      */}}
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/slack/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/slack.png" />{{ .i18n.Tr "repo.settings.web_hook_name_slack" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/discord/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/discord.png" />{{ .i18n.Tr "repo.settings.web_hook_name_discord" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/dingtalk/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/dingtalk.ico" />{{ .i18n.Tr "repo.settings.web_hook_name_dingtalk" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/telegram/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/telegram.png" />{{ .i18n.Tr "repo.settings.web_hook_name_telegram" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/msteams/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/msteams.png" />{{ .i18n.Tr "repo.settings.web_hook_name_msteams" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/feishu/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/feishu.png" />{{ .i18n.Tr "repo.settings.web_hook_name_feishu_or_larksuite" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/matrix/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/matrix.svg" />{{ .i18n.Tr "repo.settings.web_hook_name_matrix" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/wechatwork/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/wechatwork.png" />{{ .i18n.Tr "repo.settings.web_hook_name_wechatwork" }}
+        </a>
+      </li>
+      <li>
+        <a class="inline-flex" href="{{ .BaseLinkNew }}/packagist/new">
+          <img width="20" height="20" src="{{ AssetUrlPrefix }}/img/packagist.png" />{{ .i18n.Tr "repo.settings.web_hook_name_packagist" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</h4>
+<div class="divider my-2"></div>
+<div class="mt-2">
+  <div class="cu-links-primary">
+    {{ .Description | Str2html }}
+  </div>
+  <div class="mt-4 divide-y">
+    {{ range .Webhooks }}
+      <div class="flex items-center gap-1 py-4">
+        <div class="flex flex-1 items-center">
+          {{ if eq .LastStatus 1 }}
+            <span class="mr-1 text-green-600">{{ svg "octicon-check" }}</span>
+          {{ else if eq .LastStatus 2 }}
+            <span class="mr-1 text-red-600">{{ svg "octicon-alert" }}</span>
+          {{ else }}
+            <span class="mr-1">{{ svg "octicon-dot-fill" }}</span>
+          {{ end }}
+          <a class="link-hover link-primary link truncate" title="{{ .URL }}" href="{{ $.BaseLink }}/{{ .ID }}">{{ .URL }}</a>
+        </div>
+        <div class="flex-none">
+          <a class="btn-outline-primary btn-outline btn-sm btn" href="{{ $.BaseLink }}/{{ .ID }}">{{ svg "octicon-pencil" }}</a>
+          <a svelte-simple-modal class="btn-outline btn-outline-red btn-sm btn" data-title="{{ $.i18n.Tr "repo.settings.webhook_deletion" }}" data-desc="{{ $.i18n.Tr "repo.settings.webhook_deletion_desc" }}" data-href="{{ $.Link }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">{{ svg "octicon-trash" }}</a>
+        </div>
+      </div>
+    {{ end }}
+  </div>
+</div>

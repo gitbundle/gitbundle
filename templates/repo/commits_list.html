@@ -1,0 +1,91 @@
+<div class="flex flex-col rounded-b-lg border divide-y">
+  {{ $commitRepoLink := $.RepoLink }}{{ if $.CommitRepoLink }}{{ $commitRepoLink = $.CommitRepoLink }}{{ end }}
+  {{ range .Commits }}
+    <div class="py-2 space-y-2 hover:bg-base-content/10 hover:last:rounded-b-lg">
+      <div class="collapse flex flex-col px-4 duration-300">
+        <div class="flex">
+          <div class="flex flex-1 items-center gap-x-1">
+            <span class="line-clamp-1 text-primary-content cu-links-primary-content">
+              {{ if $.PageIsWiki }}
+                <span class="commit-summary {{ if gt .ParentCount 1 }}text-primary-content{{ end }}" title="{{ .Summary }}">{{ .Summary | RenderEmoji }}</span>
+              {{ else }}
+                {{ $commitLink:= printf "%s/commit/%s" $commitRepoLink (PathEscape .ID.String) }}
+                <span class="commit-summary {{ if gt .ParentCount 1 }}text-primary-content{{ end }}" title="{{ .Summary }}">{{ RenderCommitMessageLinkSubject $.Context .Message $commitRepoLink $commitLink $.Repository.ComposeMetas }}</span>
+              {{ end }}
+            </span>
+            {{ if IsMultilineCommitMessage .Message }}
+              <label for="full-commit-message-{{.ID.String}}" class="btn-gray btn-xs btn h-1 min-h-[0.75rem]">···</label>
+            {{ end }}
+          </div>
+          <div class="flex gap-x-1 items-center">
+            <button class="copy-commit-sha btn-outline btn-xs btn" data-clipboard-text="{{ .ID }}">{{ svg "octicon-copy" 14 }}</button>
+
+            {{ $class := "normal" }}
+            {{ if .Signature }}
+              {{ if .Verification.Verified }}
+                {{ if eq .Verification.TrustStatus "trusted" }}
+                  {{ $class = "green" }}
+                {{ else if eq .Verification.TrustStatus "untrusted" }}
+                  {{ $class = "yellow" }}
+                {{ else }}
+                  {{ $class = "orange" }}
+                {{ end }}
+              {{ else if .Verification.Warning }}
+                {{ $class = "red" }}
+              {{ end }}
+            {{ end }}
+            {{ if $.PageIsWiki }}
+              <a class="btn-outline-{{ $class }} btn-outline btn-xs btn divide-x-2" href="{{ $commitRepoLink }}/wiki/commit/{{ .ID }}" rel="nofollow">
+            {{ else if $.Reponame }}
+              <a class="btn-outline-{{ $class }} btn-outline btn-xs btn divide-x-2" href="{{ $commitRepoLink }}/commit/{{ .ID }}" rel="nofollow">
+            {{ else }}
+              <span class="btn-outline-{{ $class }} btn-outline btn btn-xs divide-x-2">
+            {{ end }}
+              <span class="shortsha">{{ ShortSha .ID.String }}</span>
+            {{ if .Signature }}
+              <div class="pl-1 ml-1">
+                {{ template "repo/shabox_badge" dict "root" $ "verification" .Verification }}
+              </div>
+            {{ end }}
+            {{ if or $.Reponame $.PageIsWiki }}
+              </a>
+            {{ else }}
+              </span>
+            {{ end }}
+          </div>
+        </div>
+        <div class="flex-none">
+          {{ if IsMultilineCommitMessage .Message }}
+            <input type="checkbox" class="hidden" id="full-commit-message-{{.ID.String}}" />
+            <pre class="collapse-content !p-0 text-sm leading-8 text-base-content">{{ RenderCommitBody $.Context .Message $commitRepoLink $.Repository.ComposeMetas }}</pre>
+          {{ end }}
+        </div>
+      </div>
+      <div class="flex px-4 items-center gap-x-1">
+        {{ $userName := .Author.Name }}
+        <div class="avatar gap-x-1 items-center cu-links-primary-content">
+          {{ if .User }}
+            {{ if .User.FullName }}
+              {{ $userName = .User.FullName }}
+            {{ end }}
+            <div class="w-4 rounded-full">
+              {{ avatar .User }}
+            </div>
+            <a href="{{ .User.HomeLink }}">{{ $userName }}</a>
+          {{ else }}
+            <div class="w-4 rounded-full">
+              {{ avatarByEmail .Author.Email .Author.Name }}
+            </div>
+            {{ $userName }}
+          {{ end }}
+        </div>
+        {{ if .Committer }}
+          <span>{{ TimeSince .Committer.When $.i18n.Lang }}</span>
+        {{ else }}
+          <span>{{ TimeSince .Author.When $.i18n.Lang }}</span>
+        {{ end }}
+        {{ template "repo/commit_statuses" dict "Status" .Status "Statuses" .Statuses "root" $ }}
+      </div>
+    </div>
+  {{ end }}
+</div>

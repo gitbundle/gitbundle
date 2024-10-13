@@ -1,0 +1,70 @@
+{{ template "explore/header" . }}
+<div class="my-4 flex flex-1 flex-col gap-4 px-8">
+  <!-- <div class="mx-auto flex h-fit w-full flex-col space-y-4 xl:w-[70%] cu-w:max-w-[calc((2560px-20rem)*0.7)]"> -->
+  <div class="flex items-center justify-between">
+    <ul class="menu rounded-box menu-horizontal bg-base-200">
+      <li>
+        <a class="{{ if not .IsShowClosed }}active{{ end }} flex items-center gap-1" href="{{ .Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state=open&q={{ $.Keyword }}">
+          {{ svg "octicon-issue-opened" }}
+          {{ JsPrettyNumber .IssueStats.OpenCount }}&nbsp;{{ .i18n.Tr "repo.issues.open_title" }}
+        </a>
+      </li>
+      <li>
+        <a class="{{ if .IsShowClosed }}active{{ end }} flex items-center gap-1" href="{{ .Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state=closed&q={{ $.Keyword }}">
+          {{ svg "octicon-issue-closed" }}
+          {{ JsPrettyNumber .IssueStats.ClosedCount }}&nbsp;{{ .i18n.Tr "repo.issues.closed_title" }}
+        </a>
+      </li>
+    </ul>
+    <!-- <form class="ignore-dirty w-2/5">
+        <input type="hidden" name="type" value="{{ $.ViewType }}" />
+        <input type="hidden" name="repos" value="[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]" />
+        <input type="hidden" name="sort" value="{{ $.SortType }}" />
+        <input type="hidden" name="state" value="{{ $.State }}" />
+        <div class="input-group">
+          <input class="input-bordered input w-full" name="q" value="{{ $.Keyword }}" placeholder="{{ .i18n.Tr "explore.search" }}..." />
+          <button class="btn-primary btn" type="submit">{{ .i18n.Tr "explore.search" }}</button>
+        </div>
+      </form> -->
+    <!-- Sort -->
+    <div class="dropdown-end dropdown">
+      <label tabindex="0" class="btn-normal btn-outline btn flex items-center gap-1">
+        <span> {{ .i18n.Tr "repo.issues.filter_sort" }}</span>
+        <span> by: </span>
+        <span>{{ $.SortType }}</span>
+        {{ svg "octicon-triangle-down" 14 }}
+      </label>
+      <ul class="dropdown-content menu p-2">
+        <li>
+          <a class="{{ if or (eq .SortType "latest") (not .SortType) }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=latest&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.latest" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "oldest" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=oldest&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.oldest" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "recentupdate" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=recentupdate&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.recentupdate" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "leastupdate" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=leastupdate&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.leastupdate" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "mostcomment" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=mostcomment&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.mostcomment" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "leastcomment" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=leastcomment&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.leastcomment" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "nearduedate" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=nearduedate&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.nearduedate" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "farduedate" }}active{{ end }} item" href="{{ $.Link }}?type={{ $.ViewType }}&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort=farduedate&state={{ $.State }}&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.farduedate" }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  {{ template "shared/issuelist" mergeinto . "listType" "dashboard" }}
+  {{ template "base/paginate" . }}
+  <!-- </div> -->
+  <!-- <div class="hidden h-fit xl:flex xl:w-[30%] cu-w:max-w-[calc((2560px-20rem)*0.3)]"></div> -->
+</div>
+{{ template "explore/footer" . }}

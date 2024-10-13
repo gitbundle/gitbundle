@@ -1,0 +1,120 @@
+{{ template "base/head" . }}
+<!--  user settings sshkeys -->
+<div jq-user-settings-appearance class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "user/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <!-- Theme -->
+        <h4 class="text-xl font-bold">
+          {{ .i18n.Tr "settings.manage_themes" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <div>
+          <p>{{ .i18n.Tr "settings.theme_desc" }}</p>
+          <form action="{{ .Link }}/theme" method="post">
+            {{ .CsrfTokenHtml }}
+            <div class="form-control">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "settings.ui" }}</span></label>
+              <div class="flex items-center gap-2">
+                <select class="select-bordered select" name="theme">
+                  {{ range $i,$a := .AllThemes }}
+                    <option {{ if eq $.SignedUser.Theme $a }}selected{{ end }} value="{{ $a }}">
+                      {{ $a }}
+                    </option>
+                  {{ end }}
+                </select>
+                <button class="btn-primary btn w-fit">{{ $.i18n.Tr "settings.update_theme" }}</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Language -->
+        <h4 class="mt-10 text-xl font-bold">
+          {{ .i18n.Tr "settings.language" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <form action="{{ .Link }}/language" method="post" class="flex items-center gap-2">
+          {{ .CsrfTokenHtml }}
+          <div svelte-user-language-select class="form-control">
+            <script>
+              (() => {
+                const items = []
+                {{ range .AllLangs }}
+                items.push({value: {{.Lang}}, label: {{.Name}}})
+                {{ end }}
+                window.config.pageData.userLanguage = {
+                  items,
+                  fieldName: "language",
+                  defaultValue: {{ .SignedUser.Language }},
+                  clearable: false,
+                  ClassName: "!select !select-bordered w-full max-w-md",
+                }
+              })()
+            </script>
+          </div>
+          <button class="btn-primary btn w-fit">{{ $.i18n.Tr "settings.update_language" }}</button>
+        </form>
+
+        <!-- Shown comment event types -->
+        <h4 class="mt-10 text-xl font-bold">
+          {{ .i18n.Tr "settings.hidden_comment_types" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <form class="grid grid-cols-3 gap-2" action="{{ .Link }}/hidden_comments" method="post">
+          {{ .CsrfTokenHtml }}
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="reference" type="checkbox" {{ if(call .IsCommentTypeGroupChecked "reference") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_reference" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="label" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "label") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_label" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="milestone" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "milestone") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_milestone" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="assignee" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "assignee") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_assignee" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="title" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "title") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_title" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="branch" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "branch") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_branch" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="time_tracking" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "time_tracking") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_time_tracking" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="deadline" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "deadline") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_deadline" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="dependency" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "dependency") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_dependency" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="lock" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "lock") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_lock" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="review_request" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "review_request") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_review_request" }}</label>
+          </div>
+
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_push" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "pull_request_push") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_pull_request_push" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="project" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "project") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_project" }}</label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issue_ref" type="checkbox" {{ if (call .IsCommentTypeGroupChecked "issue_ref") }}checked{{ end }} />{{ .i18n.Tr "settings.comment_type_group_issue_ref" }}</label>
+          </div>
+          <div class="form-control col-span-full">
+            <button class="btn-primary btn w-fit">{{ $.i18n.Tr "save" }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/user-settings-language.js" }}
+</div>
+{{ template "base/footer" . }}

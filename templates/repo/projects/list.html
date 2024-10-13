@@ -1,0 +1,93 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository projects milestones -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <div class="flex items-center justify-between">
+      {{ template "repo/issue/navbar" . }}
+      {{ if and .CanWriteProjects (not .Repository.IsArchived) }}
+        <a class="btn-primary btn" href="{{ $.Link }}/new">{{ .i18n.Tr "repo.projects.new" }}</a>
+      {{ end }}
+    </div>
+
+    <div class="divide-y rounded-lg border">
+      <div class="flex items-center justify-between rounded-t-lg bg-base-200 px-4 py-2">
+        <div class="btn-group">
+          <a class="{{ if not .IsShowClosed }}active{{ end }} btn-outline btn-sm btn !text-base-content" href="{{ .RepoLink }}/projects?state=open">
+            {{ svg "octicon-project" 16 "mr-3" }}
+            {{ JsPrettyNumber .OpenCount }}&nbsp;{{ .i18n.Tr "repo.issues.open_title" }}
+          </a>
+          <a class="{{ if .IsShowClosed }}active{{ end }} btn-outline btn-sm btn !text-base-content" href="{{ .RepoLink }}/projects?state=closed">
+            {{ svg "octicon-check" 16 "mr-3" }}
+            {{ JsPrettyNumber .ClosedCount }}&nbsp;{{ .i18n.Tr "repo.issues.closed_title" }}
+          </a>
+        </div>
+
+        <div class="dropdown dropdown-end">
+          <label tabindex="0" class="flex items-center">
+            {{ .i18n.Tr "repo.issues.filter_sort" }}
+            {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2">
+            <li>
+              <a class="{{ if eq .SortType "oldest" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&sort=oldest&state={{ $.State }}">{{ .i18n.Tr "repo.issues.filter_sort.oldest" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "recentupdate" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&sort=recentupdate&state={{ $.State }}">{{ .i18n.Tr "repo.issues.filter_sort.recentupdate" }}</a>
+            </li>
+            <li>
+              <a class="{{ if eq .SortType "leastupdate" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&sort=leastupdate&state={{ $.State }}">{{ .i18n.Tr "repo.issues.filter_sort.leastupdate" }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- milestone list -->
+      <div class="divide-y">
+        {{ range .Projects }}
+          <div class="flex items-center px-4 py-2 hover:bg-base-content/10 hover:last:rounded-b-lg">
+            <div class="flex flex-1 flex-col gap-1">
+              <div class="flex items-center gap-1">{{ svg "octicon-project" }} <a class="link-hover link-primary link" href="{{ $.RepoLink }}/projects/{{ .ID }}">{{ .Title }}</a></div>
+              <div class="flex items-center">
+                {{ $closedDate:= TimeSinceUnix .ClosedDateUnix $.i18n.Lang }}
+                {{ if .IsClosed }}
+                  {{ svg "octicon-clock" }}
+                  {{ $.i18n.Tr "repo.milestones.closed" $closedDate|Str2html }}
+                {{ end }}
+                <span class="flex items-center gap-1">
+                  {{ svg "octicon-issue-opened" 16 }}
+                  {{ JsPrettyNumber .NumOpenIssues }}&nbsp;{{ $.i18n.Tr "repo.issues.open_title" }}
+                  {{ svg "octicon-check" 16 }}
+                  {{ JsPrettyNumber .NumClosedIssues }}&nbsp;{{ $.i18n.Tr "repo.issues.closed_title" }}
+                </span>
+              </div>
+              {{ if .Description }}
+                <div class="markup">
+                  {{ .RenderedContent|Str2html }}
+                </div>
+              {{ end }}
+            </div>
+
+            {{ if and (or $.CanWriteIssues $.CanWritePulls) (not $.Repository.IsArchived) }}
+              <div class="cu-links-primary-hover flex items-center gap-2">
+                <a class="btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "repo.issues.label_edit" }}" href="{{ $.Link }}/{{ .ID }}/edit" data-id="{{ .ID }}" data-title="{{ .Title }}">{{ svg "octicon-pencil" }}</a>
+                {{ if .IsClosed }}
+                  <a class="link-action btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "repo.projects.open" }}" href data-url="{{ $.Link }}/{{ .ID }}/open">{{ svg "octicon-check" }}</a>
+                {{ else }}
+                  <a class="link-action btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "repo.projects.close" }}" href data-url="{{ $.Link }}/{{ .ID }}/close">{{ svg "octicon-skip" }}</a>
+                {{ end }}
+                {{ if or $.CanWriteIssues $.CanWritePulls }}
+                  <a svelte-simple-modal class="delete-button btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "repo.issues.label_delete" }}" href="#" data-title="{{ $.i18n.Tr "repo.projects.deletion" }}" data-desc="{{ $.i18n.Tr "repo.projects.deletion_desc" }}" data-href="{{ $.RepoLink }}/projects/{{ .ID }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">{{ svg "octicon-trash" }}</a>
+                {{ end }}
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ template "base/paginate" . }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

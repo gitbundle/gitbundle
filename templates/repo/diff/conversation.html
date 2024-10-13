@@ -1,0 +1,51 @@
+{{ $resolved := (index .comments 0).IsResolved }}
+{{ $resolveDoer := (index .comments 0).ResolveDoer }}
+{{ $isNotPending := (not (eq (index .comments 0).Review.Type 0)) }}
+<div jq-conversation-holder class="flex flex-col space-y-2 py-2" data-path="{{ (index .comments 0).TreePath }}" data-side="{{ if lt (index .comments 0).Line 0 }}left{{ else }}right{{ end }}" data-idx="{{ (index .comments 0).UnsignedLine }}">
+  {{ if $resolved }}
+    <div class="resolved-placeholder mx-4 flex h-12 rounded-lg border bg-base-200 px-4">
+      <div class="flex flex-1 items-center gap-x-1">
+        {{ svg "octicon-check" 16 }}
+        <b>{{ $resolveDoer.Name }}</b> {{ $.i18n.Tr "repo.issues.review.resolved_by" }}
+      </div>
+      <div class="flex items-center gap-x-1">
+        <button jq-show-outdated jq-show-outdated-{{ (index .comments 0).ID }} data-comment="{{ (index .comments 0).ID }}" class="btn-xs btn gap-x-1">
+          {{ svg "octicon-unfold" 16 }}
+          {{ $.i18n.Tr "repo.issues.review.show_resolved" }}
+        </button>
+        <button jq-hide-outdated jq-hide-outdated-{{ (index .comments 0).ID }} data-comment="{{ (index .comments 0).ID }}" class="btn-xs btn hidden gap-x-1">
+          {{ svg "octicon-fold" 16 }}
+          {{ $.i18n.Tr "repo.issues.review.hide_resolved" }}
+        </button>
+      </div>
+    </div>
+  {{ end }}
+  <div jq-comment-code-cloud jq-code-comments-{{ (index  .comments 0).ID }} class="{{ if $resolved }}hidden{{ end }} flex flex-col space-y-2">
+    {{ template "repo/diff/comments" dict "root" $ "comments" .comments }}
+    <div class="flex justify-end gap-x-1 px-4">
+      <button jq-previous-conversation class="btn-sm btn gap-x-1">
+        {{ svg "octicon-arrow-up" 12 }}
+        {{ $.i18n.Tr "repo.issues.previous" }}
+      </button>
+      <button jq-next-conversation class="btn-sm btn gap-x-1">
+        {{ svg "octicon-arrow-down" 12 }}
+        {{ $.i18n.Tr "repo.issues.next" }}
+      </button>
+      {{ if and $.CanMarkConversation $isNotPending }}
+        <button jq-resolve-conversation class="btn-sm btn gap-x-1" data-origin="diff" data-action="{{ if not $resolved }}Resolve{{ else }}UnResolve{{ end }}" data-comment-id="{{ (index .comments 0).ID }}" data-update-url="{{ $.RepoLink }}/issues/resolve_conversation">
+          {{ if $resolved }}
+            {{ $.i18n.Tr "repo.issues.review.un_resolve_conversation" }}
+          {{ else }}
+            {{ $.i18n.Tr "repo.issues.review.resolve_conversation" }}
+          {{ end }}
+        </button>
+      {{ end }}
+      {{ if and $.SignedUserID (not $.Repository.IsArchived) }}
+        <button jq-comment-form-reply class="btn-primary btn-sm btn gap-x-1">
+          {{ svg "octicon-reply" 16 }}{{ $.i18n.Tr "repo.diff.comment.reply" }}
+        </button>
+      {{ end }}
+    </div>
+    {{ template "repo/diff/comment_form_datahandler" dict "hidden" true "reply" (index .comments 0).ReviewID "root" $ "comment" (index .comments 0) }}
+  </div>
+</div>

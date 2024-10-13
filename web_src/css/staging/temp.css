@@ -1,0 +1,78 @@
+:root {
+  --p: #1e40af; /*221.21 83.193% 53.333%;*/
+  --pf: #1d4ed8; /*221.21 83.193% 42.667%;*/
+  --sf: #155e75; /*191.65 91.398% 29.176%;*/
+  --af: #5b21b6; /*262.12 83.256% 46.275%;*/
+  --nf: 215.29 25% 21.333%;
+  --b2: 220 17.647% 18%;
+  --b3: 220 17.647% 16.2%;
+  --ac: 262.12 100% 91.569%;
+  --nc: 215.29 100% 85.333%;
+  --inc: 225.93 100% 88.039%;
+  --suc: 163.15 100% 83.961%;
+  --wac: 42.778 100% 11.216%;
+  --erc: 0 100% 87.059%;
+  /* --rounded-box: 1rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.25s;
+  --animation-input: 0.2s;
+  --btn-text-case: uppercase;
+  --btn-focus-scale: 0.95;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem; */
+  --s: 191.65 91.398% 36.471%;
+  --a: 262.12 83.256% 57.843%;
+  --n: 215.29 25% 26.667%;
+  --in: 225.93 70.732% 40.196%;
+  --su: 163.15 88.119% 19.804%;
+  --wa: 42.778 96.429% 56.078%;
+  --er: 0 70% 35.294%;
+  --b1: 220 17.647% 20%;
+  --bc: 220 13.376% 69.216%;
+  --pc: 0 0% 100%;
+  --sc: 216 12.821% 92.353%;
+}
+
+.lines-num,
+.lines-code {
+  /* font-size: 12px;
+  font-family: var(--fonts-monospace);
+  line-height: 20px;
+  padding-top: 0;
+  padding-bottom: 0; */
+
+  pre,
+  ol {
+    /* @apply bg-inherit m-0 p-0; */
+
+    li {
+      /* display: block;
+      width: calc(100% - 1ch);
+      padding-left: 1ch; */
+
+      /* @apply block w-[calc(100%-1ch)] pl-[1ch]; */
+    }
+  }
+}
+
+.lines-code {
+  /* background-color: var(--color-code-bg);
+  padding-left: 5px; */
+
+  /* @apply pl-1;bg-base-100 */
+}
+
+.lines-code.active,
+.lines-code .active {
+  /* background: #fffbdd !important; */
+  /* @apply bg-slate-600; */
+}
+
+/* .lines-code,
+.lines-commit {
+  .bottom-line {
+    @apply border-b-mako-800;
+  }
+} */

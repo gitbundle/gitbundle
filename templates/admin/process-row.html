@@ -1,0 +1,19 @@
+<div class="flex flex-col px-4 py-2">
+  <div class="flex items-center gap-2">
+    <div>{{ if eq .Process.Type "request" }}{{ svg "octicon-globe" 16 }}{{ else if eq .Process.Type "system" }}{{ svg "octicon-cpu" 16 }}{{ else }}{{ svg "octicon-terminal" 16 }}{{ end }}</div>
+    <div class="flex flex-col gap-1">
+      <div class="font-bold">{{ .Process.Description }}</div>
+      <div class="text-gray-500"><span title="{{ DateFmtLong .Process.Start }}">{{ TimeSince .Process.Start .root.i18n.Lang }}</span></div>
+    </div>
+    {{ if ne .Process.Type "system" }}
+      <a svelte-simple-modal class="link-hover link-primary link" href="#" data-href="{{ .root.Link }}/cancel/{{ .Process.PID }}" data-title="{{ .root.i18n.Tr "admin.monitor.process.cancel" }}" data-desc="{{ .root.i18n.Tr "admin.monitor.process.cancel_notices" .Process.Description }}<br/>{{ .root.i18n.Tr "admin.monitor.process.cancel_desc" }}" data-form-key[0]="id" data-form-val[0]="{{ .Process.PID }}">{{ svg "octicon-trash" 16 "text-red" }}</a>
+    {{ end }}
+  </div>
+
+  {{ $children := .Process.Children }}
+  {{ if $children }}
+    {{ range $children }}
+      {{ template "admin/process-row" dict "Process" . "root" $.root }}
+    {{ end }}
+  {{ end }}
+</div>

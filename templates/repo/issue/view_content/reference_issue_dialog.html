@@ -1,0 +1,35 @@
+<!-- Put this part before </body> tag -->
+<div>
+  <input type="checkbox" id="reference-issue-modal" class="modal-toggle" />
+  <div class="modal cursor-pointer">
+    <div class="modal-box relative w-11/12 max-w-3xl" for="">
+      <h3 class="text-lg font-bold">{{ .i18n.Tr "repo.issues.context.reference_issue" }}</h3>
+      <form class="py-4" action="{{ Printf "%s/issues/new" .Repository.Link }}" method="post">
+        {{ .CsrfTokenHtml }}
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text"><strong>{{ .i18n.Tr "repository" }}</strong></span>
+          </label>
+          <div svelte-typeahead-repo-search-dropdown data-selected="{{ .Repository.FullName }}"></div>
+        </div>
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text"><strong>{{ .i18n.Tr "repo.milestones.title" }}</strong></span>
+          </label>
+          <input name="title" value="" autofocus required maxlength="255" autocomplete="off" class="input-bordered input w-full" />
+        </div>
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text"><strong>{{ .i18n.Tr "repo.issues.reference_issue.body" }}</strong></span>
+          </label>
+          <textarea name="content" rows="10" class="textarea-bordered textarea w-full"></textarea>
+        </div>
+        <div class="modal-action">
+          <span jq-cancel class="btn">{{ .i18n.Tr "repo.issues.cancel" }}</span>
+          <button class="btn-primary btn">{{ .i18n.Tr "repo.issues.create" }}</button>
+        </div>
+      </form>
+    </div>
+    {{ Asset "js/repo-issue-view_content-reference_issue_dialog.js" }}
+  </div>
+</div>

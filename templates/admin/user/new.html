@@ -1,0 +1,73 @@
+{{ template "admin/base/header" . }}
+<div jq-admin-new-user class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.users.new_account" }}
+    </h4>
+
+    <form class="space-y-2 border-t px-4 py-2" action="{{ .Link }}" method="post">
+      {{ template "base/disable_form_autofill" }}
+      {{ .CsrfTokenHtml }}
+      <!-- Types and name -->
+      <div class="required {{ if .Err_LoginType }}error{{ end }} form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.users.auth_source" }}</span></label>
+        <select id="login_type" name="login_type" class="select-bordered select" required>
+          <option value="0-0">{{ .i18n.Tr "admin.users.local" }}</option>
+          {{ range .Sources }}
+            <option value="{{ .Type.Int }}-{{ .ID }}">{{ .Name }}</option>
+          {{ end }}
+        </select>
+      </div>
+
+      <div class="{{ if .Err_Visibility }}error{{ end }} required form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "settings.visibility" }}</span></label>
+        <select name="visibility" class="select-bordered select">
+          {{ range $mode := .AllowedUserVisibilityModes }}
+            {{ if $mode.IsPublic }}
+              <option value="0" {{ if $.User.Visibility.IsPublic }}selected{{ end }}>{{ $.i18n.Tr "settings.visibility.public" }}({{ $.i18n.Tr "settings.visibility.public_tooltip" }})</option>
+            {{ else if $mode.IsLimited }}
+              <option value="1" {{ if $.User.Visibility.IsLimited }}selected{{ end }}>{{ $.i18n.Tr "settings.visibility.limited" }}({{ $.i18n.Tr "settings.visibility.limited_tooltip" }})</option>
+            {{ else if $mode.IsPrivate }}
+              <option value="2" {{ if $.User.Visibility.IsPrivate }}selected{{ end }}>{{ $.i18n.Tr "settings.visibility.private" }}({{ $.i18n.Tr "settings.visibility.private_tooltip" }})</option>
+            {{ end }}
+          {{ end }}
+        </select>
+      </div>
+
+      <div class="required non-local {{ if .Err_LoginName }}error{{ end }} {{ if eq .login_type "0-0" }}hidden{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.users.auth_login_name" }}</span></label>
+        <input class="input-bordered input w-full" id="login_name" name="login_name" value="{{ .login_name }}" />
+      </div>
+      <div class="required {{ if .Err_UserName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "username" }}</span></label>
+        <input class="input-bordered input" id="user_name" type="text" name="user_name" value="{{ .user_name }}" autofocus required />
+      </div>
+      <div class="required {{ if .Err_Email }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "email" }}</span></label>
+        <input class="input-bordered input" id="email" name="email" type="email" value="{{ .email }}" required />
+      </div>
+      <div class="required local {{ if .Err_Password }}error{{ end }} {{ if not (eq .login_type "0-0") }}hidden{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "password" }}</span></label>
+        <input class="input-bordered input" id="password" name="password" type="password" autocomplete="new-password" value="{{ .password }}" {{ if eq .login_type "0-0" }}required{{ end }} />
+      </div>
+
+      <div class="local {{ if ne .login_type "0-0" }}hide{{ end }} form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="must_change_password" type="checkbox" checked /><strong>{{ .i18n.Tr "auth.allow_password_change" }}</strong></label>
+      </div>
+
+      <!-- Send register notify e-mail -->
+      {{ if .CanSendEmail }}
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="send_notify" type="checkbox" {{ if .send_notify }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.users.send_register_notify" }}</strong></label>
+        </div>
+      {{ end }}
+
+
+      <div class="form-control flex-row">
+        <button class="btn-primary btn">{{ .i18n.Tr "admin.users.new_account" }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

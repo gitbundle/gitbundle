@@ -1,0 +1,91 @@
+<div class="hero-content flex-col items-start gap-2 p-0 text-base-content">
+  <h3 class="text-xl font-bold">About</h3>
+  {{ $description := .Repository.DescriptionHTML $.Context }}
+  {{ if $description }}
+    <p>{{ $description }}</p>
+  {{ else if .IsRepositoryAdmin }}
+    <p class="italic">{{ .i18n.Tr "repo.no_desc" }}</p>
+  {{ end }}
+  {{ if .Repository.Website }}
+    <p class="flex flex-row items-center gap-1">
+      {{ svg "fa-link-solid" 16 "w-4 h-4" }}
+      <a class="link-hover link-primary link" href="{{ .Repository.Website }}">{{ .Repository.Website }}</a>
+    </p>
+  {{ end }}
+  <p jq-repo-topics class="flex flex-wrap gap-x-1 gap-y-2">
+    {{ range .Topics }}
+      <a class="badge-ghost badge badge-md" href="{{ AppSubUrl }}/explore/repos?q={{ .Name }}&topic=1">{{ .Name }}</a>
+    {{ end }}
+    <span jq-toggle class="link-hover link-primary link text-sm">{{ .i18n.Tr "repo.topic.manage_topics" }}</span>
+  </p>
+  {{ if and .Permission.IsAdmin (not .Repository.IsArchived) }}
+    <div svelte-repo-topics-manager class="mt-2 flex hidden w-full flex-col gap-2">
+      <script>
+        (() => {
+          const items = []
+          {{ range .Topics }}
+          items.push({value:{{.Name}}, label: {{.Name}}})
+          {{end}}
+          window.config.pageData.repoTopics = {
+            items,
+            RepoLink: {{ .RepoLink }},
+            RepoTopicDone: {{ .i18n.Tr "repo.topic.done" }},
+            RepoTopicCountPrompt: {{ .i18n.Tr "repo.topic.count_prompt" }},
+            RepoTopicFormatPrompt: {{ .i18n.Tr "repo.topic.format_prompt" }},
+          }
+        })()
+      </script> {{ Asset "js/repo-topic-manage.js" }}
+    </div>
+    <div jq-validate_prompt class="hidden w-full rounded-lg border !border-red-600 p-2 text-red-600"></div>
+  {{ end }}
+  <div class="{{ if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) .LanguageStats }}repository-summary-language-stats{{ end }} flex flex-col gap-y-1">
+    {{ if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) }}
+      <!-- <a class="{{ if .PageIsCommits }}
+        active
+      {{ end }} link-hover link flex items-center gap-x-2" href="{{ .RepoLink }}/commits/{{ .BranchNameSubURL }}">{{ svg "octicon-history" }} <b>{{ .CommitsCount }}</b> <span>{{ .i18n.TrN .CommitsCount "repo.commit" "repo.commits" }}</span></a> -->
+      <!-- <a
+                class="{{ if .PageIsBranches }}
+        active
+      {{ end }} link-hover link flex items-center gap-x-2"
+                href="{{ .RepoLink }}/branches"
+                >{{ svg "octicon-git-branch" }}
+                <b>{{ .BranchesCount }}</b>
+                {{ .i18n.TrN .BranchesCount "repo.branch" "repo.branches" }}</a
+            >
+            {{ if $.Permission.CanRead $.UnitTypeCode }}
+        <a class="link-hover link flex items-center gap-x-2" href="{{ .RepoLink }}/tags">{{ svg "octicon-tag" }} <b>{{ .NumTags }}</b> {{ .i18n.TrN .NumTags "repo.tag" "repo.tags" }}</a>
+      {{ end }} -->
+      <span class="flex items-center gap-x-2">{{ svg "octicon-database" }} <b>{{ FileSize .Repository.Size }}</b></span>
+    {{ end }}
+  </div>
+  {{ if .RepoSearchEnabled }}
+    <div id="repo-searchbox"></div>
+    <form class="ignore-dirty w-full" action="{{ .RepoLink }}/search" method="get">
+      <div
+        class="{{ if .CodeIndexerUnavailable }}disabled tooltip tooltip-bottom{{ end }} input-group"
+        {{ if .CodeIndexerUnavailable }}
+          data-tip="{{ .i18n.Tr "repo.search.code_search_unavailable" }}"
+        {{ end }}
+      >
+        <input
+          name="q"
+          value="{{ .Keyword }}"
+          {{ if .CodeIndexerUnavailable }}disabled{{ end }}
+          placeholder="{{ .i18n.Tr "repo.search.search_repo" }}"
+          class="input-bordered input w-full"
+        />
+        <button
+          class="btn-primary btn"
+          {{ if .CodeIndexerUnavailable }}disabled{{ end }}
+          type="submit"
+        >
+          {{ if .CodeIndexerUnavailable }}
+            {{ svg "octicon-alert" }}
+          {{ else }}
+            {{ svg "octicon-search" }}
+          {{ end }}
+        </button>
+      </div>
+    </form>
+  {{ end }}
+</div>

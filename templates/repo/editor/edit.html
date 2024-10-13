@@ -1,0 +1,80 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository file editor edit -->
+<div jq-repo-editor class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <form jq-repository-edit-form method="post">
+      {{ .CsrfTokenHtml }}
+      <input type="hidden" name="last_commit" value="{{ .last_commit }}" />
+      <input type="hidden" name="page_has_posted" value="{{ .PageHasPosted }}" />
+      <div jq-breadcrumb class="{{ if .Err_TreePath }}error{{ end }} mb-4 flex items-center gap-x-2">
+        <a class="link-hover link-primary link" href="{{ $.BranchLink }}">{{ .Repository.Name }}</a>
+        {{ $n := len .TreeNames }}
+        {{ $l := Subtract $n 1 }}
+        {{ range $i, $v := .TreeNames }}
+          <span jq-divider>/</span>
+          {{ if eq $i $l }}
+            <input class="input-bordered input input-sm" id="file-name" value="{{ $v }}" placeholder="{{ $.i18n.Tr "repo.editor.name_your_file" }}" data-editorconfig="{{ $.Editorconfig }}" required autofocus />
+            <span class="tooltip tooltip-bottom" data-tip="{{ $.i18n.Tr "repo.editor.filename_help" }}">{{ svg "octicon-info" }}</span>
+          {{ else }}
+            <span jq-section><a class="link-hover link-primary link" href="{{ $.BranchLink }}/{{ index $.TreePaths $i | PathEscapeSegments }}">{{ $v }}</a></span>
+          {{ end }}
+        {{ end }}
+        <span>{{ .i18n.Tr "repo.editor.or" }} <a class="link-hover link-primary link" href="{{ $.BranchLink }}{{ if not .IsNewFile }}/{{ PathEscapeSegments .TreePath }}{{ end }}">{{ .i18n.Tr "repo.editor.cancel_lower" }}</a></span>
+        <input type="hidden" id="tree_path" name="tree_path" value="{{ .TreePath }}" required />
+      </div>
+      <div class="mb-4 space-y-4">
+        <div jq-tabs class="tabs" data-write="write" data-preview="preview" data-diff="diff">
+          <a class="tab-lifted tab tab-active gap-1" data-tab="write">{{ svg "octicon-code" }} {{ if .IsNewFile }}{{ .i18n.Tr "repo.editor.new_file" }}{{ else }}{{ .i18n.Tr "repo.editor.edit_file" }}{{ end }}</a>
+          {{ if not .IsNewFile }}
+            <a class="tab-lifted tab gap-1" data-tab="preview" data-url="{{ .Repository.HTMLURL }}/markdown" data-context="{{ .RepoLink }}/src/{{ .BranchNameSubURL }}" data-preview-file-modes="{{ .PreviewableFileModes }}" data-markdown-mode="gfm">{{ svg "octicon-eye" }} {{ .i18n.Tr "preview" }}</a>
+            <a class="tab-lifted tab gap-1" data-tab="diff" data-url="{{ .RepoLink }}/_preview/{{ .BranchName | PathEscapeSegments }}/{{ .TreePath | PathEscapeSegments }}" data-context="{{ .BranchLink }}">{{ svg "octicon-diff" }} {{ .i18n.Tr "repo.editor.preview_changes" }}</a>
+          {{ end }}
+        </div>
+        <div jq-contents>
+          <div data-tab="write">
+            <textarea jq-edit_area name="content" class="hidden" data-id="repo-{{ .Repository.Name }}-{{ .TreePath }}" data-url="{{ .Repository.HTMLURL }}/markdown" data-context="{{ .RepoLink }}" data-markdown-file-exts="{{ .MarkdownFileExts }}" data-line-wrap-extensions="{{ .LineWrapExtensions }}">{{ .FileContent }}</textarea>
+            <!-- <div class="editor-loading is-loading"></div> -->
+            <div jq-editor-loading class="text-center">
+              {{ template "base/loading" }}
+              {{ .i18n.Tr "loading" }}
+            </div>
+          </div>
+          <div class="markup hidden" data-tab="preview">
+            <div jq-editor-loading class="text-center">
+              {{ template "base/loading" }}
+              {{ .i18n.Tr "loading" }}
+            </div>
+          </div>
+          <div class="diff edit-diff hidden" data-tab="diff">
+            <div jq-editor-loading class="text-center">
+              {{ template "base/loading" }}
+              {{ .i18n.Tr "loading" }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{ template "repo/editor/commit_form" . }}
+    </form>
+  </div>
+
+  <div jq-edit-empty-content-modal>
+    <input type="checkbox" class="modal-toggle" />
+    <div class="modal">
+      <div class="modal-box">
+        <h3 class="flex items-center gap-x-2 text-lg font-bold">
+          {{ svg "octicon-file" }}
+          {{ .i18n.Tr "repo.editor.commit_empty_file_header" }}
+        </h3>
+        <p class="py-4">{{ .i18n.Tr "repo.editor.commit_empty_file_text" }}</p>
+        <div class="modal-action">
+          <button jq-cancel class="btn gap-1" type="button">{{ svg "octicon-x" }}{{ .i18n.Tr "repo.editor.cancel" }}</button>
+          <button jq-save class="btn-primary btn gap-1" type="button">{{ svg "fa-save-solid" }}{{ .i18n.Tr "repo.editor.commit_changes" }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-editor.js" }}
+</div>
+{{ template "base/footer" . }}

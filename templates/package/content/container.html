@@ -1,0 +1,70 @@
+{{ if eq .PackageDescriptor.Package.Type "container" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-1">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.container.pull" }}</div></div>
+      {{ if eq .PackageDescriptor.Metadata.Type "helm" }}
+        <div class="markup">
+          <pre class="code-block !my-0 whitespace-normal"><code>helm pull oci://{{ .RegistryHost }}/{{ .PackageDescriptor.Owner.LowerName }}/{{ .PackageDescriptor.Package.LowerName }} --version {{ .PackageDescriptor.Version.LowerVersion }}</code></pre>
+        </div>
+      {{ else }}
+        {{ $separator := ":" }}
+        {{ if not .PackageDescriptor.Metadata.IsTagged }}
+          {{ $separator = "@" }}
+        {{ end }}
+        <div class="markup">
+          <pre class="code-block !my-0 whitespace-normal"><code>docker pull {{ .RegistryHost }}/{{ .PackageDescriptor.Owner.LowerName }}/{{ .PackageDescriptor.Package.LowerName }}{{ $separator }}{{ .PackageDescriptor.Version.LowerVersion }}</code></pre>
+        </div>
+      {{ end }}
+      <div class="label"><div class="cu-links-primary">{{ .i18n.Tr "packages.container.documentation" | Safe }}</div></div>
+    </div>
+  </div>
+  {{ if .PackageDescriptor.Metadata.MultiArch }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.container.multi_arch" }}</h4>
+    {{ range $arch, $digest := .PackageDescriptor.Metadata.MultiArch }}
+      <div class="form-control">
+        <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ $arch }}</div></div>
+        {{ if eq $.PackageDescriptor.Metadata.Type "oci" }}
+          <div class="markup">
+            <pre class="code-block !my-0 whitespace-normal"><code>docker pull {{ $.RegistryHost }}/{{ $.PackageDescriptor.Owner.LowerName }}/{{ $.PackageDescriptor.Package.LowerName }}@{{ $digest }}</code></pre>
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+  {{ end }}
+  {{ if .PackageDescriptor.Metadata.Description }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <p>{{ .PackageDescriptor.Metadata.Description }}</p>
+  {{ end }}
+  {{ if .PackageDescriptor.Metadata.ImageLayers }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.container.layers" }}</h4>
+    <table id="notice-table" class="table max-w-full table-fixed">
+      <tbody>
+        {{ range .PackageDescriptor.Metadata.ImageLayers }}
+          <tr class="hover">
+            <td class="whitespace-normal break-words">{{ . }}</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  {{ end }}
+  {{ if .PackageDescriptor.Metadata.Labels }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.container.labels" }}</h4>
+    <table id="notice-table" class="table max-w-full table-fixed">
+      <thead>
+        <tr>
+          <th>{{ .i18n.Tr "packages.container.labels.key" }}</th>
+          <th>{{ .i18n.Tr "packages.container.labels.value" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range $key, $value := .PackageDescriptor.Metadata.Labels }}
+          <tr class="hover">
+            <td class="whitespace-normal break-words">{{ $key }}</td>
+            <td class="whitespace-normal break-words">{{ $value }}</td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  {{ end }}
+{{ end }}

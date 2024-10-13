@@ -1,0 +1,120 @@
+<div class="ldap dldap {{ if not (or (eq .type 2) (eq .type 5)) }}hidden{{ end }} space-y-2">
+  <div class="required {{ if .Err_SecurityProtocol }}error{{ end }} form-control flex-row items-center gap-2">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.security_protocol" }}</span></label>
+    <select name="security_protocol" id="security_protocol" class="select-bordered select">
+      {{ range .SecurityProtocols }}
+        <option value="{{ .Type.Int }}" {{ if and ( eq $.security_protocol .Type.Int ) ( eq $.CurrentSecurityProtocol .Name ) }}selected{{ end }}>{{ .Name }}</option>
+      {{ end }}
+    </select>
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.host" }}</span></label>
+    <input class="input-bordered input" id="host" name="host" value="{{ .host }}" placeholder="e.g. mydomain.com" />
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.port" }}</span></label>
+    <input class="input-bordered input" id="port" name="port" value="{{ .port }}" placeholder="e.g. 636" />
+  </div>
+  <div class="has-tls {{ if not .HasTLS }}hidden{{ end }} form-control inline">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="skip_verify" type="checkbox" {{ if .skip_verify }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_tls_verify" }}</strong></label>
+  </div>
+  <div class="ldap {{ if not (eq .type 2) }}hide{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.bind_dn" }}</span></label>
+    <input class="input-bordered input" id="bind_dn" name="bind_dn" value="{{ .bind_dn }}" placeholder="e.g. cn=Search,dc=mydomain,dc=com" />
+  </div>
+  <div class="ldap {{ if not (eq .type 2) }}hidden{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.bind_password" }}</span></label>
+    <input class="input-bordered input" id="bind_password" name="bind_password" type="password" autocomplete="off" value="{{ .bind_password }}" />
+  </div>
+  <div class="binddnrequired {{ if (eq .type 2) }}required{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.user_base" }}</span></label>
+    <input class="input-bordered input" id="user_base" name="user_base" value="{{ .user_base }}" placeholder="e.g. ou=Users,dc=mydomain,dc=com" />
+  </div>
+  <div class="dldap required {{ if not (eq .type 5) }}hide{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.user_dn" }}</span></label>
+    <input class="input-bordered input" id="user_dn" name="user_dn" value="{{ .user_dn }}" placeholder="e.g. uid=%s,ou=Users,dc=mydomain,dc=com" />
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.filter" }}</span></label>
+    <input class="input-bordered input" id="filter" name="filter" value="{{ .filter }}" placeholder="e.g. (&(objectClass=posixAccount)(uid=%s))" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.admin_filter" }}</span></label>
+    <input class="input-bordered input" id="admin_filter" name="admin_filter" value="{{ .admin_filter }}" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.restricted_filter" }}</span></label>
+    <input class="input-bordered input" id="restricted_filter" name="admin_filter" value="{{ .restricted_filter }}" />
+    <p class="help">{{ .i18n.Tr "admin.auths.restricted_filter_helper" }}</p>
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_username" }}</span></label>
+    <input class="input-bordered input" id="attribute_username" name="attribute_username" value="{{ .attribute_username }}" placeholder="{{ .i18n.Tr "admin.auths.attribute_username_placeholder" }}" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_name" }}</span></label>
+    <input class="input-bordered input" id="attribute_name" name="attribute_name" value="{{ .attribute_name }}" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_surname" }}</span></label>
+    <input class="input-bordered input" id="attribute_surname" name="attribute_surname" value="{{ .attribute_surname }}" />
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_mail" }}</span></label>
+    <input class="input-bordered input" id="attribute_mail" name="attribute_mail" value="{{ .attribute_mail }}" placeholder="e.g. mail" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_ssh_public_key" }}</span></label>
+    <input class="input-bordered input" id="attribute_ssh_public_key" name="attribute_ssh_public_key" value="{{ .attribute_ssh_public_key }}" placeholder="e.g. SshPublicKey" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_avatar" }}</span></label>
+    <input class="input-bordered input" id="attribute_avatar" name="attribute_avatar" value="{{ .attribute_avatar }}" placeholder="e.g. jpegPhoto" />
+  </div>
+
+  <!-- ldap group begin -->
+  <div class="form-control">
+    <label class="flex items-center gap-1"><input type="checkbox" name="groups_enabled" class="js-ldap-group-toggle checkbox checkbox-sm" {{ if .groups_enabled }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.enable_ldap_groups" }}</strong></label>
+  </div>
+  <div id="ldap-group-options" class="space-y-2">
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.group_search_base" }}</span></label>
+      <input class="input-bordered input" name="group_dn" value="{{ .group_dn }}" placeholder="e.g. ou=group,dc=mydomain,dc=com" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.group_attribute_list_users" }}</span></label>
+      <input class="input-bordered input" name="group_member_uid" value="{{ .group_member_uid }}" placeholder="e.g. memberUid" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.user_attribute_in_group" }}</span></label>
+      <input class="input-bordered input" name="user_uid" value="{{ .user_uid }}" placeholder="e.g. uid" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.verify_group_membership" }}</span></label>
+      <input class="input-bordered input" name="group_filter" value="{{ .group_filter }}" placeholder="e.g. (|(cn=gitea_users)(cn=admins))" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.map_group_to_team" }}</span></label>
+      <input class="input-bordered input" name="group_team_map" value="{{ .group_team_map }}" placeholder='e.g. {"cn=my-group,cn=groups,dc=example,dc=org": {"MyGitBundleOrganization": ["MyGitBundleTeam1", "MyGitBundleTeam2"]}}' />
+    </div>
+    <div class="form-control">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="group_team_map_removal" type="checkbox" {{ if .group_team_map_removal }}checked{{ end }} />{{ .i18n.Tr "admin.auths.map_group_to_team_removal" }}</label>
+    </div>
+  </div>
+  <!-- ldap group end -->
+
+  <div class="ldap {{ if not (eq .type 2) }}hidden{{ end }} form-control">
+    <label class="flex items-center gap-1"><input id="use_paged_search" name="use_paged_search" class="use-paged-search checkbox checkbox-sm" type="checkbox" {{ if .use_paged_search }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.use_paged_search" }}</strong></label>
+  </div>
+  <div class="ldap search-page-size required {{ if or (not (eq .type 2)) (not .use_paged_search) }}hidden{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.search_page_size" }}</span></label>
+    <input class="input-bordered input w-full" id="search_page_size" name="search_page_size" value="{{ .search_page_size }}" />
+  </div>
+  <div class="optional form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if .skip_local_two_fa }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+    <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+  </div>
+  <div class="form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="allow_deactivate_all" name="allow_deactivate_all" type="checkbox" {{ if .allow_deactivate_all }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.allow_deactivate_all" }}</strong></label>
+  </div>
+</div>

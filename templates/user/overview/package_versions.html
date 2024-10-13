@@ -1,0 +1,9 @@
+{{ template "base/head" . }}
+<!--  repository packages -->
+<div class="main-container">
+  <div class="mx-auto flex w-full max-w-7xl flex-col space-y-4">
+    {{ template "user/overview/header" . }}
+    {{ template "package/shared/versionlist" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

@@ -1,0 +1,40 @@
+<h4 class="mt-10 flex items-center justify-between text-xl font-bold">
+  {{ .i18n.Tr "settings.manage_account_links" }}
+  {{ if .OrderedOAuth2Names }}
+    <div class="dropdown-end dropdown text-sm">
+      <label tabindex="0" class="btn-primary btn-sm btn">{{ .i18n.Tr "settings.link_account" }}</label>
+      <ul class="cu-menu dropdown-content p-2">
+        {{ range $key := .OrderedOAuth2Names }}
+          {{ $provider := index $.OAuth2Providers $key }}
+          <li>
+            <a class="flex items-center gap-1" href="{{ AppSubUrl }}/user/oauth2/{{ $key }}">
+              <img class="flex h-5 w-5 max-w-none" width="20" height="20" src="{{ AppSubUrl }}{{ $provider.Image }}" alt="{{ $provider.DisplayName }}" />
+              {{ $provider.DisplayName }}
+            </a>
+          </li>
+        {{ end }}
+      </ul>
+    </div>
+  {{ end }}
+</h4>
+<div class="divider my-2"></div>
+<div class="space-y-2">
+  <p>
+    {{ .i18n.Tr "settings.manage_account_links_desc" }}
+  </p>
+  <div class="divide-y">
+    {{ if .AccountLinks }}
+      {{ range $loginSource, $provider := .AccountLinks }}
+        <div class="flex items-center justify-between py-2">
+          <div class="flex flex-col gap-1">
+            <strong>{{ $provider }}</strong>
+            {{ if $loginSource.IsActive }}<span class="text-red-600">{{ $.i18n.Tr "settings.active" }}</span>{{ end }}
+          </div>
+          <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="delete-account-link" data-href="{{ AppSubUrl }}/user/settings/security/account_link" data-title="{{ $.i18n.Tr "settings.remove_account_link" }}" data-desc="{{ $.i18n.Tr "settings.remove_account_link_desc" }}" data-form-key[0]="id" data-form-val[0]="{{ $loginSource.ID }}">
+            {{ $.i18n.Tr "settings.delete_key" }}
+          </button>
+        </div>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>

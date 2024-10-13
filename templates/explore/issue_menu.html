@@ -1,0 +1,75 @@
+<ul class="cu-bordered-menu p-4">
+  <li class="{{ if eq .ViewType "your_repositories" }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if eq .ViewType "your_repositories" }}active{{ end }} flex items-center justify-between" href="{{ .Link }}?type=your_repositories&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state={{ .State }}&q={{ $.Keyword }}">
+      {{ .i18n.Tr "home.issues.in_your_repos" }}
+      <strong class="badge-primary badge">{{ CountFmt .IssueStats.YourRepositoriesCount }}</strong>
+    </a>
+  </li>
+  <li class="{{ if eq .ViewType "assigned" }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if eq .ViewType "assigned" }}active{{ end }} flex items-center justify-between" href="{{ .Link }}?type=assigned&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state={{ .State }}&q={{ $.Keyword }}">
+      {{ .i18n.Tr "repo.issues.filter_type.assigned_to_you" }}
+      <strong class="badge-primary badge">{{ CountFmt .IssueStats.AssignCount }}</strong>
+    </a>
+  </li>
+  <li class="{{ if eq .ViewType "created_by" }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if eq .ViewType "created_by" }}active{{ end }} flex items-center justify-between" href="{{ .Link }}?type=created_by&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state={{ .State }}&q={{ $.Keyword }}">
+      {{ .i18n.Tr "repo.issues.filter_type.created_by_you" }}
+      <strong class="badge-primary badge">{{ CountFmt .IssueStats.CreateCount }}</strong>
+    </a>
+  </li>
+  <li class="{{ if eq .ViewType "mentioned" }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if eq .ViewType "mentioned" }}active{{ end }} flex items-center justify-between" href="{{ .Link }}?type=mentioned&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state={{ .State }}&q={{ $.Keyword }}">
+      {{ .i18n.Tr "repo.issues.filter_type.mentioning_you" }}
+      <strong class="badge-primary badge">{{ CountFmt .IssueStats.MentionCount }}</strong>
+    </a>
+  </li>
+  {{ if .PageIsPulls }}
+    <li class="{{ if eq .ViewType "review_requested" }}active{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if eq .ViewType "review_requested" }}active{{ end }} flex items-center justify-between" href="{{ .Link }}?type=review_requested&repos=[{{ range $.RepoIDs }}{{ . }}%2C{{ end }}]&sort={{ $.SortType }}&state={{ .State }}&q={{ $.Keyword }}">
+        {{ .i18n.Tr "repo.issues.filter_type.review_requested" }}
+        <strong>{{ CountFmt .IssueStats.ReviewRequestedCount }}</strong>
+      </a>
+    </li>
+  {{ end }}
+  <div class="divider my-2"></div>
+  <li class="{{ if not $.RepoIDs }}cu-bordered{{ end }}">
+    <div class="divider-y"></div>
+    <a class="{{ if not $.RepoIDs }}active{{ end }} flex items-center justify-between" href="{{ $.Link }}?type={{ $.ViewType }}&sort={{ $.SortType }}&state={{ $.State }}&q={{ $.Keyword }}">
+      <span class="truncate">All</span>
+      <div class="{{ if $.IsShowClosed }}badge-red{{ else }}badge-primary{{ end }} badge">{{ CountFmt .TotalIssueCount }}</div>
+    </a>
+  </li>
+  {{ range .Repos }}
+    {{ with $Repo := . }}
+      <li class="{{ range $.RepoIDs }}{{ if eq . $Repo.ID }}cu-bordered{{ end }}{{ end }}">
+        <div class="divider-y"></div>
+        <a
+          class="{{ range $.RepoIDs }}{{ if eq . $Repo.ID }}active{{ end }}{{ end }} flex items-center justify-between"
+          href="{{ $.Link }}?type={{ $.ViewType }}&repos=[
+                {{- with $include := true -}}
+            {{- range $.RepoIDs -}}
+              {{- if eq . $Repo.ID -}}
+                {{ $include = false }}
+              {{- else -}}
+                {{ . }}%2C
+              {{- end -}}
+            {{- end -}}
+            {{- if eq $include true -}}
+              {{ $Repo.ID }}%2C
+            {{- end -}}
+          {{- end -}}
+                ]&sort={{ $.SortType }}&state={{ $.State }}&q={{ $.Keyword }}"
+          title="{{ .FullName }}"
+        >
+          <span class="truncate">{{ $Repo.FullName }}</span>
+          <div class="{{ if $.IsShowClosed }}badge-red{{ else }}badge-primary{{ end }} badge">{{ CountFmt (index $.Counts $Repo.ID) }}</div>
+        </a>
+      </li>
+    {{ end }}
+  {{ end }}
+</ul>

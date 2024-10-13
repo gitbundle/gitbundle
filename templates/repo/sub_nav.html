@@ -1,0 +1,137 @@
+<div class="navbar min-h-0 flex-wrap gap-4 p-0">
+  <div class="flex-1 gap-1">
+    {{ template "repo/branch_dropdown" dict "root" . }}
+    {{ $n := len .TreeNames }}
+    {{ $l := Subtract $n 1 }}
+    <!-- If home page, show new PR. If not, show breadcrumb -->
+    {{ if eq $n 0 }}
+      {{ if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) }}
+        <a
+          class="{{ if .PageIsBranches }}
+            btn-active
+          {{ end }} btn-outline btn-sm btn gap-1 text-base-content"
+          href="{{ .RepoLink }}/branches"
+        >
+          {{ svg "octicon-git-branch" }}
+          <b>{{ .BranchesCount }}</b>
+          {{ .i18n.TrN .BranchesCount "repo.branch" "repo.branches" }}
+        </a>
+        {{ if $.Permission.CanRead $.UnitTypeCode }}
+          <a class="btn-outline btn-sm btn gap-1 text-base-content" href="{{ .RepoLink }}/tags">
+            {{ svg "octicon-tag" }}
+            <b>{{ .NumTags }}</b>
+            {{ .i18n.TrN .NumTags "repo.tag" "repo.tags" }}
+          </a>
+        {{ end }}
+      {{ end }}
+    {{ else }}
+      <a class="link-hover link-primary link" href="{{ .RepoLink }}/src/{{ .BranchNameSubURL }}" title="{{ .Repository.Name }}">{{ EllipsisString .Repository.Name 30 }}</a>
+      {{ range $i, $v := .TreeNames }}
+        <span class="text-gray-600">/</span>
+        {{ if eq $i $l }}
+          <span class="text-base-content" title="{{ $v }}">{{ EllipsisString $v 30 }}</span>
+        {{ else }}
+          {{ $p := index $.Paths $i }}
+          <a class="link-hover link-primary link" href="{{ $.BranchLink }}/{{ PathEscapeSegments $p }}" title="{{ $v }}">{{ EllipsisString $v 30 }}</a>
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  </div>
+  <div class="flex-none gap-1">
+    {{ if and .CanCompareOrPull .IsViewBranch (not .Repository.IsArchived) }}
+      <a
+        href="{{ .BaseRepo.Link }}/compare/{{ PathEscapeSegments .BaseRepo.DefaultBranch }}...{{ if ne .Repository.Owner.Name .BaseRepo.Owner.Name }}
+          {{ PathEscape .Repository.Owner.Name }}{{ if .BaseRepo.IsFork }}
+            /{{ PathEscape .Repository.Name }}
+          {{ end }}:
+        {{ end }}{{ PathEscapeSegments .BranchName }}"
+        id="new-pull-request"
+        class="btn-outline btn-sm btn"
+      >
+        {{ if .PullRequestCtx.Allowed }}
+          {{ .i18n.Tr "repo.pulls.compare_changes" }}
+        {{ else }}
+          {{ .i18n.Tr "action.compare_branch" }}
+        {{ end }}
+      </a>
+    {{ end }}
+    {{ if eq $n 0 }}
+      <a href="{{ .Repository.Link }}/find/{{ .BranchNameSubURL }}" class="btn-outline btn-sm btn">
+        {{ .i18n.Tr "repo.find_file.go_to_file" }}
+      </a>
+    {{ end }}
+    {{ if and (not .IsViewFile) (not .IsBlame) .Repository.CanEnableEditor }}
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn-outline btn-sm btn">
+          <span>Add file</span>
+          {{ svg "octicon-triangle-down" 14 }}
+        </label>
+        <ul tabindex="0" class="dropdown-content menu rounded-box menu-compact mt-1 bg-base-200 p-2 shadow">
+          {{ if .CanAddFile }}
+            <li>
+              <a href="{{ .RepoLink }}/_new/{{ .BranchName | PathEscapeSegments }}/{{ .TreePath | PathEscapeSegments }}">
+                {{ .i18n.Tr "repo.editor.new_file" }}
+              </a>
+            </li>
+          {{ end }}
+          {{ if .CanUploadFile }}
+            <li>
+              <a href="{{ .RepoLink }}/_upload/{{ .BranchName | PathEscapeSegments }}/{{ .TreePath | PathEscapeSegments }}">
+                {{ .i18n.Tr "repo.editor.upload_file" }}
+              </a>
+            </li>
+          {{ end }}
+          {{ if .CanAddFile }}
+            <li>
+              <a href="{{ .RepoLink }}/_diffpatch/{{ .BranchName | PathEscapeSegments }}/{{ .TreePath | PathEscapeSegments }}">
+                {{ .i18n.Tr "repo.editor.patch" }}
+              </a>
+            </li>
+          {{ end }}
+          {{ if and (ne $n 0) (not .IsViewFile) (not .IsBlame) }}
+            <li>
+              <a href="{{ .RepoLink }}/commits/{{ .BranchNameSubURL }}/{{ .TreePath | PathEscapeSegments }}">
+                {{ .i18n.Tr "repo.file_history" }}
+              </a>
+            </li>
+          {{ end }}
+        </ul>
+      </div>
+    {{ end }}
+    {{ if and (eq $n 0) .Repository.IsTemplate }}
+      <a class="btn-primary btn-sm btn" href="{{ AppSubUrl }}/repo/create?template_id={{ .Repository.ID }}">
+        {{ .i18n.Tr "repo.use_template" }}
+      </a>
+    {{ end }}
+    {{ if and (not .IsViewFile) (not .IsBlame) }}
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn-primary btn-sm btn">
+          <span>Code</span>
+          {{ svg "octicon-triangle-down" 14 }}
+        </label>
+        <div tabindex="0" class="dropdown-content menu rounded-box menu-compact mt-1 w-96 bg-base-200 p-2 shadow">
+          <!-- Only show clone panel in repository home page -->
+          {{ if eq $n 0 }}
+            <div class="flex flex-col gap-1">
+              <div>
+                {{ template "repo/clone_buttons" . }}
+                {{ template "repo/clone_script" . }}
+              </div>
+              <!-- <button id="download-btn" class="ui basic jump icon button dropdown tooltip" data-content="{{ .i18n.Tr "repo.download_archive" }}" data-position="top right">
+                {{ svg "octicon-download" }}
+                <div class="menu"> -->
+              {{ if not .DisableDownloadSourceArchives }}
+                <a class="flex items-center rounded-lg p-2 hover:bg-base-content/10" href="{{ $.RepoLink }}/archive/{{ PathEscapeSegments $.BranchName }}.zip" rel="nofollow">{{ svg "octicon-file-zip" 16 "mr-1" }}{{ .i18n.Tr "repo.download_zip" }}</a>
+                <a class="flex items-center rounded-lg p-2 hover:bg-base-content/10" href="{{ $.RepoLink }}/archive/{{ PathEscapeSegments $.BranchName }}.tar.gz" rel="nofollow">{{ svg "octicon-file-zip" 16 "mr-1" }}{{ .i18n.Tr "repo.download_tar" }}</a>
+                <a class="flex items-center rounded-lg p-2 hover:bg-base-content/10" href="{{ $.RepoLink }}/archive/{{ PathEscapeSegments $.BranchName }}.bundle" rel="nofollow">{{ svg "octicon-package" 16 "mr-1" }}{{ .i18n.Tr "repo.download_bundle" }}</a>
+              {{ end }}
+              <a class="flex items-center rounded-lg p-2 hover:bg-base-content/10" href="vscode://vscode.git/clone?url={{ $.RepoCloneLink.HTTPS }}">{{ svg "gitea-vscode" 16 "mr-1" }}{{ .i18n.Tr "repo.clone_in_vsc" }}</a>
+              <!-- </div>
+              </button> -->
+            </div>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+  </div>
+</div>

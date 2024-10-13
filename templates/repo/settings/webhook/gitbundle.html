@@ -1,0 +1,40 @@
+{{ if eq .HookType "gitbundle" }}
+  <p class="cu-links-primary">{{ .i18n.Tr "repo.settings.add_web_hook_desc" "https://docs.gitbundle.com/features/webhooks" (.i18n.Tr "repo.settings.web_hook_name_gitbundle") | Str2html }}</p>
+  <form action="{{ .BaseLink }}/gitbundle/{{ or .Webhook.ID "new" }}" method="post">
+    {{ template "base/disable_form_autofill" }}
+    {{ .CsrfTokenHtml }}
+    <div class="required {{ if .Err_PayloadURL }}error{{ end }} form-control">
+      <label for="payload_url" class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.payload_url" }}</span></label>
+      <input class="input-bordered input" id="payload_url" name="payload_url" type="url" value="{{ .Webhook.URL }}" autofocus required autocomplete="off" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.http_method" }}</span></label>
+      <!-- <input type="hidden" id="http_method" name="http_method" value="{{ if .Webhook.HTTPMethod }}
+        {{ .Webhook.HTTPMethod }}
+      {{ else }}
+        POST
+      {{ end }}" /> -->
+      <select class="select-bordered select" name="http_method" id="http_method">
+        <option value="POST" {{ if or (not .Webhook.HTTPMethod) (eq .Webhook.HTTPMethod "POST") }}selected{{ end }}>POST</option>
+        <option value="GET" {{ if eq .Webhook.HTTPMethod "GET" }}selected{{ end }}>GET</option>
+      </select>
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.content_type" }}</span></label>
+      <!-- <input type="hidden" id="content_type" name="content_type" value="{{ if .Webhook.ContentType }}
+        {{ .Webhook.ContentType }}
+      {{ else }}
+        1
+      {{ end }}" /> -->
+      <select class="select-bordered select" name="content_type" id="content_type">
+        <option value="1" {{ if or (not .Webhook.ContentType) (eq .Webhook.ContentType 1) }}selected{{ end }}>application/json</option>
+        <option value="2" {{ if eq .Webhook.ContentType 2 }}selected{{ end }}>application/x-www-form-urlencoded</option>
+      </select>
+    </div>
+    <div class="{{ if .Err_Secret }}error{{ end }} form-control">
+      <label for="secret" class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.secret" }}</span></label>
+      <input class="input-bordered input" id="secret" name="secret" type="password" value="{{ .Webhook.Secret }}" autocomplete="off" />
+    </div>
+    {{ template "repo/settings/webhook/settings" . }}
+  </form>
+{{ end }}

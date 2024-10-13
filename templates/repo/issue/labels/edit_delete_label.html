@@ -1,0 +1,26 @@
+<div jq-edit-label-modal>
+  <input type="checkbox" class="modal-toggle" />
+  <div class="modal">
+    <div class="modal-box w-11/12 max-w-3xl overflow-y-visible">
+      <h3 class="text-lg font-bold">{{ .i18n.Tr "repo.issues.label_modify" }}</h3>
+      <form class="edit-label ignore-dirty py-4" action="{{ $.Link }}/edit" method="post">
+        {{ .CsrfTokenHtml }}
+        <input id="label-modal-id" name="id" type="hidden" />
+        <div class="flex items-center gap-4">
+          <input class="new-label-input emoji-input input-bordered input w-1/5" name="title" placeholder="{{ .i18n.Tr "repo.issues.new_label_placeholder" }}" autofocus required maxlength="50" />
+          <input class="new-label-desc-input input-bordered input w-2/5" name="description" placeholder="{{ .i18n.Tr "repo.issues.new_label_desc_placeholder" }}" maxlength="200" />
+          <div class="cu-color-picker">
+            <input class="color-picker" name="color" value="#70c24a" required maxlength="7" />
+          </div>
+          <div class="precolors w-36">
+            {{ template "repo/issue/label_precolors" }}
+          </div>
+        </div>
+        <div class="modal-action">
+          <button jq-cancel type="button" class="btn">{{ .i18n.Tr "cancel" }}</button>
+          <button jq-submit type="submit" class="btn-primary btn">{{ .i18n.Tr "save" }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

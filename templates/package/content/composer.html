@@ -1,0 +1,46 @@
+{{ if eq .PackageDescriptor.Package.Type "composer" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-code" }} {{ .i18n.Tr "packages.composer.registry" | Safe }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>{
+	"repositories": [{
+			"type": "composer",
+			"url": "{{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/composer"
+		}
+	]
+}</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.composer.install" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>composer require {{ .PackageDescriptor.Package.Name }}:{{ .PackageDescriptor.Version.Version }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.composer.documentation" | Safe }}</p>
+  </div>
+
+  {{ if .PackageDescriptor.Metadata.Description }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <p>{{ .PackageDescriptor.Metadata.Description }}</p>
+  {{ end }}
+
+  {{ if or .PackageDescriptor.Metadata.Require .PackageDescriptor.Metadata.RequireDev }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.dependencies" }}</h4>
+    <div>
+      {{ template "package/content/composer_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.Require "title" (.i18n.Tr "packages.composer.dependencies") }}
+      {{ template "package/content/composer_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.RequireDev "title" (.i18n.Tr "packages.composer.dependencies.development") }}
+    </div>
+  {{ end }}
+
+  {{ if or .PackageDescriptor.Metadata.Keywords }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.keywords" }}</h4>
+    <div class="flex flex-wrap items-center gap-2">
+      {{ range .PackageDescriptor.Metadata.Keywords }}
+        <div class="badge-ghost badge">{{ . }}</div>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ end }}

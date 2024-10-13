@@ -1,0 +1,20 @@
+{{if false}}
+{{ template "base/head" . }}
+<div class="drawer-mobile drawer h-full">
+  <input id="user-dashboard" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content flex flex-col">
+    <!-- TODO: should provide mobile menu -->
+    <label for="user-dashboard" class="btn-primary drawer-button btn m-4 lg:hidden">Open drawer</label>
+    <!-- max-w-[calc(2560px-20rem)] -->
+{{end}}
+
+    <div class="px-8 w-full bg-base-200">
+      {{ template "base/footer_content" . }}
+    </div>
+  </div>
+  <div class="drawer-side w-80">
+    <label for="user-dashboard" class="drawer-overlay"></label>
+    {{ template "user/dashboard/navbar" . }}
+  </div>
+</div>
+{{ template "base/footer_no_content" . }}

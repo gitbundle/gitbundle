@@ -1,0 +1,34 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository file editor upload -->
+<div jq-repo-editor class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <!-- ui comment form -->
+    <form method="post">
+      {{ .CsrfTokenHtml }}
+      <div jq-breadcrumb class="{{ if .Err_TreePath }}error{{ end }} mb-4 flex items-center gap-x-2">
+        <a class="link-hover link-primary link" href="{{ $.BranchLink }}">{{ .Repository.Name }}</a>
+        {{ $n := len .TreeNames }}
+        {{ $l := Subtract $n 1 }}
+        {{ range $i, $v := .TreeNames }}
+          <span jq-divider>/</span>
+          {{ if eq $i $l }}
+            <input class="input-bordered input input-sm" type="text" id="file-name" value="{{ $v }}" placeholder="{{ $.i18n.Tr "repo.editor.add_subdir" }}" autofocus />
+            <span class="tooltip tooltip-bottom" data-tip="{{ $.i18n.Tr "repo.editor.filename_help" }}">{{ svg "octicon-info" }}</span>
+          {{ else }}
+            <span jq-section><a class="link-hover link-primary link" href="{{ $.BranchLink }}/{{ index $.TreePaths $i | PathEscapeSegments }}">{{ $v }}</a></span>
+          {{ end }}
+        {{ end }}
+        <span>{{ .i18n.Tr "repo.editor.or" }} <a class="link-hover link-primary link" href="{{ $.BranchLink }}{{ if not .IsNewFile }}/{{ .TreePath | PathEscapeSegments }}{{ end }}">{{ .i18n.Tr "repo.editor.cancel_lower" }}</a></span>
+        <input type="hidden" id="tree_path" name="tree_path" value="{{ .TreePath }}" required />
+      </div>
+      <div class="mb-4">
+        {{ template "repo/upload" . }}
+      </div>
+      {{ template "repo/editor/commit_form" . }}
+    </form>
+  </div>
+  {{ Asset "js/repo-editor.js" }}
+</div>
+{{ template "base/footer" . }}

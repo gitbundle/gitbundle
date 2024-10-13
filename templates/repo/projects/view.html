@@ -1,0 +1,245 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository projects view-project -->
+<div jq-repository-view-project class="main-container flex flex-col overflow-hidden">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="flex items-center justify-between">
+      {{ template "repo/issue/navbar" . }}
+      <div class="flex items-center gap-2">
+        {{ if and .CanWriteProjects (not .Repository.IsArchived) }}
+          <a class="btn-primary btn" href="{{ $.RepoLink }}/issues/new/choose?project={{ $.Project.ID }}">{{ .i18n.Tr "repo.issues.new" }}</a>
+          <div>
+            <label for="new-board-item" class="btn-primary btn">{{ .i18n.Tr "new_project_board" }}</label>
+            <input type="checkbox" id="new-board-item" class="modal-toggle" />
+            <div class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">{{ $.i18n.Tr "repo.projects.board.new" }}</h3>
+                <form class="py-4">
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">{{ $.i18n.Tr "repo.projects.board.new_title" }}</span>
+                    </label>
+                    <input class="input-bordered input placeholder:text-gray-600" class="new-board" id="new_board" name="title" required />
+                  </div>
+
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">{{ $.i18n.Tr "repo.projects.board.color" }}</span>
+                    </label>
+                    <div class="cu-color-picker flex items-center gap-2">
+                      <input class="color-picker" maxlength="7" placeholder="#c320f6" id="new_board_color_picker" name="color" />
+                      <div class="precolors w-32">
+                        {{ template "repo/issue/label_precolors" }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal-action">
+                    <label for="new-board-item" class="btn">{{ $.i18n.Tr "settings.cancel" }}</label>
+                    <button type="button" data-url="{{ $.RepoLink }}/projects/{{ $.Project.ID }}" class="btn-primary btn" id="new_board_submit">{{ $.i18n.Tr "repo.projects.board.new_submit" }}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        {{ end }}
+
+      </div>
+    </div>
+    <div class="flex items-center">
+      <div class="flex flex-1 flex-col gap-2">
+        <h2 class="text-2xl font-bold">{{ $.Project.Title }}</h2>
+        <div>{{ $.Project.RenderedContent|Str2html }}</div>
+      </div>
+      {{ if and (or $.CanWriteIssues $.CanWritePulls) (not $.Repository.IsArchived) }}
+        <div class="btn-group">
+          <a class="btn-outline btn gap-1" href="{{ $.RepoLink }}/projects/{{ .Project.ID }}/edit" data-id="{{ $.Project.ID }}" data-title="{{ $.Project.Title }}">
+            {{ svg "octicon-pencil" }}
+            <span>{{ $.i18n.Tr "repo.issues.label_edit" }}</span>
+          </a>
+          {{ if .Project.IsClosed }}
+            <a class="link-action btn-outline btn gap-1" href="#" data-url="{{ $.RepoLink }}/projects/{{ .Project.ID }}/open">
+              {{ svg "octicon-check" }}
+              <span>{{ $.i18n.Tr "repo.projects.open" }}</span>
+            </a>
+          {{ else }}
+            <a class="link-action btn-outline btn gap-1" href="#" data-url="{{ $.RepoLink }}/projects/{{ .Project.ID }}/close">
+              {{ svg "octicon-skip" }}
+              <span>{{ $.i18n.Tr "repo.projects.close" }}</span>
+            </a>
+          {{ end }}
+          {{ if or .CanWriteIssues .CanWritePulls }}
+            <a svelte-simple-modal class="btn-outline btn gap-1" href="#" data-title="{{ .i18n.Tr "repo.projects.deletion" }}" data-desc="{{ .i18n.Tr "repo.projects.deletion_desc" }}" data-url="{{ $.RepoLink }}/projects/{{ .Project.ID }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .Project.ID }}">
+              {{ svg "octicon-trash" }}
+              <span>{{ $.i18n.Tr "repo.issues.label_delete" }}</span>
+            </a>
+          {{ end }}
+        </div>
+      {{ end }}
+    </div>
+  </div>
+  <div class="mt-4 flex w-full flex-1 space-x-4 !overflow-x-auto overflow-y-hidden" id="project-board">
+    {{ range $board := .Boards }}
+      <div jq-board-column class="flex flex-col rounded-lg border bg-base-200" style="background: {{ .Color }} !important;" data-id="{{ .ID }}" data-sorting="{{ .Sorting }}" data-url="{{ $.RepoLink }}/projects/{{ $.Project.ID }}/{{ .ID }}">
+        <div jq-board-column-header class="flex w-96 items-center p-2">
+          <div class="flex flex-1 flex-nowrap items-center gap-1">
+            <div jq-board-card-cnt class="badge">
+              {{ .NumIssues }}
+            </div>
+            <span jq-board-label>{{ .Title }}</span>
+          </div>
+          {{ if and $.CanWriteProjects (not $.Repository.IsArchived) (ne .ID 0) }}
+            <div class="dropdown dropdown-end">
+              <label tabindex="-1" class="cursor-pointer">
+                {{ svg "octicon-kebab-horizontal" }}
+              </label>
+              <ul class="dropdown-content menu p-2" tabindex="-1">
+                <li>
+                  <label for="edit-project-board-modal-{{ .ID }}">
+                    {{ svg "octicon-pencil" }}
+                    {{ $.i18n.Tr "repo.projects.board.edit" }}
+                  </label>
+                </li>
+                {{ if not .Default }}
+                  <li>
+                    <a svelte-simple-modal data-title="{{ $.i18n.Tr "repo.projects.board.set_default" }}" data-desc="{{ $.i18n.Tr "repo.projects.board.set_default_desc" }}" data-href="{{ $.RepoLink }}/projects/{{ $.Project.ID }}/{{ .ID }}/default" data-action-approve-text="{{ $.i18n.Tr "repo.projects.board.set_default" }}">
+                      {{ svg "octicon-pin" }}
+                      {{ $.i18n.Tr "repo.projects.board.set_default" }}
+                    </a>
+                  </li>
+                {{ end }}
+                <li>
+                  <a svelte-simple-modal data-title="{{ $.i18n.Tr "repo.projects.board.delete" }}" data-desc="{{ $.i18n.Tr "repo.projects.board.deletion_desc" }}" data-href="{{ $.RepoLink }}/projects/{{ $.Project.ID }}/{{ .ID }}" data-method="delete" data-action-approve-text="{{ $.i18n.Tr "repo.projects.board.delete" }}" data-action-approve-color="red">
+                    {{ svg "octicon-trash" }}
+                    {{ $.i18n.Tr "repo.projects.board.delete" }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <input type="checkbox" id="edit-project-board-modal-{{ .ID }}" class="modal-toggle" />
+            <div jq-edit-project-board class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">{{ $.i18n.Tr "repo.projects.board.edit" }}</h3>
+                <div class="py-4">
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">{{ $.i18n.Tr "repo.projects.board.edit_title" }}</span>
+                    </label>
+                    <input class="input-bordered input placeholder:text-gray-600" name="title" value="{{ .Title }}" required />
+                  </div>
+
+                  <div class="form-control w-full">
+                    <label class="label">
+                      <span class="label-text">{{ $.i18n.Tr "repo.projects.board.color" }}</span>
+                    </label>
+                    <div class="cu-color-picker flex items-center gap-2">
+                      <input class="color-picker" maxlength="7" placeholder="#c320f6" name="color" value="{{ .Color }}" />
+                      <div class="precolors w-32">
+                        {{ template "repo/issue/label_precolors" }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal-action">
+                    <label for="edit-project-board-modal-{{ .ID }}" class="btn">{{ $.i18n.Tr "settings.cancel" }}</label>
+                    <label for="edit-project-board-modal-{{ .ID }}" jq-save data-url="{{ $.RepoLink }}/projects/{{ $.Project.ID }}/{{ .ID }}" class="btn-primary btn">{{ $.i18n.Tr "repo.projects.board.edit" }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{ end }}
+        </div>
+
+        <!-- ui cards board  -->
+        <div jq-board class="h-full w-96 overflow-y-auto" data-url="{{ $.RepoLink }}/projects/{{ $.Project.ID }}/{{ .ID }}" data-project="{{ $.Project.ID }}" data-board="{{ .ID }}" id="board_{{ .ID }}">
+          {{ range (index $.IssuesMap .ID) }}
+            <!-- board-card card -->
+            <div jq-board-card class="m-2 flex cursor-move flex-col gap-2 rounded-lg border bg-base-100 p-2 shadow" data-issue="{{ .ID }}">
+              <div class="flex items-center gap-1 font-bold">
+                <span class="{{ if .IsClosed }}text-red-600{{ else }}text-green-600{{ end }}">
+                  {{ if .IsPull }}
+                    {{ if .PullRequest.HasMerged }}
+                      {{ svg "octicon-git-merge" 16 "text-purple-600" }}
+                    {{ else }}
+                      {{ if .IsClosed }}
+                        {{ svg "octicon-git-pull-request" 16 "text-red-600" }}
+                      {{ else }}
+                        {{ svg "octicon-git-pull-request" 16 "text-green-600" }}
+                      {{ end }}
+                    {{ end }}
+                  {{ else }}
+                    {{ if .IsClosed }}
+                      {{ svg "octicon-issue-closed" 16 "text-red-600" }}
+                    {{ else }}
+                      {{ svg "octicon-issue-opened" 16 "text-green-600" }}
+                    {{ end }}
+                  {{ end }}
+                </span>
+                <a class="link-hover link hover:link-primary" href="{{ .Link }}">
+                  {{ .Title }}
+                </a>
+              </div>
+              <div class="cu-links-base flex items-center gap-1 text-gray-500">
+                #{{ .Index }}
+                {{ $timeStr := TimeSinceUnix .GetLastEventTimestamp $.i18n.Lang }}
+                {{ if .OriginalAuthor }}
+                  {{ $.i18n.Tr .GetLastEventLabelFake $timeStr (.OriginalAuthor|Escape) | Safe }}
+                {{ else if gt .Poster.ID 0 }}
+                  {{ $.i18n.Tr .GetLastEventLabel $timeStr (.Poster.HomeLink|Escape) (.Poster.GetDisplayName | Escape) | Safe }}
+                {{ else }}
+                  {{ $.i18n.Tr .GetLastEventLabelFake $timeStr (.Poster.GetDisplayName | Escape) | Safe }}
+                {{ end }}
+              </div>
+              {{- if .MilestoneID }}
+                <a class="link-hover link flex items-center gap-1 text-gray-500 hover:link-primary" href="{{ $.RepoLink }}/milestone/{{ .MilestoneID }}">
+                  {{ svg "octicon-milestone" 16 }}
+                  <span>{{ .Milestone.Name }}</span>
+                </a>
+              {{- end }}
+              {{- range index $.LinkedPRs .ID }}
+                <a class="link-hover link flex items-center gap-1 text-gray-500 hover:link-primary" href="{{ $.RepoLink }}/pulls/{{ .Index }}">
+                  <span class="{{ if .PullRequest.HasMerged }}text-purple-600{{ else if .IsClosed }}text-red-600{{ else }}text-green-600{{ end }}">{{ svg "octicon-git-merge" 16 }}</span>
+                  <span>{{ .Title }}</span>
+                  <span class="text-gray-400">#{{ .Index }}</span>
+                </a>
+              {{- end }}
+
+              {{ if or .Labels .Assignees }}
+                <div class="flex items-end">
+                  <div class="flex w-1/2 flex-wrap items-center gap-1">
+                    {{ range .Labels }}
+                      <a class="btn-xs btn" target="_blank" href="{{ $.RepoLink }}/issues?labels={{ .ID }}" style="color: {{ .ForegroundColor }}; background-color: {{ .Color }};" title="{{ .Description | RenderEmojiPlain }}">{{ .Name | RenderEmoji }}</a>
+                    {{ end }}
+                  </div>
+                  <div class="avatar-group w-1/2 justify-end -space-x-3">
+                    {{ $showCount:=6 }}
+                    {{ range $index,$item := .Assignees }}
+                      {{ if lt $index $showCount }}
+                        <a class="tooltip avatar" target="_blank" href="{{ .HTMLURL }}" data-tip="{{ $.i18n.Tr "repo.projects.board.assigned_to" }} {{ .Name }}">
+                          <span class="h-5 w-5 rounded-full">
+                            {{ avatar . }}
+                          </span>
+                        </a>
+                      {{ end }}
+                    {{ end }}
+                    {{ $remainCount := Subtract (len .Assignees) $showCount }}
+                    {{ if gt $remainCount 0 }}
+                      <div class="placeholder avatar">
+                        <div class="w-5 bg-neutral-focus text-[10px] text-neutral-content">
+                          <span>+{{ $remainCount }}</span>
+                        </div>
+                      </div>
+                    {{ end }}
+                  </div>
+                </div>
+              {{ end }}
+            </div>
+            <!-- stop issue card -->
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+  </div>
+  {{ Asset "js/repo-projects-view.js" }}
+</div>
+{{ template "base/footer" . }}

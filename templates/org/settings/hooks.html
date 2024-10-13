@@ -1,0 +1,14 @@
+{{ template "base/head" . }}
+<!--  organization settings webhooks -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    <div class="grid grid-cols-16 gap-8">
+      {{ template "org/settings/navbar" . }}
+      <div class="col-span-12">
+        {{ template "repo/settings/webhook/list" . }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

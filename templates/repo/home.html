@@ -1,0 +1,30 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<div class="main-container {{ if .IsBlame }}blame{{ end }}">
+  <div class="{{ if .IsBlame }}w-full{{ else }}mx-auto max-w-7xl w-full{{ end }}">
+    {{ template "base/alert" . }}
+    {{ if .Repository.IsArchived }}
+      <div svelte-simple-alert data-desc="{{ .i18n.Tr "repo.archive.title" }}" data-type="warning" data-icon="true"></div>
+    {{ end }}
+    <div class="grid grid-cols-10 gap-8">
+      <div class="{{ if not .IsBlame }}md:col-span-7{{ end }} col-span-10 space-y-4">
+        {{ template "repo/sub_nav" . }}
+        {{ if .IsViewFile }}
+          {{ template "repo/view_file" . }}
+        {{ else if .IsBlame }}
+          {{ template "repo/blame" . }}
+        {{ else }}
+          {{ template "repo/view_list" . }}
+        {{ end }}
+      </div>
+      {{ if not .IsBlame }}
+        <div class="sticky top-0 col-span-10 h-fit bg-base-100 md:col-span-3">
+          {{ template "repo/sidebar_about" . }}
+          <div class="divider"></div>
+          {{ template "repo/sidebar_language" . }}
+        </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

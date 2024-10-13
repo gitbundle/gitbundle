@@ -1,0 +1,14 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository file editor delete -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <form method="post">
+      {{ .CsrfTokenHtml }}
+      <input type="hidden" name="last_commit" value="{{ .last_commit }}" />
+      {{ template "repo/editor/commit_form" . }}
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

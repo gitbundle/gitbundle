@@ -1,0 +1,20 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ if .Issue.IsPull }}
+      {{ template "repo/issue/view_title" . }}
+      {{ template "repo/pulls/tab_menu" . }}
+      <!-- <div class="ui bottom attached pull tab active" data-tab="request-{{ .ID }}"> -->
+      {{ template "repo/issue/view_content" . }}
+      <!-- </div> -->
+    {{ else }}
+      {{ if .Flash }}
+        {{ template "base/alert" . }}
+      {{ end }}
+      {{ template "repo/issue/view_title" . }}
+      {{ template "repo/issue/view_content" . }}
+    {{ end }}
+  </div>
+</div>
+{{ template "base/footer" . }}

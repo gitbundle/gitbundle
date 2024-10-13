@@ -1,0 +1,30 @@
+<div class="flex items-center justify-between gap-4 px-4 py-2">
+  <form class="ignore-dirty flex flex-1">
+    <div class="input-group">
+      <input class="input-bordered input input-sm w-full" name="q" value="{{ .Keyword }}" placeholder="{{ .i18n.Tr "explore.search" }}..." autofocus />
+      <button class="btn-primary btn-sm btn">{{ .i18n.Tr "explore.search" }}</button>
+    </div>
+  </form>
+
+  <!-- Sort -->
+  <div class="dropdown-end dropdown">
+    <label tabindex="0" class="flex items-center gap-1">
+      {{ .i18n.Tr "repo.issues.filter_sort" }}
+      {{ svg "octicon-triangle-down" }}
+    </label>
+    <ul class="dropdown-content menu p-2">
+      <li><a class="{{ if or (eq .SortType "oldest") (not .SortType) }}active{{ end }}" href="{{ $.Link }}?sort=oldest&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.oldest" }}</a></li>
+      <li><a class="{{ if eq .SortType "newest" }}active{{ end }}" href="{{ $.Link }}?sort=newest&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.latest" }}</a></li>
+      <li><a class="{{ if eq .SortType "alphabetically" }}active{{ end }}" href="{{ $.Link }}?sort=alphabetically&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.label.filter_sort.alphabetically" }}</a></li>
+      <li><a class="{{ if eq .SortType "reversealphabetically" }}active{{ end }}" href="{{ $.Link }}?sort=reversealphabetically&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.label.filter_sort.reverse_alphabetically" }}</a></li>
+      <li><a class="{{ if eq .SortType "recentupdate" }}active{{ end }}" href="{{ $.Link }}?sort=recentupdate&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.recentupdate" }}</a></li>
+      <li><a class="{{ if eq .SortType "leastupdate" }}active{{ end }}" href="{{ $.Link }}?sort=leastupdate&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.leastupdate" }}</a></li>
+      <li><a class="{{ if eq .SortType "moststars" }}active{{ end }}" href="{{ $.Link }}?sort=moststars&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.moststars" }}</a></li>
+      <li><a class="{{ if eq .SortType "feweststars" }}active{{ end }}" href="{{ $.Link }}?sort=feweststars&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.feweststars" }}</a></li>
+      <li><a class="{{ if eq .SortType "mostforks" }}active{{ end }}" href="{{ $.Link }}?sort=mostforks&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.mostforks" }}</a></li>
+      <li><a class="{{ if eq .SortType "fewestforks" }}active{{ end }}" href="{{ $.Link }}?sort=fewestforks&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.filter_sort.fewestforks" }}</a></li>
+      <li><a class="{{ if eq .SortType "size" }}active{{ end }}" href="{{ $.Link }}?sort=size&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.label.filter_sort.by_size" }}</a></li>
+      <li><a class="{{ if eq .SortType "reversesize" }}active{{ end }}" href="{{ $.Link }}?sort=reversesize&q={{ $.Keyword }}">{{ .i18n.Tr "repo.issues.label.filter_sort.reverse_by_size" }}</a></li>
+    </ul>
+  </div>
+</div>

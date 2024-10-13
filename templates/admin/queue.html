@@ -1,0 +1,200 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.monitor.queue" .Queue.Name }}
+    </h4>
+
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>{{ .i18n.Tr "admin.monitor.queue.name" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.type" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.exemplar" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.numberworkers" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.maxnumberworkers" }}</th>
+          <th>{{ .i18n.Tr "admin.monitor.queue.numberinqueue" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ .Queue.Name }}</td>
+          <td>{{ .Queue.Type }}</td>
+          <td>{{ .Queue.ExemplarType }}</td>
+          <td>{{ $sum := .Queue.NumberOfWorkers }}{{ if lt $sum 0 }}-{{ else }}{{ $sum }}{{ end }}</td>
+          <td>{{ if lt $sum 0 }}-{{ else }}{{ .Queue.MaxNumberOfWorkers }}{{ end }}</td>
+          <td>{{ $sum := .Queue.NumberInQueue }}{{ if lt $sum 0 }}-{{ else }}{{ $sum }}{{ end }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {{ if lt $sum 0 }}
+    <div class="rounded-lg border">
+      <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+        {{ .i18n.Tr "admin.monitor.queue.nopool.title" }}
+      </h4>
+      <div class="px-4 py-2">
+        {{ if eq .Queue.Type "wrapped" }}
+          <p>{{ .i18n.Tr "admin.monitor.queue.wrapped.desc" }}</p>
+        {{ else if eq .Queue.Type "persistable-channel" }}
+          <p>{{ .i18n.Tr "admin.monitor.queue.persistable-channel.desc" }}</p>
+        {{ else }}
+          <p>{{ .i18n.Tr "admin.monitor.queue.nopool.desc" }}</p>
+        {{ end }}
+      </div>
+    </div>
+  {{ else }}
+
+    <div class="rounded-lg border">
+      <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+        {{ .i18n.Tr "admin.monitor.queue.settings.title" }}
+      </h4>
+
+      <div class="px-4 py-2">
+        <p>{{ .i18n.Tr "admin.monitor.queue.settings.desc" }}</p>
+        <form method="POST" action="{{ .Link }}/set" class="flex flex-col space-y-2">
+          {{ $.CsrfTokenHtml }}
+          <div class="form-control flex-row items-center gap-2">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.settings.maxnumberworkers" }}</span></label>
+            <input class="input-bordered input" name="max-number" type="text" placeholder="{{ .i18n.Tr "admin.monitor.queue.settings.maxnumberworkers.placeholder" .Queue.MaxNumberOfWorkers }}" />
+          </div>
+          <div class="form-control flex-row items-center gap-2">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.settings.timeout" }}</span></label>
+            <input class="input-bordered input" name="timeout" type="text" placeholder="{{ .i18n.Tr "admin.monitor.queue.settings.timeout.placeholder" .Queue.BoostTimeout }}" />
+          </div>
+          <div class="form-control flex-row items-center gap-2">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.settings.numberworkers" }}</span></label>
+            <input class="input-bordered input" name="number" type="text" placeholder="{{ .i18n.Tr "admin.monitor.queue.settings.numberworkers.placeholder" .Queue.BoostWorkers }}" />
+          </div>
+          <div class="form-control flex-row items-center gap-2">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.settings.blocktimeout" }}</span></label>
+            <span>{{ .i18n.Tr "admin.monitor.queue.settings.blocktimeout.value" .Queue.BlockTimeout }}</span>
+          </div>
+          <div class="form-control flex-row">
+            <button class="btn-primary btn">{{ .i18n.Tr "admin.monitor.queue.settings.submit" }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="rounded-lg border">
+      <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+        {{ .i18n.Tr "admin.monitor.queue.pool.addworkers.title" }}
+      </h4>
+
+      <div class="px-4 py-2">
+        <p>{{ .i18n.Tr "admin.monitor.queue.pool.addworkers.desc" }}</p>
+        <form method="POST" action="{{ .Link }}/add" class="space-y-2">
+          {{ $.CsrfTokenHtml }}
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.numberworkers" }}</span></label>
+            <input class="input-bordered input" name="number" type="text" placeholder="{{ .i18n.Tr "admin.monitor.queue.pool.addworkers.numberworkers.placeholder" }}" />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.pool.timeout" }}</span></label>
+            <input class="input-bordered input" name="timeout" type="text" placeholder="{{ .i18n.Tr "admin.monitor.queue.pool.addworkers.timeout.placeholder" }}" />
+          </div>
+          <div class="form-control flex-row">
+            <button class="btn-primary btn">{{ .i18n.Tr "admin.monitor.queue.pool.addworkers.submit" }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {{ if .Queue.Pausable }}
+      {{ if .Queue.IsPaused }}
+        <div class="rounded-lg border">
+          <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+            {{ .i18n.Tr "admin.monitor.queue.pool.resume.title" }}
+          </h4>
+
+          <div class="space-y-2 px-4 py-2">
+            <p>{{ .i18n.Tr "admin.monitor.queue.pool.resume.desc" }}</p>
+            <form method="POST" action="{{ .Link }}/resume">
+              {{ $.CsrfTokenHtml }}
+              <button class="btn-primary btn">{{ .i18n.Tr "admin.monitor.queue.pool.resume.submit" }}</button>
+            </form>
+          </div>
+        </div>
+      {{ else }}
+        <div class="rounded-lg border">
+          <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+            {{ .i18n.Tr "admin.monitor.queue.pool.pause.title" }}
+          </h4>
+
+          <div class="space-y-2 px-4 py-2">
+            <p>{{ .i18n.Tr "admin.monitor.queue.pool.pause.desc" }}</p>
+            <form method="POST" action="{{ .Link }}/pause">
+              {{ $.CsrfTokenHtml }}
+              <button class="btn-primary btn">{{ .i18n.Tr "admin.monitor.queue.pool.pause.submit" }}</button>
+            </form>
+          </div>
+        </div>
+      {{ end }}
+    {{ end }}
+
+
+    <div class="rounded-lg border">
+      <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+        {{ .i18n.Tr "admin.monitor.queue.pool.flush.title" }}
+      </h4>
+
+      <div class="space-y-2 px-4 py-2">
+        <p>{{ .i18n.Tr "admin.monitor.queue.pool.flush.desc" }}</p>
+        <form method="POST" action="{{ .Link }}/flush" class="space-y-2">
+          {{ $.CsrfTokenHtml }}
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.monitor.queue.pool.timeout" }}</span></label>
+            <input class="input-bordered input" name="timeout" type="text" placeholder="{{ .i18n.Tr "admin.monitor.queue.pool.addworkers.timeout.placeholder" }}" />
+          </div>
+          <button class="btn-primary btn">{{ .i18n.Tr "admin.monitor.queue.pool.flush.submit" }}</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="rounded-lg border">
+      <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+        {{ .i18n.Tr "admin.monitor.queue.pool.workers.title" }}
+      </h4>
+
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>{{ .i18n.Tr "admin.monitor.queue.numberworkers" }}</th>
+            <th>{{ .i18n.Tr "admin.monitor.start" }}</th>
+            <th>{{ .i18n.Tr "admin.monitor.queue.pool.timeout" }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .Queue.Workers }}
+            <tr>
+              <td>{{ .Workers }}{{ if .IsFlusher }}<span title="{{ .i18n.Tr "admin.monitor.queue.flush" }}">{{ svg "octicon-sync" }}</span>{{ end }}</td>
+              <td>{{ DateFmtLong .Start }}</td>
+              <td>{{ if .HasTimeout }}{{ DateFmtLong .Timeout }}{{ else }}-{{ end }}</td>
+              <td>
+                <a svelte-simple-modal class="link-hover link-primary link" href="#" data-href="{{ $.Link }}/cancel/{{ .PID }}" data-form-key[0]="id" data-form-val[0]="{{ .PID }}" data-title="{{ $.i18n.Tr "admin.monitor.queue.pool.cancel" }}" data-desc="{{ $.i18n.Tr "admin.monitor.queue.pool.cancel_notices" .Workers }}<br/>{{ $.i18n.Tr "admin.monitor.queue.pool.cancel_desc" }}" data-name="{{ .Workers }}"><span class="text-red-600" title="{{ $.i18n.Tr "remove" }}">{{ svg "octicon-trash" }}</span></a>
+              </td>
+            </tr>
+          {{ else }}
+            <tr>
+              <td colspan="4">
+                {{ .i18n.Tr "admin.monitor.queue.pool.workers.none" }}
+              </td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  {{ end }}
+
+
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.monitor.queue.configuration" }}
+    </h4>
+
+    <pre class="px-4 py-2">{{ .Queue.Configuration | JsonPrettyPrint }}</pre>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

@@ -1,0 +1,68 @@
+.image-diff-container {
+  @apply text-center;
+
+  img {
+    @apply border border-info;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAG0lEQVQYlWN4+vTpf3SMDTAMBYXYBLFpHgoKAeiOf0SGE9kbAAAAAElFTkSuQmCC')
+      right bottom hsl(var(--bc));
+  }
+
+  .before-container {
+    @apply inline-flex border border-red-800;
+  }
+
+  .after-container {
+    @apply inline-flex border border-green-800;
+  }
+
+  .diff-side-by-side {
+    @apply flex justify-center gap-x-2;
+  }
+
+  .diff-swipe {
+    .swipe-frame {
+      @apply relative;
+
+      .before-container {
+        @apply absolute left-0;
+      }
+
+      .swipe-container {
+        @apply absolute right-0 block h-full overflow-hidden border-l-2 border-base-content;
+        .after-container {
+          @apply absolute right-0;
+        }
+      }
+
+      .swipe-bar {
+        @apply absolute left-0 top-0 h-full;
+
+        .handle {
+          @apply absolute -left-[5px] box-border flex h-3 w-3 rotate-45 cursor-pointer items-center justify-center bg-base-content;
+        }
+
+        .top-handle {
+          @apply -top-[13px];
+        }
+
+        .bottom-handle {
+          @apply -bottom-[14px];
+        }
+      }
+    }
+  }
+
+  .diff-overlay {
+    .overlay-frame {
+      @apply relative;
+      .before-container,
+      .after-container {
+        @apply absolute left-0;
+      }
+    }
+
+    input {
+      @apply w-32;
+    }
+  }
+}

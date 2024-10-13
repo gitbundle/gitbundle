@@ -1,0 +1,19 @@
+/* @tailwind components;
+
+@layer components { */
+.svg {
+  @apply h-4 w-4 fill-current;
+  /* display: inline-block;
+    vertical-align: text-top;
+    fill: currentcolor;
+
+    .middle & {
+      vertical-align: middle;
+    } */
+}
+
+.cu-svg,
+.cu-svg svg {
+  @apply h-4 w-4 fill-current;
+}
+/* } */

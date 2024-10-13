@@ -1,0 +1,67 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository new milestone -->
+<div jq-repository-new-milestone class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <div class="mx-auto w-full max-w-3xl">
+      <div class="flex items-start justify-between">
+        <h2 class="flex flex-col">
+          {{ if .PageIsEditMilestone }}
+            <span class="text-2xl font-bold">{{ .i18n.Tr "repo.milestones.edit" }}</span>
+            <div class="text-gray-500">{{ .i18n.Tr "repo.milestones.edit_subheader" }}</div>
+          {{ else }}
+            <span class="text-2xl font-bold">{{ .i18n.Tr "repo.milestones.new" }}</span>
+            <div class="text-gray-500">{{ .i18n.Tr "repo.milestones.new_subheader" }}</div>
+          {{ end }}
+        </h2>
+        <div class="flex items-center gap-2">
+          {{ template "repo/issue/navbar" . }}
+          {{ if and (or .CanWriteIssues .CanWritePulls) .PageIsEditMilestone }}
+            <a class="btn-primary btn-sm btn" href="{{ $.RepoLink }}/milestones/new">{{ .i18n.Tr "repo.milestones.new" }}</a>
+          {{ end }}
+        </div>
+      </div>
+      <form action="{{ .Link }}" method="post">
+        {{ .CsrfTokenHtml }}
+        <div class="flex flex-col">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="{{ if .Err_Title }}error{{ end }} label-text">{{ .i18n.Tr "repo.milestones.title" }}</span>
+            </label>
+            <input class="input-bordered input placeholder:text-gray-600" name="title" placeholder="{{ .i18n.Tr "repo.milestones.title" }}" value="{{ .title }}" autofocus required maxlength="50" />
+          </div>
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="{{ if .Err_Title }}error{{ end }} label-text">{{ .i18n.Tr "repo.milestones.due_date" }}</span>
+              <span class="label-text-alt"><a class="link-hover link-primary link text-sm" id="clear-date">{{ .i18n.Tr "repo.milestones.clear" }}</a></span>
+            </label>
+            <input class="input-bordered input" type="date" id="deadline" name="deadline" value="{{ .deadline }}" placeholder="{{ .i18n.Tr "repo.issues.due_date_form" }}" />
+          </div>
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">{{ .i18n.Tr "repo.milestones.desc" }}</span>
+            </label>
+            <textarea class="textarea-bordered textarea" rows="5" name="content">{{ .content }}</textarea>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-2">
+          {{ if .PageIsEditMilestone }}
+            <a class="btn" href="{{ .RepoLink }}/milestones">
+              {{ .i18n.Tr "repo.milestones.cancel" }}
+            </a>
+            <button type="submit" class="btn-primary btn">
+              {{ .i18n.Tr "repo.milestones.modify" }}
+            </button>
+          {{ else }}
+            <button type="submit" class="btn-primary btn">
+              {{ .i18n.Tr "repo.milestones.create" }}
+            </button>
+          {{ end }}
+        </div>
+      </form>
+    </div>
+  </div>
+  {{ Asset "js/repo-issue-milestone_new.js" }}
+</div>
+{{ template "base/footer" . }}

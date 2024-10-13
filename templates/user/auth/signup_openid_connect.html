@@ -1,0 +1,38 @@
+{{ template "base/head" . }}
+<!--  user signup -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    {{ template "user/auth/signup_openid_navbar" . }}
+    <!-- <h4 class="hero bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.openid_connect_title" }}
+    </h4> -->
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <p class="text-center">
+      {{ .i18n.Tr "auth.openid_connect_desc" }}
+    </p>
+    <form class="mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <div class="required {{ if .Err_UserName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "home.uname_holder" }}</span></label>
+        <input class="input-bordered input" id="user_name" type="text" name="user_name" value="{{ .user_name }}" autofocus required />
+      </div>
+      <div class="required {{ if .Err_Password }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "password" }}</span></label>
+        <input class="input-bordered input" id="password" name="password" type="password" value="{{ .password }}" autocomplete="off" required />
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text">OpenID URI</span></label>
+        <input class="input-bordered input" id="openid" value="{{ .OpenID }}" readonly />
+      </div>
+      <div class="form-control">
+        <button class="btn-primary btn">{{ .i18n.Tr "auth.openid_connect_submit" }}</button>
+      </div>
+      <div class="form-control">
+        <a href="{{ AppSubUrl }}/user/forgot_password" class="link-hover link-primary link">{{ .i18n.Tr "auth.forgot_password" }}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

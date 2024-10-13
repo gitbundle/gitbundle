@@ -1,0 +1,143 @@
+{{ template "admin/base/header" . }}
+<div jq-admin-edit-user class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.users.edit_account" }}
+    </h4>
+    <form class="space-y-2 border-t px-4 py-2" action="{{ .Link }}" method="post">
+      {{ template "base/disable_form_autofill" }}
+      {{ .CsrfTokenHtml }}
+      <div class="{{ if .Err_UserName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "username" }}</span></label>
+        <input class="input-bordered input" id="user_name" name="user_name" value="{{ .User.Name }}" autofocus {{ if not .User.IsLocal }}disabled{{ end }} />
+      </div>
+      <!-- Types and name -->
+      <div class="required {{ if .Err_LoginType }}error{{ end }} form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.users.auth_source" }}</span></label>
+        <select id="login_type" name="login_type" class="select-bordered select" required>
+          <option value="0-0" {{ if and (eq .LoginSource.Type.Int 0) (eq .LoginSource.ID 0 ) }}selected{{ end }}>{{ .i18n.Tr "admin.users.local" }}</option>
+          {{ range .Sources }}
+            <option value="{{ .Type.Int }}-{{ .ID }}" {{ if and (eq $.LoginSource.Type.Int .Type.Int) (eq $.LoginSource.ID .ID ) }}selected{{ end }}>{{ .Name }}</option>
+          {{ end }}
+        </select>
+      </div>
+
+      <div class="{{ if .Err_Visibility }}error{{ end }} required form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "settings.visibility" }}</span></label>
+        <select name="visibility" class="select-bordered select">
+          {{ range $mode := .AllowedUserVisibilityModes }}
+            {{ if $mode.IsPublic }}
+              <option value="0" {{ if $.User.Visibility.IsPublic }}selected{{ end }}>{{ $.i18n.Tr "settings.visibility.public" }}({{ $.i18n.Tr "settings.visibility.public_tooltip" }})</option>
+            {{ else if $mode.IsLimited }}
+              <option value="1" {{ if $.User.Visibility.IsLimited }}selected{{ end }}>{{ $.i18n.Tr "settings.visibility.limited" }}({{ $.i18n.Tr "settings.visibility.limited_tooltip" }})</option>
+            {{ else if $mode.IsPrivate }}
+              <option value="2" {{ if $.User.Visibility.IsPrivate }}selected{{ end }}>{{ $.i18n.Tr "settings.visibility.private" }}({{ $.i18n.Tr "settings.visibility.private_tooltip" }})</option>
+            {{ end }}
+          {{ end }}
+        </select>
+      </div>
+
+      <div class="required non-local {{ if .Err_LoginName }}error{{ end }} {{ if eq .User.LoginSource 0 }}hidden{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.users.auth_login_name" }}</span></label>
+        <input class="input-bordered input w-full" id="login_name" name="login_name" value="{{ .User.LoginName }}" autofocus />
+      </div>
+      <div class="{{ if .Err_FullName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "settings.full_name" }}</span></label>
+        <input class="input-bordered input" id="full_name" name="full_name" value="{{ .User.FullName }}" />
+      </div>
+      <div class="required {{ if .Err_Email }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "email" }}</span></label>
+        <input class="input-bordered input" id="email" name="email" type="email" value="{{ .User.Email }}" autofocus required />
+      </div>
+      <div class="local {{ if .Err_Password }}error{{ end }} {{ if not (or (.User.IsLocal) (.User.IsOAuth2)) }}hidden{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "password" }}</span></label>
+        <input class="input-bordered input w-full" id="password" name="password" type="password" autocomplete="new-password" />
+        <p class="help">{{ .i18n.Tr "admin.users.password_helper" }}</p>
+      </div>
+      <div class="{{ if .Err_Website }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "settings.website" }}</span></label>
+        <input class="input-bordered input" id="website" name="website" type="url" value="{{ .User.Website }}" placeholder="e.g. http://mydomain.com or https://mydomain.com" />
+      </div>
+      <div class="{{ if .Err_Location }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "settings.location" }}</span></label>
+        <input class="input-bordered input" id="location" name="location" value="{{ .User.Location }}" />
+      </div>
+
+      <div class="{{ if .Err_MaxRepoCreation }}error{{ end }} form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.users.max_repo_creation" }}</span></label>
+        <input class="input-bordered input" id="max_repo_creation" name="max_repo_creation" type="number" value="{{ .User.MaxRepoCreation }}" />
+        <p class="help">{{ .i18n.Tr "admin.users.max_repo_creation_desc" }}</p>
+      </div>
+
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="active" type="checkbox" {{ if .User.IsActive }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.users.is_activated" }}</strong></label>
+      </div>
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="prohibit_login" type="checkbox" {{ if .User.ProhibitLogin }}checked{{ end }} {{ if (eq .User.ID .SignedUserID) }}disabled{{ end }} /><strong>{{ .i18n.Tr "admin.users.prohibit_login" }}</strong></label>
+      </div>
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="admin" type="checkbox" {{ if .User.IsAdmin }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.users.is_admin" }}</strong></label>
+      </div>
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="restricted" type="checkbox" {{ if .User.IsRestricted }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.users.is_restricted" }}</strong></label>
+      </div>
+      <div class="{{ if DisableGitHooks }}hidden{{ end }} form-control">
+        <label class="tooltip tooltip-right flex w-fit items-center gap-1" data-tip="{{ .i18n.Tr "admin.users.allow_git_hook_tooltip" }}"><input class="checkbox checkbox-sm" name="allow_git_hook" type="checkbox" {{ if .User.CanEditGitHook }}checked{{ end }} {{ if DisableGitHooks }}disabled{{ end }} /><strong>{{ .i18n.Tr "admin.users.allow_git_hook" }}</strong></label>
+      </div>
+      <div class="{{ if or (DisableImportLocal) (.DisableMigrations) }}hidden{{ end }} form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="allow_import_local" type="checkbox" {{ if .User.CanImportLocal }}checked{{ end }} {{ if DisableImportLocal }}disabled{{ end }} /><strong>{{ .i18n.Tr "admin.users.allow_import_local" }}</strong></label>
+      </div>
+      {{ if not .DisableRegularOrgCreation }}
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="allow_create_organization" type="checkbox" {{ if .User.CanCreateOrganization }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.users.allow_create_organization" }}</strong></label>
+        </div>
+      {{ end }}
+
+      {{ if .TwoFactorEnabled }}
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="reset_2fa" type="checkbox" /><strong>{{ .i18n.Tr "admin.users.reset_2fa" }}</strong></label>
+        </div>
+      {{ end }}
+      <div class="form-control flex-row gap-2">
+        <button class="btn-primary btn">{{ .i18n.Tr "admin.users.update_profile" }}</button>
+        <div svelte-simple-modal class="btn-red btn" data-href="{{ $.Link }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .User.ID }}" data-title="{{ .i18n.Tr "settings.delete_account_title" }}" data-desc="{{ .i18n.Tr "settings.delete_account_desc" }}" data-action-approve-color="red">{{ .i18n.Tr "admin.users.delete_account" }}</div>
+      </div>
+    </form>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "settings.avatar" }}
+    </h4>
+
+    <form class="space-y-2 border-t px-4 py-2" action="{{ .Link }}/avatar" method="post" enctype="multipart/form-data">
+      {{ .CsrfTokenHtml }}
+      {{ if not DisableGravatar }}
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="radio radio-sm" name="source" value="lookup" type="radio" {{ if not .User.UseCustomAvatar }}checked{{ end }} />{{ .i18n.Tr "settings.lookup_avatar_by_mail" }}</label>
+        </div>
+        <div class="{{ if .Err_Gravatar }}error{{ end }} form-control">
+          <label class="label"><span class="label-text">Avatar {{ .i18n.Tr "email" }}</span></label>
+          <input class="input-bordered input" id="gravatar" name="gravatar" value="{{ .User.AvatarEmail }}" />
+        </div>
+      {{ end }}
+
+
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="radio radio-sm" name="source" value="local" type="radio" {{ if .User.UseCustomAvatar }}checked{{ end }} />{{ .i18n.Tr "settings.enable_custom_avatar" }}</label>
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "settings.choose_new_avatar" }}</span></label>
+        <input class="file-input-bordered file-input" name="avatar" type="file" />
+      </div>
+
+      <div class="form-control flex-row gap-2">
+        <button class="btn-primary btn">{{ $.i18n.Tr "settings.update_avatar" }}</button>
+        <a svelte-async-button class="btn-red btn" href="#" data-href="{{ .Link }}/avatar/delete" data-redirect="{{ .Link }}">{{ $.i18n.Tr "settings.delete_current_avatar" }}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

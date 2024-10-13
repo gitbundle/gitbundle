@@ -1,0 +1,59 @@
+/* @tailwind components;
+
+@layer components { */
+.cu-left-triangle {
+  @apply relative;
+
+  &::before {
+    border-width: 9px;
+    margin-top: -9px;
+    @apply pointer-events-none absolute right-full top-5 h-0 w-0 border-solid border-transparent border-r-mako-800 content-[""];
+  }
+
+  &::after {
+    @apply pointer-events-none absolute right-full top-5 -mt-2 border-8 border-solid border-transparent border-r-base-200 content-[""];
+  }
+}
+
+.cu-bordered-menu {
+  @apply menu;
+
+  li {
+    @apply bg-transparent;
+  }
+
+  li,
+  li:hover,
+  li.cu-bordered {
+    @apply flex flex-row items-center gap-1;
+
+    a {
+      @apply rounded-box flex flex-1 gap-1;
+    }
+
+    a.active {
+      @apply rounded-box bg-base-content/10;
+    }
+
+    a.cu-active {
+      @apply rounded-box bg-base-content/10;
+    }
+
+    a:hover {
+      @apply rounded-box bg-base-content/10;
+    }
+  }
+
+  li {
+    > [class*='divider'] {
+      @apply divider divider-horizontal mx-0 my-auto h-fit w-1 rounded-full bg-transparent px-0 py-2;
+    }
+  }
+
+  li.cu-bordered {
+    > [class*='divider'] {
+      @apply bg-primary;
+    }
+  }
+}
+/* } */

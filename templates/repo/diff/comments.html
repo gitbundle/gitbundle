@@ -1,0 +1,77 @@
+{{ range .comments }}
+  {{ $createdStr:= TimeSinceUnix .CreatedUnix $.root.i18n.Lang }}
+  <div jq-comment class="flex px-4" id="{{ .HashTag }}">
+    {{ if .OriginalAuthor }}
+      <span class="avatar h-fit">
+        <span class="w-8 rounded-full">
+          <img src="{{ AppSubUrl }}/assets/img/avatar_default.png" />
+        </span>
+      </span>
+    {{ else }}
+      <a class="avatar mr-3 mt-1 h-fit" {{ if gt .Poster.ID 0 }}href="{{ .Poster.HomeLink }}"{{ end }}>
+        <span class="w-8 rounded-full">
+          {{ avatar .Poster }}
+        </span>
+      </a>
+    {{ end }}
+    <div jq-content class="flex flex-1 flex-col">
+      <div class="cu-left-triangle relative flex items-center rounded-t-lg border bg-base-200 p-4">
+        <div class="flex flex-1 items-center gap-x-1">
+          {{ if .OriginalAuthor }}
+            <span class="flex items-center gap-x-1 text-primary-content">
+              {{ svg (MigrationIcon $.root.Repository.GetOriginalURLHostname) }}
+              {{ .OriginalAuthor }}
+            </span>
+            <span>
+              {{ $.root.i18n.Tr "repo.issues.commented_at" (.HashTag|Escape) $createdStr | Safe }}
+            </span>
+            <span class="text-mako-400">
+              {{ if $.root.Repository.OriginalURL }}
+                ({{ $.root.i18n.Tr "repo.migrated_from" ($.root.Repository.OriginalURL | Escape) ($.root.Repository.GetOriginalURLHostname | Escape) | Safe }})
+              {{ end }}
+            </span>
+          {{ else }}
+            <span class="cu-links-primary-content">
+              <a {{ if gt .Poster.ID 0 }}href="{{ .Poster.HomeLink }}"{{ end }}>
+                {{ .Poster.GetDisplayName }}
+              </a>
+              {{ $.root.i18n.Tr "repo.issues.commented_at" (.HashTag|Escape) $createdStr | Safe }}
+            </span>
+          {{ end }}
+        </div>
+        <div class="flex items-center gap-x-2">
+          {{ if and .Review }}
+            {{ if eq .Review.Type 0 }}
+              <div jq-pending-label class="badge-yellow badge tooltip tooltip-left badge-sm" data-tip="{{ $.root.i18n.Tr "repo.issues.review.pending.tooltip" ($.root.i18n.Tr "repo.diff.review") ($.root.i18n.Tr "repo.diff.review.approve") ($.root.i18n.Tr "repo.diff.review.comment") ($.root.i18n.Tr "repo.diff.review.reject") }}">
+                {{ $.root.i18n.Tr "repo.issues.review.pending" }}
+              </div>
+            {{ else }}
+              <div class="badge badge-sm">
+                {{ $.root.i18n.Tr "repo.issues.review.review" }}
+              </div>
+            {{ end }}
+          {{ end }}
+          {{ template "repo/issue/view_content/add_reaction" Dict "ctx" $.root "ActionURL" (Printf "%s/comments/%d/reactions" $.root.RepoLink .ID) }}
+          {{ template "repo/issue/view_content/context_menu" Dict "ctx" $.root "item" . "delete" true "issue" false "diff" true "IsCommentPoster" (and $.root.IsSigned (eq $.root.SignedUserID .PosterID)) }}
+        </div>
+      </div>
+      <div jq-temp class="flex flex-col rounded-b-lg border border-t-0 bg-base-100">
+        <div class="px-4 py-2">
+          <div class="no-extra-style markup" {{ if or $.Permission.IsAdmin $.HasIssuesOrPullsWritePermission (and $.root.IsSigned (eq $.root.SignedUserID .PosterID)) }}data-can-edit="true"{{ end }}>
+            {{ if .RenderedContent }}
+              {{ .RenderedContent|Str2html }}
+            {{ else }}
+              <span class="no-content">{{ $.root.i18n.Tr "repo.issues.no_content" }}</span>
+            {{ end }}
+          </div>
+          <div id="comment-{{ .ID }}" class="raw-content hidden">{{ .Content }}</div>
+          <div class="edit-content-zone hidden" data-write="issuecomment-{{ .ID }}-write" data-preview="issuecomment-{{ .ID }}-preview" data-update-url="{{ $.root.RepoLink }}/comments/{{ .ID }}" data-context="{{ $.root.RepoLink }}"></div>
+        </div>
+        {{ $reactions := .Reactions.GroupByType }}
+        {{ if $reactions }}
+          {{ template "repo/issue/view_content/reactions" Dict "ctx" $.root "ActionURL" (Printf "%s/comments/%d/reactions" $.root.RepoLink .ID) "Reactions" $reactions }}
+        {{ end }}
+      </div>
+    </div>
+  </div>
+{{ end }}

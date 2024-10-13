@@ -1,0 +1,43 @@
+[jq-page-install].install {
+  .field.inline {
+    @apply grid grid-cols-12 items-center gap-x-4;
+    label {
+      @apply col-span-3 text-right;
+    }
+    input:not(input[type='checkbox']) {
+      @apply col-span-9;
+      @apply input-bordered input w-full max-w-md;
+    }
+    input[type='checkbox'] {
+      @apply col-span-9;
+      @apply checkbox checkbox-sm;
+    }
+    select {
+      @apply col-span-9;
+      @apply select-bordered select w-fit max-w-md;
+    }
+    .help {
+      @apply col-span-9 col-start-4;
+    }
+    .cu-checkbox {
+      @apply col-span-9 col-start-4;
+      label {
+        @apply flex w-fit items-center gap-1;
+      }
+    }
+    button {
+      @apply col-span-9 w-fit;
+    }
+  }
+  .required {
+    label {
+      @apply after:text-red-600 after:content-["*"];
+    }
+  }
+  details.optional.field {
+    @apply space-y-2;
+    summary.title {
+      @apply ml-[25%] cursor-pointer;
+    }
+  }
+}

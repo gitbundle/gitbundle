@@ -1,0 +1,31 @@
+{{ template "base/head" . }}
+<!-- organization settings delete -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    <div class="grid grid-cols-16 gap-8">
+      {{ template "org/settings/navbar" . }}
+      <div class="col-span-12">
+        {{ template "base/alert" . }}
+        <h4 class="text-xl font-bold text-red-600">
+          {{ .i18n.Tr "org.settings.delete_account" }}
+        </h4>
+        <!-- <div class="divider my-2"></div> -->
+        <div class="rounded-lg border-2 !border-red-600 p-4">
+          <div svelte-simple-alert data-desc="{{ .i18n.Tr "org.settings.delete_prompt" | Str2html }}" data-type="error" data-icon="true" data-icon-name="fa-triangle-exclamation"></div>
+          <form class="ignore-dirty flex items-center gap-4" id="delete-form" action="{{ .Link }}" method="post">
+            {{ .CsrfTokenHtml }}
+            <div class="required {{ if .Err_OrgName }}error{{ end }} form-control flex-row items-center gap-2">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "org.org_name_holder" }}</span></label>
+              <input class="input-bordered input" id="org_name" name="org_name" value="" autocomplete="off" autofocus required />
+            </div>
+            <div svelte-simple-modal class="btn-red btn" data-title="{{ .i18n.Tr "org.settings.delete_org_title" }}" data-desc="{{ .i18n.Tr "org.settings.delete_org_desc" }}" data-confirm-form="#delete-form">
+              {{ .i18n.Tr "org.settings.confirm_delete_account" }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

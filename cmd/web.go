@@ -1,0 +1,285 @@
+// Copyright 2023 The GitBundle Inc. All rights reserved.
+// Copyright 2016 The Gitea Authors. All rights reserved.
+// Copyright 2014 The Gogs Authors. All rights reserved.
+// Use of this source code is governed by a CC BY-NC 4.0
+// license that can be found in the LICENSE file.
+
+package cmd
+
+import (
+	"context"
+	"fmt"
+	"net"
+	"net/http"
+	_ "net/http/pprof" // Used for debugging if enabled and a web server is running
+	"os"
+	"strings"
+
+	"github.com/gitbundle/modules/graceful"
+	"github.com/gitbundle/modules/log"
+	"github.com/gitbundle/modules/process"
+	"github.com/gitbundle/modules/setting"
+	"github.com/gitbundle/server/pkg/routers"
+	"github.com/gitbundle/server/pkg/routers/install"
+
+	"github.com/felixge/fgprof"
+	"github.com/urfave/cli"
+	"gopkg.in/ini.v1"
+)
+
+// CmdWeb represents the available web sub-command.
+var CmdWeb = cli.Command{
+	Name:  "web",
+	Usage: "Start GitBundle web server",
+	Description: `GitBundle web server is the only thing you need to run,
+and it takes care of all the other things for you`,
+	Action: runWeb,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "port, p",
+			Value: "3000",
+			Usage: "Temporary port number to prevent conflict",
+		},
+		cli.StringFlag{
+			Name:  "install-port",
+			Value: "3000",
+			Usage: "Temporary port number to run the install page on to prevent conflict",
+		},
+		cli.StringFlag{
+			Name:  "pid, P",
+			Value: setting.PIDFile,
+			Usage: "Custom pid file path",
+		},
+		cli.BoolFlag{
+			Name:  "quiet, q",
+			Usage: "Only display Fatal logging errors until logging is set-up",
+		},
+		cli.BoolFlag{
+			Name:  "verbose",
+			Usage: "Set initial logging to TRACE level until logging is properly set-up",
+		},
+	},
+}
+
+func runHTTPRedirector() {
+	_, _, finished := process.GetManager().
+		AddTypedContext(graceful.GetManager().HammerContext(), "Web: HTTP Redirector", process.SystemProcessType, true)
+	defer finished()
+
+	source := fmt.Sprintf("%s:%s", setting.HTTPAddr, setting.PortToRedirect)
+	dest := strings.TrimSuffix(setting.AppURL, "/")
+	log.Info("Redirecting: %s to %s", source, dest)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		target := dest + r.URL.Path
+		if len(r.URL.RawQuery) > 0 {
+			target += "?" + r.URL.RawQuery
+		}
+		http.Redirect(w, r, target, http.StatusTemporaryRedirect)
+	})
+
+	err := runHTTP("tcp", source, "HTTP Redirector", handler)
+	if err != nil {
+		log.Fatal("Failed to start port redirection: %v", err)
+	}
+}
+
+func runWeb(ctx *cli.Context) error {
+	if ctx.Bool("verbose") {
+		_ = log.DelLogger("console")
+		log.NewLogger(
+			0,
+			"console",
+			"console",
+			fmt.Sprintf(
+				`{"level": "trace", "colorize": %t, "stacktraceLevel": "none"}`,
+				log.CanColorStdout,
+			),
+			setting.IsProd,
+		)
+	} else if ctx.Bool("quiet") {
+		_ = log.DelLogger("console")
+		log.NewLogger(0, "console", "console", fmt.Sprintf(`{"level": "fatal", "colorize": %t, "stacktraceLevel": "none"}`, log.CanColorStdout), setting.IsProd)
+	}
+	defer func() {
+		if panicked := recover(); panicked != nil {
+			log.Fatal("PANIC: %v\n%s", panicked, log.Stack(2))
+		}
+	}()
+
+	managerCtx, cancel := context.WithCancel(context.Background())
+	graceful.InitManager(managerCtx)
+	defer cancel()
+
+	if os.Getppid() > 1 && len(os.Getenv("LISTEN_FDS")) > 0 {
+		log.Info("Restarting gitbundle on PID: %d from parent PID: %d", os.Getpid(), os.Getppid())
+	} else {
+		log.Info("Starting gitbundle on PID: %d", os.Getpid())
+	}
+
+	// Set pid file setting
+	if ctx.IsSet("pid") {
+		setting.PIDFile = ctx.String("pid")
+		setting.WritePIDFile = true
+	}
+
+	// Perform pre-initialization
+	needsInstall := install.PreloadSettings(graceful.GetManager().HammerContext())
+	if needsInstall {
+		// Flag for port number in case first time run conflict
+		if ctx.IsSet("port") {
+			if err := setPort(ctx.String("port")); err != nil {
+				return err
+			}
+		}
+		if ctx.IsSet("install-port") {
+			if err := setPort(ctx.String("install-port")); err != nil {
+				return err
+			}
+		}
+		c := install.Routes()
+		err := listen(c, false)
+		if err != nil {
+			log.Critical("Unable to open listener for installer. Is gitbundle already running?")
+			graceful.GetManager().DoGracefulShutdown()
+		}
+		select {
+		case <-graceful.GetManager().IsShutdown():
+			<-graceful.GetManager().Done()
+			log.Info("PID: %d gitbundle Web Finished", os.Getpid())
+			log.Close()
+			return err
+		default:
+		}
+	} else {
+		NoInstallListener()
+	}
+
+	if setting.EnablePprof {
+		go func() {
+			http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler())
+			_, _, finished := process.GetManager().
+				AddTypedContext(context.Background(), "Web: PProf Server", process.SystemProcessType, true)
+			log.Info("Starting pprof server on localhost:6060")
+			log.Info("%v", http.ListenAndServe("localhost:6060", nil))
+			finished()
+		}()
+	}
+
+	log.Info("Global init")
+	// Perform global initialization
+	setting.LoadFromExisting()
+	routers.GlobalInitInstalled(graceful.GetManager().HammerContext())
+
+	// We check that AppDataPath exists here (it should have been created during installation)
+	// We can't check it in `GlobalInitInstalled`, because some integration tests
+	// use cmd -> GlobalInitInstalled, but the AppDataPath doesn't exist during those tests.
+	if _, err := os.Stat(setting.AppDataPath); err != nil {
+		log.Fatal("Can not find APP_DATA_PATH '%s'", setting.AppDataPath)
+	}
+
+	// Override the provided port number within the configuration
+	if ctx.IsSet("port") {
+		if err := setPort(ctx.String("port")); err != nil {
+			return err
+		}
+	}
+
+	// Set up Chi routes
+	c := routers.NormalRoutes()
+	err := listen(c, true)
+	<-graceful.GetManager().Done()
+	log.Info("PID: %d gitbundle Web Finished", os.Getpid())
+	log.Close()
+	return err
+}
+
+func setPort(port string) error {
+	setting.AppURL = strings.Replace(setting.AppURL, setting.HTTPPort, port, 1)
+	setting.HTTPPort = port
+
+	switch setting.Protocol {
+	case setting.HTTPUnix:
+	case setting.FCGI:
+	case setting.FCGIUnix:
+	default:
+		defaultLocalURL := string(setting.Protocol) + "://"
+		if setting.HTTPAddr == "0.0.0.0" {
+			defaultLocalURL += "localhost"
+		} else {
+			defaultLocalURL += setting.HTTPAddr
+		}
+		defaultLocalURL += ":" + setting.HTTPPort + "/"
+
+		// Save LOCAL_ROOT_URL if port changed
+		setting.CreateOrAppendToCustomConf(func(cfg *ini.File) {
+			cfg.Section("server").Key("LOCAL_ROOT_URL").SetValue(defaultLocalURL)
+		})
+	}
+	return nil
+}
+
+func listen(m http.Handler, handleRedirector bool) error {
+	listenAddr := setting.HTTPAddr
+	if setting.Protocol != setting.HTTPUnix && setting.Protocol != setting.FCGIUnix {
+		listenAddr = net.JoinHostPort(listenAddr, setting.HTTPPort)
+	}
+	_, _, finished := process.GetManager().
+		AddTypedContext(graceful.GetManager().HammerContext(), "Web: gitbundle Server", process.SystemProcessType, true)
+	defer finished()
+	log.Info("Listen: %v://%s%s", setting.Protocol, listenAddr, setting.AppSubURL)
+	// This can be useful for users, many users do wrong to their config and get strange behaviors behind a reverse-proxy.
+	// A user may fix the configuration mistake when he sees this log.
+	// And this is also very helpful to maintainers to provide help to users to resolve their configuration problems.
+	log.Info("AppURL(ROOT_URL): %s", setting.AppURL)
+
+	if setting.LFS.StartServer {
+		log.Info("LFS server enabled")
+	}
+
+	var err error
+	switch setting.Protocol {
+	case setting.HTTP:
+		if handleRedirector {
+			NoHTTPRedirector()
+		}
+		err = runHTTP("tcp", listenAddr, "Web", m)
+	case setting.HTTPS:
+		if setting.EnableAcme {
+			err = runACME(listenAddr, m)
+			break
+		} else {
+			if handleRedirector {
+				if setting.RedirectOtherPort {
+					go runHTTPRedirector()
+				} else {
+					NoHTTPRedirector()
+				}
+			}
+			err = runHTTPS("tcp", listenAddr, "Web", setting.CertFile, setting.KeyFile, m)
+		}
+	case setting.FCGI:
+		if handleRedirector {
+			NoHTTPRedirector()
+		}
+		err = runFCGI("tcp", listenAddr, "FCGI Web", m)
+	case setting.HTTPUnix:
+		if handleRedirector {
+			NoHTTPRedirector()
+		}
+		err = runHTTP("unix", listenAddr, "Web", m)
+	case setting.FCGIUnix:
+		if handleRedirector {
+			NoHTTPRedirector()
+		}
+		err = runFCGI("unix", listenAddr, "Web", m)
+	default:
+		log.Fatal("Invalid protocol: %s", setting.Protocol)
+	}
+
+	if err != nil {
+		log.Critical("Failed to start server: %v", err)
+	}
+	log.Info("HTTP Listener: %s Closed", listenAddr)
+	return err
+}

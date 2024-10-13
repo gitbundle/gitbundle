@@ -1,0 +1,10 @@
+{{ if .HeatmapData }}
+  <div id="user-heatmap" class="text-xs" data-heatmap-data="{{ Json .HeatmapData }}">
+    {{ template "base/loading_ellipsis" }}
+    <!-- <div class="flex w-full flex-col items-center">
+      <span class="loading btn-ghost btn mb-1 self-center before:!mr-0 before:!h-8 before:!w-8"></span>
+      <span>{{ .i18n.Tr "user.heatmap.loading" }}</span>
+    </div> -->
+  </div>
+  <div class="divider"></div>
+{{ end }}

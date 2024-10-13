@@ -1,0 +1,18 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.monitor.stacktrace" }}:
+      {{ .i18n.Tr "admin.monitor.goroutines" .GoroutineCount }}
+      <a class="btn-primary btn-sm btn" href="{{ AppSubUrl }}/admin/monitor">{{ .i18n.Tr "admin.monitor" }}</a>
+    </h4>
+
+    <div class="divide-y">
+      {{ range .ProcessStacks }}
+        {{ template "admin/stacktrace-row" dict "Process" . "root" $ }}
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

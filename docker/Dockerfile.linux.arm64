@@ -1,0 +1,27 @@
+FROM arm64v8/alpine:3.16
+
+LABEL maintainer="GitBundle Community <dev@gitbundle.com>" \
+  org.label-schema.name="GitBundle Server" \
+  org.label-schema.vendor="GitBundle Community" \
+  org.label-schema.schema-version="1.0"
+
+EXPOSE 22 3000
+
+ENV USER git
+ENV GITBUNDLE_CUSTOM /data/gitbundle
+
+COPY docker/root /
+COPY --chmod=+x release/linux/arm64/gitbundle /app/gitbundle/gitbundle
+COPY --chmod=+x release/linux/arm64/environment-to-ini /usr/local/bin/
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && \
+    apk add --no-cache bash ca-certificates curl gettext git linux-pam openssh s6 su-exec gnupg
+
+RUN addgroup -S -g 1000 git && \
+    adduser -S -H -D -h /data/git -s /bin/bash -u 1000 -G git git && \
+    echo "git:*" | chpasswd -e && \
+    chmod 755 /usr/bin/entrypoint /usr/local/bin/gitbundle && \
+    chmod 755 /etc/s6/gitbundle/* /etc/s6/openssh/* /etc/s6/.s6-svscan/*
+
+ENTRYPOINT ["/usr/bin/entrypoint"]
+CMD ["/bin/s6-svscan", "/etc/s6"]

@@ -1,0 +1,20 @@
+<div class="form-control w-full flex-row items-start gap-2">
+  <label class="label">
+    <span class="label-text font-bold">
+      {{ .i18n.Tr "repo.migrate_items" }}
+    </span>
+  </label>
+  <div class="mt-2 flex flex-col gap-2">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="wiki" type="checkbox" {{ if .wiki }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_items_wiki" | Safe }}</label>
+    <div id="migrate_items" class="flex flex-col gap-2">
+      <span class="help">{{ .i18n.Tr "repo.migrate.migrate_items_options" }}</span>
+      <div class="flex flex-wrap items-center gap-4">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="labels" type="checkbox" {{ if .labels }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_items_labels" | Safe }}</label>
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issues" type="checkbox" {{ if .issues }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_items_issues" | Safe }}</label>
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_requests" type="checkbox" {{ if .pull_requests }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_items_pullrequests" | Safe }}</label>
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="releases" type="checkbox" {{ if .releases }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_items_releases" | Safe }}</label>
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="milestones" type="checkbox" {{ if .milestones }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_items_milestones" | Safe }}</label>
+      </div>
+    </div>
+  </div>
+</div>

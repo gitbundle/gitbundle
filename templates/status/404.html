@@ -1,0 +1,6 @@
+{{ template "base/head" . }}
+{{ if .IsRepo }}{{ template "repo/header" . }}{{ end }}
+<div class="main-container {{ if .IsRepo }}repository{{ end }}">
+  {{ template "status/404-content" . }}
+</div>
+{{ template "base/footer" . }}

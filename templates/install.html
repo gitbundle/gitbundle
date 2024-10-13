@@ -1,0 +1,345 @@
+{{ template "base/head" . }}
+<div jq-page-install class="main-container install">
+  <div class="mx-auto h-fit w-full max-w-4xl">
+    <h1 class="text-2xl font-bold">
+      {{ .i18n.Tr "install.title" }}
+      <div class="divider my-0"></div>
+    </h1>
+    {{ template "base/alert" . }}
+    <div class="space-y-4">
+      <p class="cu-links-primary">{{ .i18n.Tr "install.docker_helper" "https://docs.gitbundle.com/installation/install-with-docker/" | Safe }}</p>
+
+      <form class="space-y-2" action="{{ AppSubUrl }}/" method="post">
+        <!-- Database Settings -->
+        <h2 class="text-xl font-bold">
+          {{ .i18n.Tr "install.db_title" }}
+          <div class="divider my-0"></div>
+        </h2>
+        <p>{{ .i18n.Tr "install.require_db_desc" }}</p>
+        <div class="required field {{ if .Err_DbType }}error{{ end }} inline">
+          <label>{{ .i18n.Tr "install.db_type" }}</label>
+          <select name="db_type" id="db_type">
+            {{ range .DbTypeNames }}
+              <option {{ if eq $.CurDbType .type }}selected{{ end }} value="{{ .type }}">{{ .name }}</option>
+            {{ end }}
+          </select>
+        </div>
+
+        <div class="hide space-y-2" data-db-setting-for="common-host">
+          <div class="required field {{ if .Err_DbSetting }}error{{ end }} inline">
+            <label for="db_host">{{ .i18n.Tr "install.host" }}</label>
+            <input id="db_host" name="db_host" value="{{ .db_host }}" />
+          </div>
+          <div class="required field {{ if .Err_DbSetting }}error{{ end }} inline">
+            <label for="db_user">{{ .i18n.Tr "install.user" }}</label>
+            <input id="db_user" name="db_user" value="{{ .db_user }}" />
+          </div>
+          <div class="required field {{ if .Err_DbSetting }}error{{ end }} inline">
+            <label for="db_passwd">{{ .i18n.Tr "install.password" }}</label>
+            <input id="db_passwd" name="db_passwd" type="password" value="{{ .db_passwd }}" />
+          </div>
+          <div class="required field {{ if .Err_DbSetting }}error{{ end }} inline">
+            <label for="db_name">{{ .i18n.Tr "install.db_name" }}</label>
+            <input id="db_name" name="db_name" value="{{ .db_name }}" />
+            <span class="help">{{ .i18n.Tr "install.db_helper" }}</span>
+          </div>
+        </div>
+
+        <div class="hide space-y-2" data-db-setting-for="postgres">
+          <div class="required field inline">
+            <label>{{ .i18n.Tr "install.ssl_mode" }}</label>
+            {{ $sslMode:= .ssl_mode }}
+            {{ if not $sslMode }}
+              {{ $sslMode = "disable" }}
+            {{ end }}
+            <select name="ssl_mode">
+              <option value="disable" {{ if eq .ssl_mode "disable" }}selected{{ end }}>Disable</option>
+              <option value="require" {{ if eq .ssl_mode "require" }}selected{{ end }}>Require</option>
+              <option value="verify-full" {{ if eq .ssl_mode "verify-full" }}selected{{ end }}>Verify Full</option>
+            </select>
+          </div>
+          <div class="field {{ if .Err_DbSetting }}error{{ end }} inline">
+            <label for="db_schema">{{ .i18n.Tr "install.db_schema" }}</label>
+            <input id="db_schema" name="db_schema" value="{{ .db_schema }}" />
+            <span class="help">{{ .i18n.Tr "install.db_schema_helper" }}</span>
+          </div>
+        </div>
+
+        <div class="hide" data-db-setting-for="mysql">
+          <div class="required field inline">
+            <label>{{ .i18n.Tr "install.charset" }}</label>
+            <select name="charset">
+              <option value="utf8mb4" selected>utf8mb4</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hide" data-db-setting-for="sqlite3">
+          <div class="required field {{ if or .Err_DbPath .Err_DbSetting }}error{{ end }} inline">
+            <label for="db_path">{{ .i18n.Tr "install.path" }}</label>
+            <input id="db_path" name="db_path" value="{{ .db_path }}" />
+            <span class="help">{{ .i18n.Tr "install.sqlite_helper" | Safe }}</span>
+          </div>
+        </div>
+
+        {{ if .Err_DbInstalledBefore }}
+          <div>
+            <p class="reinstall-message">{{ .i18n.Tr "install.reinstall_confirm_message" }}</p>
+            <div class="reinstall-confirm">
+              <div class="cu-checkbox">
+                <label>{{ .i18n.Tr "install.reinstall_confirm_check_1" }}</label>
+                <input name="reinstall_confirm_first" type="checkbox" />
+              </div>
+            </div>
+            <div class="reinstall-confirm">
+              <div class="cu-checkbox">
+                <label>{{ .i18n.Tr "install.reinstall_confirm_check_2" }}</label>
+                <input name="reinstall_confirm_second" type="checkbox" />
+              </div>
+            </div>
+            <div class="reinstall-confirm">
+              <div class="cu-checkbox">
+                <label>{{ .i18n.Tr "install.reinstall_confirm_check_3" }}</label>
+                <input name="reinstall_confirm_third" type="checkbox" />
+              </div>
+            </div>
+          </div>
+        {{ end }}
+
+
+        <!-- Nsq Settings -->
+        <h2 class="text-xl font-bold">
+          {{ .i18n.Tr "install.nsq_title" }}
+          <div class="divider my-0"></div>
+        </h2>
+        <div class="required field {{ if .Err_NsqHost }}error{{ end }} inline">
+          <label for="nsq_host">{{ .i18n.Tr "install.nsq_host" }}</label>
+          <input id="nsq_host" name="nsq_host" value="{{ .nsq_host }}" required />
+          <span class="help">{{ .i18n.Tr "install.nsq_host_helper" | Safe }}</span>
+        </div>
+
+        <!-- Redis Settings -->
+        <h2 class="text-xl font-bold">
+          {{ .i18n.Tr "install.redis_title" }}
+          <div class="divider my-0"></div>
+        </h2>
+        <div class="required field {{ if .Err_RedisHost }}error{{ end }} inline">
+          <label for="redis_host">{{ .i18n.Tr "install.redis_host" }}</label>
+          <input id="redis_host" name="redis_host" value="{{ .redis_host }}" required />
+          <span class="help">{{ .i18n.Tr "install.redis_host_helper" | Safe }}</span>
+        </div>
+
+        <!-- General Settings -->
+        <h2 class="text-xl font-bold">
+          {{ .i18n.Tr "install.general_title" }}
+          <div class="divider my-0"></div>
+        </h2>
+        <div class="required field {{ if .Err_AppName }}error{{ end }} inline">
+          <label for="app_name">{{ .i18n.Tr "install.app_name" }}</label>
+          <input id="app_name" name="app_name" value="{{ .app_name }}" required />
+          <span class="help">{{ .i18n.Tr "install.app_name_helper" }}</span>
+        </div>
+        <div class="required field {{ if .Err_RepoRootPath }}error{{ end }} inline">
+          <label for="repo_root_path">{{ .i18n.Tr "install.repo_path" }}</label>
+          <input id="repo_root_path" name="repo_root_path" value="{{ .repo_root_path }}" required />
+          <span class="help">{{ .i18n.Tr "install.repo_path_helper" }}</span>
+        </div>
+        <div class="required field {{ if .Err_PluginRootPath }}error{{ end }} inline">
+          <label for="plugin_install_path">{{ .i18n.Tr "install.plugin_path" }}</label>
+          <input id="plugin_install_path" name="plugin_install_path" value="{{ .plugin_install_path }}" required />
+          <span class="help">{{ .i18n.Tr "install.plugin_path_helper" }}</span>
+        </div>
+        <div class="field {{ if .Err_LFSRootPath }}error{{ end }} inline">
+          <label for="lfs_root_path">{{ .i18n.Tr "install.lfs_path" }}</label>
+          <input id="lfs_root_path" name="lfs_root_path" value="{{ .lfs_root_path }}" />
+          <span class="help">{{ .i18n.Tr "install.lfs_path_helper" }}</span>
+        </div>
+        <div class="required field {{ if .Err_RunUser }}error{{ end }} inline">
+          <label for="run_user">{{ .i18n.Tr "install.run_user" }}</label>
+          <input id="run_user" name="run_user" value="{{ .run_user }}" required />
+          <span class="help">{{ .i18n.Tr "install.run_user_helper" }}</span>
+        </div>
+        <div class="required field inline">
+          <label for="domain">{{ .i18n.Tr "install.domain" }}</label>
+          <input id="domain" name="domain" value="{{ .domain }}" placeholder="e.g. example.gitbundle.com" required />
+          <span class="help">{{ .i18n.Tr "install.domain_helper" }}</span>
+        </div>
+        <div class="field inline">
+          <label for="ssh_port">{{ .i18n.Tr "install.ssh_port" }}</label>
+          <input id="ssh_port" name="ssh_port" value="{{ .ssh_port }}" />
+          <span class="help">{{ .i18n.Tr "install.ssh_port_helper" }}</span>
+        </div>
+        <div class="required field inline">
+          <label for="http_port">{{ .i18n.Tr "install.http_port" }}</label>
+          <input id="http_port" name="http_port" value="{{ .http_port }}" required />
+          <span class="help">{{ .i18n.Tr "install.http_port_helper" }}</span>
+        </div>
+        <div class="required field inline">
+          <label for="app_url">{{ .i18n.Tr "install.app_url" }}</label>
+          <input id="app_url" name="app_url" value="{{ .app_url }}" placeholder="e.g. https://example.gitbundle.com" required />
+          <span class="help">{{ .i18n.Tr "install.app_url_helper" }}</span>
+        </div>
+        <div class="required field inline">
+          <label for="log_root_path">{{ .i18n.Tr "install.log_root_path" }}</label>
+          <input id="log_root_path" name="log_root_path" value="{{ .log_root_path }}" placeholder="log" required />
+          <span class="help">{{ .i18n.Tr "install.log_root_path_helper" }}</span>
+        </div>
+
+        <!-- Optional Settings -->
+        <h2 class="text-xl font-bold">
+          {{ .i18n.Tr "install.optional_title" }}
+          <div class="divider my-0"></div>
+        </h2>
+
+        <!-- Email -->
+        <details class="optional field">
+          <summary class="title {{ if .Err_SMTP }}text-red-600{{ end }} py-3">
+            {{ .i18n.Tr "install.email_title" }}
+          </summary>
+
+          <div class="field inline">
+            <label for="smtp_host">{{ .i18n.Tr "install.smtp_host" }}</label>
+            <input id="smtp_host" name="smtp_host" value="{{ .smtp_host }}" />
+          </div>
+          <div class="field {{ if .Err_SMTPFrom }}error{{ end }} inline">
+            <label for="smtp_from">{{ .i18n.Tr "install.smtp_from" }}</label>
+            <input id="smtp_from" name="smtp_from" value="{{ .smtp_from }}" />
+            <span class="help">{{ .i18n.Tr "install.smtp_from_helper" }}</span>
+          </div>
+          <div class="field {{ if .Err_SMTPUser }}error{{ end }} inline">
+            <label for="smtp_user">{{ .i18n.Tr "install.mailer_user" }}</label>
+            <input id="smtp_user" name="smtp_user" value="{{ .smtp_user }}" />
+          </div>
+          <div class="field inline">
+            <label for="smtp_passwd">{{ .i18n.Tr "install.mailer_password" }}</label>
+            <input id="smtp_passwd" name="smtp_passwd" type="password" value="{{ .smtp_passwd }}" />
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox">
+              <label><input name="register_confirm" type="checkbox" {{ if .register_confirm }}checked{{ end }} /><strong>{{ .i18n.Tr "install.register_confirm" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox">
+              <label><input name="mail_notify" type="checkbox" {{ if .mail_notify }}checked{{ end }} /><strong>{{ .i18n.Tr "install.mail_notify" }}</strong></label>
+            </div>
+          </div>
+        </details>
+
+        <!-- Server and other services -->
+        <details class="optional field">
+          <summary class="title py-3{{ if .Err_Services }}text red{{ end }}">
+            {{ .i18n.Tr "install.server_service_title" }}
+          </summary>
+          <div class="field inline">
+            <div class="cu-checkbox" id="offline-mode">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.offline_mode_popup" }}"><input name="offline_mode" type="checkbox" {{ if .offline_mode }}checked{{ end }} /><strong>{{ .i18n.Tr "install.offline_mode" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="disable-gravatar">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.disable_gravatar_popup" }}"><input name="disable_gravatar" type="checkbox" {{ if .disable_gravatar }}checked{{ end }} /><strong>{{ .i18n.Tr "install.disable_gravatar" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="federated-avatar-lookup">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.federated_avatar_lookup_popup" }}"><input name="enable_federated_avatar" type="checkbox" {{ if .enable_federated_avatar }}checked{{ end }} /><strong>{{ .i18n.Tr "install.federated_avatar_lookup" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="enable-openid-signin">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.openid_signin_popup" }}"><input name="enable_open_id_sign_in" type="checkbox" {{ if .enable_open_id_sign_in }}checked{{ end }} /><strong>{{ .i18n.Tr "install.openid_signin" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="disable-registration">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.disable_registration_popup" }}"><input name="disable_registration" type="checkbox" {{ if .disable_registration }}checked{{ end }} /><strong>{{ .i18n.Tr "install.disable_registration" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="allow-only-external-registration">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.allow_only_external_registration_popup" }}"><input name="allow_only_external_registration" type="checkbox" {{ if .allow_only_external_registration }}checked{{ end }} /><strong>{{ .i18n.Tr "install.allow_only_external_registration_popup" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="enable-openid-signup">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.openid_signup_popup" }}"><input name="enable_open_id_sign_up" type="checkbox" {{ if .enable_open_id_sign_up }}checked{{ end }} /><strong>{{ .i18n.Tr "install.openid_signup" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox" id="enable-captcha">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.enable_captcha_popup" }}"><input name="enable_captcha" type="checkbox" {{ if .enable_captcha }}checked{{ end }} /><strong>{{ .i18n.Tr "install.enable_captcha" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.require_sign_in_view_popup" }}"><input name="require_sign_in_view" type="checkbox" {{ if .require_sign_in_view }}checked{{ end }} /><strong>{{ .i18n.Tr "install.require_sign_in_view" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.default_keep_email_private_popup" }}"><input name="default_keep_email_private" type="checkbox" {{ if .default_keep_email_private }}checked{{ end }} /><strong>{{ .i18n.Tr "install.default_keep_email_private" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.default_allow_create_organization_popup" }}"><input name="default_allow_create_organization" type="checkbox" {{ if .default_allow_create_organization }}checked{{ end }} /><strong>{{ .i18n.Tr "install.default_allow_create_organization" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <div class="cu-checkbox">
+              <label class="tooltip" data-tip="{{ .i18n.Tr "install.default_enable_timetracking_popup" }}"><input name="default_enable_timetracking" type="checkbox" {{ if .default_enable_timetracking }}checked{{ end }} /><strong>{{ .i18n.Tr "install.default_enable_timetracking" }}</strong></label>
+            </div>
+          </div>
+          <div class="field inline">
+            <label for="no_reply_address">{{ .i18n.Tr "install.no_reply_address" }}</label>
+            <input id="_no_reply_address" name="no_reply_address" value="{{ .no_reply_address }}" />
+            <span class="help">{{ .i18n.Tr "install.no_reply_address_helper" }}</span>
+          </div>
+          <div class="field inline">
+            <label for="password_algorithm">{{ .i18n.Tr "install.password_algorithm" }}</label>
+            <select name="password_algorithm" id="password_algorithm">
+              {{ range .PasswordHashAlgorithms }}
+                <option value="{{ . }}" {{ if eq $.password_algorithm . }}selected{{ end }}>{{ . }}</option>
+              {{ end }}
+            </select>
+            <span class="help">{{ .i18n.Tr "install.password_algorithm_helper" }}</span>
+          </div>
+        </details>
+
+        <!-- Admin -->
+        <details class="optional field">
+          <summary class="title py-3{{ if .Err_Admin }}text red{{ end }}">
+            {{ .i18n.Tr "install.admin_title" }}
+          </summary>
+          <p class="center">{{ .i18n.Tr "install.admin_setting_desc" }}</p>
+          <div class="field {{ if .Err_AdminName }}error{{ end }} inline">
+            <label for="admin_name">{{ .i18n.Tr "install.admin_name" }}</label>
+            <input id="admin_name" name="admin_name" value="{{ .admin_name }}" />
+          </div>
+          <div class="field {{ if .Err_AdminPasswd }}error{{ end }} inline">
+            <label for="admin_passwd">{{ .i18n.Tr "install.admin_password" }}</label>
+            <input id="admin_passwd" name="admin_passwd" type="password" autocomplete="new-password" value="{{ .admin_passwd }}" />
+          </div>
+          <div class="field {{ if .Err_AdminPasswd }}error{{ end }} inline">
+            <label for="admin_confirm_passwd">{{ .i18n.Tr "install.confirm_password" }}</label>
+            <input id="admin_confirm_passwd" name="admin_confirm_passwd" autocomplete="new-password" type="password" value="{{ .admin_confirm_passwd }}" />
+          </div>
+          <div class="field {{ if .Err_AdminEmail }}error{{ end }} inline">
+            <label for="admin_email">{{ .i18n.Tr "install.admin_email" }}</label>
+            <input id="admin_email" name="admin_email" type="email" value="{{ .admin_email }}" />
+          </div>
+        </details>
+
+        <div class="divider my-0"></div>
+        <div class="field inline">
+          <label></label>
+          <button class="btn-primary btn">{{ .i18n.Tr "install.install_btn_confirm" }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {{ Asset "js/install.js" }}
+</div>
+<img style="display: none" src="{{ AssetUrlPrefix }}/img/loading.png" />
+{{ template "base/footer" . }}

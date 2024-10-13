@@ -1,0 +1,85 @@
+// Copyright 2023 The GitBundle Inc. All rights reserved.
+// Copyright 2016 The Gitea Authors. All rights reserved.
+// Copyright 2014 The Gogs Authors. All rights reserved.
+// Use of this source code is governed by a CC BY-NC 4.0
+// license that can be found in the LICENSE file.
+
+package integrations
+
+import (
+	"fmt"
+	"net/http"
+	"testing"
+
+	api "github.com/gitbundle/api/pkg/structs"
+	"github.com/gitbundle/modules/setting"
+	"github.com/gitbundle/server/pkg/unittest"
+	user_model "github.com/gitbundle/server/pkg/user"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestAPIRepoTags(t *testing.T) {
+	defer prepareTestEnv(t)()
+	user := unittest.AssertExistsAndLoadBean(t, &user_model.User{ID: 2}).(*user_model.User)
+	// Login as User2.
+	session := loginUser(t, user.Name)
+	token := getTokenForLoggedInUser(t, session)
+
+	repoName := "repo1"
+
+	req := NewRequestf(t, "GET", "/api/v1/repos/%s/%s/tags?token=%s", user.Name, repoName, token)
+	resp := session.MakeRequest(t, req, http.StatusOK)
+
+	var tags []*api.Tag
+	DecodeJSON(t, resp, &tags)
+
+	assert.Len(t, tags, 1)
+	assert.Equal(t, "v1.1", tags[0].Name)
+	assert.Equal(t, "Initial commit", tags[0].Message)
+	assert.Equal(t, "65f1bf27bc3bf70f64657658635e66094edbcb4d", tags[0].Commit.SHA)
+	assert.Equal(t, setting.AppURL+"api/v1/repos/user2/repo1/git/commits/65f1bf27bc3bf70f64657658635e66094edbcb4d", tags[0].Commit.URL)
+	assert.Equal(t, setting.AppURL+"user2/repo1/archive/v1.1.zip", tags[0].ZipballURL)
+	assert.Equal(t, setting.AppURL+"user2/repo1/archive/v1.1.tar.gz", tags[0].TarballURL)
+
+	newTag := createNewTagUsingAPI(t, session, token, user.Name, repoName, "gitea/22", "", "nice!\nand some text")
+	resp = session.MakeRequest(t, req, http.StatusOK)
+	DecodeJSON(t, resp, &tags)
+	assert.Len(t, tags, 2)
+	for _, tag := range tags {
+		if tag.Name != "v1.1" {
+			assert.EqualValues(t, newTag.Name, tag.Name)
+			assert.EqualValues(t, newTag.Message, tag.Message)
+			assert.EqualValues(t, "nice!\nand some text", tag.Message)
+			assert.EqualValues(t, newTag.Commit.SHA, tag.Commit.SHA)
+		}
+	}
+
+	// get created tag
+	req = NewRequestf(t, "GET", "/api/v1/repos/%s/%s/tags/%s?token=%s", user.Name, repoName, newTag.Name, token)
+	resp = session.MakeRequest(t, req, http.StatusOK)
+	var tag *api.Tag
+	DecodeJSON(t, resp, &tag)
+	assert.EqualValues(t, newTag, tag)
+
+	// delete tag
+	delReq := NewRequestf(t, "DELETE", "/api/v1/repos/%s/%s/tags/%s?token=%s", user.Name, repoName, newTag.Name, token)
+	session.MakeRequest(t, delReq, http.StatusNoContent)
+
+	// check if it's gone
+	session.MakeRequest(t, req, http.StatusNotFound)
+}
+
+func createNewTagUsingAPI(t *testing.T, session *TestSession, token, ownerName, repoName, name, target, msg string) *api.Tag {
+	urlStr := fmt.Sprintf("/api/v1/repos/%s/%s/tags?token=%s", ownerName, repoName, token)
+	req := NewRequestWithJSON(t, "POST", urlStr, &api.CreateTagOption{
+		TagName: name,
+		Message: msg,
+		Target:  target,
+	})
+	resp := session.MakeRequest(t, req, http.StatusCreated)
+
+	var respObj api.Tag
+	DecodeJSON(t, resp, &respObj)
+	return &respObj
+}

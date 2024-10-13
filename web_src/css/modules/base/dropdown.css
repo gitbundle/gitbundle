@@ -1,0 +1,40 @@
+/* @tailwind components;
+
+@layer components { */
+.dropdown {
+  .dropdown-content {
+    @apply rounded-box mt-1 whitespace-nowrap bg-base-200/70 !backdrop-blur-md;
+    /* .muted.close{
+        @apply focus-within:invisible focus-within:opacity-0;
+      } */
+
+    li {
+      @apply px-2 leading-5;
+
+      > * {
+        @apply py-2;
+      }
+    }
+  }
+}
+
+.dropdown-content {
+  &.cu-menu,
+  .cu-menu {
+    @apply menu max-h-52 flex-nowrap overflow-y-auto;
+    /*bg-base-200/70 !backdrop-blur-md;*/
+
+    :where(li) > :where(*:not(ul)) {
+      @apply py-2;
+    }
+
+    .checked {
+      @apply rounded-lg bg-base-content/10;
+    }
+
+    li {
+      @apply px-0;
+    }
+  }
+}
+/* } */

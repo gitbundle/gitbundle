@@ -1,0 +1,30 @@
+{{ if eq .PackageDescriptor.Package.Type "pypi" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.pypi.install" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>pip install --extra-index-url {{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/pypi/simple {{ .PackageDescriptor.Package.Name }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.pypi.documentation" | Safe }}</p>
+  </div>
+  {{ if or .PackageDescriptor.Metadata.Description .PackageDescriptor.Metadata.LongDescription .PackageDescriptor.Metadata.Summary }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <div class="markup">
+      <p>{{ if .PackageDescriptor.Metadata.Summary }}{{ .PackageDescriptor.Metadata.Summary }}{{ end }}</p>
+      {{ if .PackageDescriptor.Metadata.LongDescription }}
+        {{ RenderMarkdownToHtml .PackageDescriptor.Metadata.LongDescription }}
+      {{ else if .PackageDescriptor.Metadata.Description }}
+        {{ RenderMarkdownToHtml .PackageDescriptor.Metadata.Description }}
+      {{ end }}
+    </div>
+  {{ end }}
+  {{ if .PackageDescriptor.Metadata.RequiresPython }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.requirements" }}</h4>
+    <div class="flex flex-wrap items-center gap-2">
+      {{ .i18n.Tr "packages.pypi.requires" }}:
+      {{ .PackageDescriptor.Metadata.RequiresPython }}
+    </div>
+  {{ end }}
+{{ end }}

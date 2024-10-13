@@ -1,0 +1,50 @@
+{{ template "base/head" . }}
+<!--  explore users -->
+<div class="drawer-mobile drawer h-full">
+  <input id="user-dashboard" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content flex flex-col">
+    <!-- TODO: should provide mobile menu -->
+    <label for="user-dashboard" class="btn-primary drawer-button btn m-4 lg:hidden">Open drawer</label>
+    <!-- max-w-[calc(2560px-20rem)] -->
+    <div class="my-4 flex flex-1 flex-col px-8">
+      {{ template "explore/search" . }}
+      <div class="divide-y">
+        {{ range .Users }}
+          <div class="flex items-center gap-2 px-1 py-4 hover:bg-base-content/10">
+            {{ avatar . 40 "rounded-full" }}
+            <div class="flex flex-col gap-1">
+              <strong>
+                <a class="link-hover link-primary link" href="{{ .HomeLink }}">{{ .Name }}</a> {{ .FullName }}
+                {{ if .Visibility.IsPrivate }}
+                  <span class="badge-ghost badge">{{ $.i18n.Tr "repo.desc.private" }}</span>
+                {{ end }}
+              </strong>
+              <div class="flex items-center gap-1">
+                {{ if .Location }}
+                  {{ svg "octicon-location" }}
+                  {{ .Location }}
+                {{ end }}
+                {{ if and .Website }}
+                  {{ svg "octicon-link" }}
+                  <a class="link-hover link hover:link-primary" href="{{ .Website }}" rel="nofollow">{{ .Website }}</a>
+                {{ end }}
+                {{ svg "octicon-clock" }}
+                {{ $.i18n.Tr "user.join_on" }}
+                {{ .CreatedUnix.FormatShort }}
+              </div>
+            </div>
+          </div>
+        {{ else }}
+          <div>{{ $.i18n.Tr "explore.org_no_results" }}</div>
+        {{ end }}
+      </div>
+      {{ template "base/paginate" . }}
+    </div>
+    {{ template "base/footer_content" . }}
+  </div>
+  <div class="drawer-side w-80">
+    <label for="user-dashboard" class="drawer-overlay"></label>
+    {{ template "explore/navbar" . }}
+  </div>
+</div>
+{{ template "base/footer_no_content" . }}

@@ -1,0 +1,38 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository wiki revisions -->
+<div class="main-container">
+  {{ $title := .title }}
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="flex items-start justify-between">
+      <div class="flex flex-col">
+        <span class="text-2xl font-bold">{{ $title }}</span>
+        <div class="flex items-center gap-2">
+          {{ $timeSince := TimeSince .Author.When $.i18n.Lang }}
+          {{ .i18n.Tr "repo.wiki.last_commit_info" .Author.Name $timeSince | Safe }}
+          <!-- file-revisions-btn  -->
+          <a class="file-revisions-btn btn-xs btn" title="{{ .i18n.Tr "repo.wiki.back_to_wiki" }}" href="{{ .RepoLink }}/wiki/{{ .PageURL }}"><span>{{ .revision }}</span> {{ svg "octicon-home" }}</a>
+        </div>
+      </div>
+      <div class="flex w-full max-w-sm">
+        <div class="input-group" id="clone-panel">
+          {{ template "repo/clone_buttons" . }}
+        </div>
+        {{ template "repo/clone_script" . }}
+      </div>
+    </div>
+    <h2 class="text-2xl font-bold">{{ .i18n.Tr "repo.wiki.wiki_page_revisions" }}</h2>
+    <div class="">
+      <h4 class="rounded-t-lg border border-b-0 bg-base-200 p-4">
+        {{ .CommitCount }}
+        {{ .i18n.Tr "repo.commits.commits" }}
+      </h4>
+      {{ if and .Commits (gt .CommitCount 0) }}
+        {{ template "repo/commits_list" . }}
+      {{ end }}
+      {{ template "base/paginate" . }}
+    </div>
+  </div>
+</div>
+
+{{ template "base/footer" . }}

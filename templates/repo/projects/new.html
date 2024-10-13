@@ -1,0 +1,76 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository projects edit-project new milestone -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <div class="mx-auto w-full max-w-3xl">
+      <div class="flex items-start justify-between">
+        <h2 class="flex flex-col">
+          {{ if .PageIsEditProjects }}
+            <span class="text-2xl font-bold">{{ .i18n.Tr "repo.projects.edit" }}</span>
+            <div class="text-gray-500">{{ .i18n.Tr "repo.projects.edit_subheader" }}</div>
+          {{ else }}
+            <span class="text-2xl font-bold">{{ .i18n.Tr "repo.projects.new" }}</span>
+            <div class="text-gray-500">{{ .i18n.Tr "repo.projects.new_subheader" }}</div>
+          {{ end }}
+        </h2>
+        <div class="flex items-center gap-2">
+          {{ template "repo/issue/navbar" . }}
+          {{ if and .CanWriteProjects .PageIsEditProject }}
+            <a class="btn-primary btn-sm btn" href="{{ $.RepoLink }}/projects/new">{{ .i18n.Tr "repo.milestones.new" }}</a>
+          {{ end }}
+        </div>
+      </div>
+      <form action="{{ .Link }}" method="post">
+        {{ .CsrfTokenHtml }}
+        <div class="flex flex-col">
+          <div class="form-control w-full max-w-3xl">
+            <label class="label">
+              <span class="{{ if .Err_Title }}error{{ end }} label-text">{{ .i18n.Tr "repo.projects.title" }}</span>
+            </label>
+            <input class="input-bordered input placeholder:text-gray-600" name="title" placeholder="{{ .i18n.Tr "repo.projects.title" }}" value="{{ .title }}" autofocus required />
+          </div>
+
+          <div class="form-control w-full max-w-3xl">
+            <label class="label">
+              <span class="label-text">{{ .i18n.Tr "repo.projects.description" }}</span>
+            </label>
+            <textarea class="textarea-bordered textarea" rows="5" name="content" placeholder="{{ .i18n.Tr "repo.projects.description_placeholder" }}">{{ .content }}</textarea>
+          </div>
+
+          {{ if not .PageIsEditProjects }}
+            <div class="form-control w-full max-w-3xl">
+              <label class="label">
+                <span class="label-text">{{ .i18n.Tr "repo.projects.template.desc" }}</span>
+              </label>
+              <select class="select-bordered select" name="board_type">
+                <option disabled selected value="{{ .type }}">{{ .i18n.Tr "repo.projects.template.desc_helper" }}</option>
+                {{ range $element := .ProjectTypes }}
+                  <option value="{{ $element.BoardType }}">{{ $.i18n.Tr $element.Translation }}</option>
+                {{ end }}
+              </select>
+            </div>
+          {{ end }}
+        </div>
+        <div class="mt-4 max-w-sm">
+          <div class="grid grid-cols-3 gap-2">
+            {{ if .PageIsEditProjects }}
+              <a class="btn" href="{{ .RepoLink }}/projects">
+                {{ .i18n.Tr "repo.milestones.cancel" }}
+              </a>
+              <button type="submit" class="btn-primary btn">
+                {{ .i18n.Tr "repo.projects.modify" }}
+              </button>
+            {{ else }}
+              <button type="submit" class="btn-primary btn">
+                {{ .i18n.Tr "repo.projects.create" }}
+              </button>
+            {{ end }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

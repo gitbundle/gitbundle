@@ -1,0 +1,26 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository forks -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div>
+      <div class="divide-y rounded-lg border">
+        <h2 class="rounded-t-lg bg-base-200 p-4">
+          {{ .i18n.Tr "repo.forks" }}
+        </h2>
+        {{ range .Forks }}
+          <div class="flex items-center gap-1 px-4 py-2">
+            {{ avatar .Owner 28 "w-7 h-7 rounded" }}
+            <div class="cu-links-primary flex items-center gap-1">
+              <a href="{{ .Owner.HomeLink }}">{{ .Owner.Name }}</a>
+              /
+              <a href="{{ .Link }}">{{ .Name }}</a>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+      {{ template "base/paginate" . }}
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

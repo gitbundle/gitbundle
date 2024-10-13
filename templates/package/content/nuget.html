@@ -1,0 +1,50 @@
+{{ if eq .PackageDescriptor.Package.Type "nuget" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.nuget.registry" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>dotnet nuget add source --name GitBundle --username your_username --password your_token {{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/nuget/index.json</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.nuget.install" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>dotnet add package --source GitBundle --version {{ .PackageDescriptor.Version.Version }} {{ .PackageDescriptor.Package.Name }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.nuget.documentation" | Safe }}</p>
+  </div>
+
+  {{ if or .PackageDescriptor.Metadata.Description .PackageDescriptor.Metadata.ReleaseNotes }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <div class="flex items-center gap-2">
+      {{ if .PackageDescriptor.Metadata.Description }}{{ .PackageDescriptor.Metadata.Description }}{{ end }}
+      {{ if .PackageDescriptor.Metadata.ReleaseNotes }}{{ Str2html .PackageDescriptor.Metadata.ReleaseNotes }}{{ end }}
+    </div>
+  {{ end }}
+
+  {{ if .PackageDescriptor.Metadata.Dependencies }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.dependencies" }}</h4>
+    <table class="table max-w-full table-fixed">
+      <thead>
+        <tr>
+          <th>{{ .i18n.Tr "packages.dependency.id" }}</th>
+          <th>{{ .i18n.Tr "packages.dependency.version" }}</th>
+          <th>{{ .i18n.Tr "packages.nuget.dependency.framework" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range $framework, $dependencies := .PackageDescriptor.Metadata.Dependencies }}
+          {{ range $dependencies }}
+            <tr class="hover">
+              <td class="whitespace-normal break-words">{{ .ID }}</td>
+              <td class="whitespace-normal break-words">{{ .Version }}</td>
+              <td class="whitespace-normal break-words">{{ $framework }}</td>
+            </tr>
+          {{ end }}
+        {{ end }}
+      </tbody>
+    </table>
+  {{ end }}
+{{ end }}

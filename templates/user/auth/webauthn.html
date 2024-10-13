@@ -1,0 +1,29 @@
+{{ template "base/head" . }}
+<!-- user signin webauthn-prompt -->
+<div jq-user-auth-webauthn-prompt class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <h3 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "twofa" }}
+    </h3>
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <div class="space-y-4">
+      <div class="hero">
+        {{ svg "octicon-key" 32 "w-8 h-8" }}
+        <h3>{{ .i18n.Tr "webauthn_insert_key" }}</h3>
+        <p>{{ .i18n.Tr "webauthn_sign_in" }}</p>
+      </div>
+      <div class="hero">
+        <div class="ui indeterminate loader active inline"></div>
+        {{ .i18n.Tr "webauthn_press_button" }}
+      </div>
+      <div class="hero">
+        <a href="{{ AppSubUrl }}/user/two_factor">{{ .i18n.Tr "webauthn_use_twofa" }}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{{ Asset "js/user-auth-webauthn.js" }}
+{{ template "user/auth/webauthn_error" . }}
+{{ template "base/footer" . }}

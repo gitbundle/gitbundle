@@ -1,0 +1,71 @@
+{{ template "base/head" . }}
+<!-- organization teams -->
+<div jq-org-teams class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    {{ template "base/alert" . }}
+    <div class="grid grid-cols-16 gap-4">
+      {{ template "org/team/sidebar" . }}
+      <div class="col-span-10 h-fit">
+        {{ template "org/team/navbar" . }}
+        <div class="space-y-2 divide-y rounded-b-lg border border-t-0 py-2">
+          {{ $canAddRemove := and $.IsOrganizationOwner (not $.Team.IncludesAllRepositories) }}
+          {{ if $canAddRemove }}
+            <div class="flex items-center px-4" id="repo-top-segment">
+              <form class="flex flex-1 items-center gap-2" id="add-repo-form" action="{{ $.OrgLink }}/teams/{{ $.Team.LowerName | PathEscape }}/action/repo/add" method="post">
+                {{ .CsrfTokenHtml }}
+                <div svelte-search-org-team-repo class="w-full max-w-xs">
+                  <script>
+                    ;(() => {
+                      window.config.pageData.orgTeamRepo = {
+                        placeholder: {{ .i18n.Tr "org.teams.search_repo_placeholder" }},
+                        autocomplete:"off",
+                        required: true,
+                        fieldName: 'repo_name',
+                        uid: {{ .Org.ID }},
+                      }
+                    })()
+                  </script>
+                </div>
+                <button class="btn-primary btn">{{ .i18n.Tr "add" }}</button>
+              </form>
+              <div class="flex items-center gap-2">
+                <button svelte-simple-modal type="button" class="btn-primary btn" data-title="{{ .i18n.Tr "org.teams.add_all_repos_title" }}" data-title-svg-name="octicon-globe" data-desc="{{ .i18n.Tr "org.teams.add_all_repos_desc" }}" data-href="{{ $.OrgLink }}/teams/{{ $.Team.LowerName | PathEscape }}/action/repo/addall">{{ .i18n.Tr "add_all" }}</button>
+                <button svelte-simple-modal type="button" class="btn-red btn" data-title="{{ .i18n.Tr "org.teams.remove_all_repos_title" }}" data-desc="{{ .i18n.Tr "org.teams.remove_all_repos_desc" }}" data-href="{{ $.OrgLink }}/teams/{{ $.Team.LowerName | PathEscape }}/action/repo/removeall" data-modal-id="team-removeall-repos">{{ .i18n.Tr "remove_all" }}</button>
+              </div>
+            </div>
+          {{ end }}
+          {{ range .Team.Repos }}
+            <div class="flex items-center justify-between px-4 pt-2">
+              <a class="link-hover link-primary link flex items-center gap-1" href="{{ $.Org.HomeLink }}/{{ .Name | PathEscape }}">
+                {{ if .IsPrivate }}
+                  {{ svg "octicon-lock" }}
+                {{ else if .IsFork }}
+                  {{ svg "octicon-repo-forked" }}
+                {{ else if .IsMirror }}
+                  {{ svg "octicon-mirror" }}
+                {{ else }}
+                  {{ svg "octicon-repo" }}
+                {{ end }}
+                <strong>{{ $.Org.Name }}/{{ .Name }}</strong>
+              </a>
+              {{ if $canAddRemove }}
+                <form method="post" action="{{ $.OrgLink }}/teams/{{ $.Team.LowerName | PathEscape }}/action/repo/remove">
+                  {{ $.CsrfTokenHtml }}
+                  <button type="submit" class="btn-red btn-xs btn" name="repoid" value="{{ .ID }}">{{ $.i18n.Tr "remove" }}</button>
+                </form>
+              {{ end }}
+            </div>
+          {{ else }}
+            <div class="px-4 pt-2">
+              <span class="italic text-gray-500">{{ $.i18n.Tr "org.teams.repos.none" }}</span>
+            </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/org-team-repositories.js" }}
+</div>
+
+{{ template "base/footer" . }}

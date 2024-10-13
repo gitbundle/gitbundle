@@ -1,0 +1,14 @@
+<!-- there is always at least one button (by context/repo.go) -->
+<div class="input-group" id="clone-panel">
+  {{ if $.CloneButtonShowHTTPS }}
+    <button class="clone no-transition btn-sm btn" id="repo-clone-https" data-link="{{ $.CloneButtonOriginLink.HTTPS }}">{{ if UseHTTPS }}HTTPS{{ else }}HTTP{{ end }}</button>
+  {{ end }}
+  {{ if $.CloneButtonShowSSH }}
+    <button class="clone no-transition btn-sm btn" id="repo-clone-ssh" data-link="{{ $.CloneButtonOriginLink.SSH }}">SSH</button>
+  {{ end }}
+  <input id="repo-clone-url" class="js-clone-url input-bordered input input-sm w-full" value="{{ $.CloneButtonOriginLink.HTTPS }}" size="1" readonly />
+  <button class="tooltip btn-sm btn px-2" id="clipboard-btn" data-tip="{{ .i18n.Tr "copy_url" }}" data-clipboard-target="#repo-clone-url" aria-label="{{ .i18n.Tr "copy_url" }}">
+    {{ svg "octicon-paste" }}
+  </button>
+</div>
+{{ Asset "js/repo-clone_buttons.js" }}

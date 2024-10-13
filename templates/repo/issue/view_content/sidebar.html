@@ -1,0 +1,621 @@
+<div jq-repo-issue-view_content-sidebar class="col-span-16 md:col-span-4">
+  <div class="ml-2 space-y-2 divide-y">
+    {{ template "repo/issue/branch_selector_field" . }}
+
+    {{ if .Issue.IsPull }}
+      <div jq-select-reviewers-modify class="space-y-2 py-2">
+        <input name="reviewer_id" type="hidden" value="{{ .reviewer_id }}" />
+        <div jq-dropdown class="{{ if and .Reviewers .CanChooseReviewer (not .Repository.IsArchived) }}dropdown dropdown-end{{ else }}text-mako-600{{ end }} w-full">
+          <label tabindex="0" class="flex items-center">
+            <strong class="flex-1">{{ .i18n.Tr "repo.issues.review.reviewers" }}</strong>
+            {{ if and .CanChooseReviewer (not .Repository.IsArchived) }}
+              <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+            {{ end }}
+          </label>
+          {{ if and .Reviewers .CanChooseReviewer (not .Repository.IsArchived) }}
+            <div jq-select-menu class="card dropdown-content card-compact" data-action="update" data-issue-id="{{ $.Issue.ID }}" data-update-url="{{ $.RepoLink }}/issues/request_review">
+              <div class="card-body">
+                <h3 class="card-title transform-none text-base">{{ .i18n.Tr "repo.issues.new.add_reviewer_title" }}</h3>
+                {{ if .Reviewers }}
+                  <div class="relative">
+                    <i class="absolute right-0 top-0 m-2">{{ svg "octicon-search" 16 }}</i>
+                    <input jq-input-search type="text" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.issues.filter_reviewers" }}" />
+                  </div>
+                {{ end }}
+                {{ if or .Reviewers .TeamReviewers }}
+                  <ul class="cu-menu p-2">
+                    {{ if .Reviewers }}
+                      {{ range .Reviewers }}
+                        {{ if .User }}
+                          <li jq-select-item {{ if not .CanChange }}jq-ban-change{{ end }} class="{{ if .Checked }}checked{{ end }}" data-id="{{ .ItemID }}" data-id-selector="#review_request_{{ .ItemID }}">
+                            <div class="{{ if not .CanChange }}tooltip{{ end }}" {{ if not .CanChange }}data-tip="{{ $.i18n.Tr "repo.issues.remove_request_review_block" }}"{{ end }}>
+                              <span jq-octicon-check class="{{ if not .Checked }}invisible{{ end }}">{{ svg "octicon-check" }}</span>
+                              <span class="avatar items-center gap-x-1">
+                                <span class="w-5 rounded-full">
+                                  {{ avatar .User 28 }}
+                                </span>
+                                {{ .User.GetDisplayName }}
+                              </span>
+                            </div>
+                          </li>
+                        {{ end }}
+                      {{ end }}
+                    {{ end }}
+                    {{ if .TeamReviewers }}
+                      <div class="divider my-1"></div>
+                      {{ range .TeamReviewers }}
+                        {{ if .Team }}
+                          <li jq-select-item {{ if not .CanChange }}jq-ban-change{{ end }} class="{{ if .Checked }}checked{{ end }}" data-id="{{ .ItemID }}" data-id-selector="#review_request_team_{{ .Team.ID }}">
+                            <div class="{{ if not .CanChange }}tooltip{{ end }}" {{ if not .CanChange }}data-tip="{{ $.i18n.Tr "repo.issues.remove_request_review_block" }}"{{ end }}>
+                              <span jq-octicon-check class="{{ if not .Checked }}invisible{{ end }}">{{ svg "octicon-check" }}</span>
+                              <span class="avatar items-center gap-x-1">
+                                <span class="w-5 rounded-full">
+                                  {{ svg "octicon-people" 16 }}
+                                </span>
+                                {{ $.Issue.Repo.OwnerName }}/{{ .Team.Name }}
+                              </span>
+                            </div>
+                          </li>
+                        {{ end }}
+                      {{ end }}
+                    {{ end }}
+                  </ul>
+                {{ end }}
+              </div>
+            </div>
+          {{ end }}
+        </div>
+
+        <div jq-assignees class="mt-1 flex flex-col gap-2 space-y-1">
+          <span jq-no-select class="{{ if or .OriginalReviews .PullReviewers }}hidden{{ end }}">{{ .i18n.Tr "repo.issues.new.no_reviewers" }}</span>
+          {{ range .PullReviewers }}
+            <div class="cu-links-primary-content flex items-center">
+              {{ if .User }}
+                <a class="avatar flex-1 gap-x-1" href="{{ .User.HomeLink }}">
+                  <span class="w-5 rounded-full">
+                    {{ avatar .User 28 "mr-3" }}
+                  </span>
+                  {{ .User.GetDisplayName }}
+                </a>
+              {{ else if .Team }}
+                <span class="flex flex-1 items-center gap-x-1 text-secondary-content">{{ svg "octicon-people" 20 "!w-5 !h-5" }}{{ $.Issue.Repo.OwnerName }}/{{ .Team.Name }}</span>
+              {{ end }}
+              <span class="{{ if eq .Review.Type 1 }}text-green-600{{- else if eq .Review.Type 2 }}text-gray-500{{- else if eq .Review.Type 3 }}text-red-600{{- else if eq .Review.Type 4 }}text-yellow-600{{- else }}text-gray-500{{ end }} flex">
+                {{ if .CanChange }}
+                  <span jq-re-request-review {{ if .Checked }}jq-checked{{ end }} class="tooltip tooltip-left cursor-pointer" data-tip="{{ if .Checked }}{{ $.i18n.Tr "repo.issues.remove_request_review" }}{{ else }}{{ $.i18n.Tr "repo.issues.re_request_review" }}{{ end }}" data-issue-id="{{ $.Issue.ID }}" data-id="{{ .ItemID }}" data-update-url="{{ $.RepoLink }}/issues/request_review"> {{ if .Checked }}{{ svg "octicon-trash" }}{{ else }}{{ svg "octicon-sync" }}{{ end }}</span>
+                {{ end }}
+                {{ svg (printf "octicon-%s" .Review.Type.Icon) }}
+              </span>
+            </div>
+          {{ end }}
+          {{ range .OriginalReviews }}
+            <div class="flex items-center">
+              <a href="{{ $.Repository.OriginalURL }}" class="tooltip tooltip-left flex-1 items-center gap-x-1" data-tip="{{ $.i18n.Tr "repo.migrated_from_fake" ($.Repository.GetOriginalURLHostname|Escape) | Safe }}">
+                {{ svg (MigrationIcon $.Repository.GetOriginalURLHostname) 20 "!w-5 !h-5" }}
+                {{ .OriginalAuthor }}
+              </a>
+              <span class="{{ if eq .Type 1 }}text-green-600{{- else if eq .Type 2 }}text-gray-500{{- else if eq .Type 3 }}text-red-600{{- else if eq .Type 4 }}text-yellow-600{{- else }}text-gray-500{{ end }}">
+                {{ svg (printf "octicon-%s" .Type.Icon) }}
+              </span>
+            </div>
+          {{ end }}
+        </div>
+        {{ if and (or .HasIssuesOrPullsWritePermission .IsIssuePoster) (not .HasMerged) (not .Issue.IsClosed) (not .IsPullWorkInProgress) }}
+          <div jq-toggle-wip class="cursor-pointer hover:text-primary hover:underline" data-title="{{ .Issue.Title }}" data-wip-prefix="{{ (index .PullRequestWorkInProgressPrefixes 0| Escape) }}" data-update-url="{{ .Issue.Link }}/title">
+            {{ .i18n.Tr "repo.pulls.still_in_progress" }}
+            {{ .i18n.Tr "repo.pulls.add_prefix" (index .PullRequestWorkInProgressPrefixes 0| Escape) | Safe }}
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+
+
+    <div jq-select-label class="space-y-2 py-2">
+      <div jq-dropdown class="{{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}dropdown dropdown-end{{ else }}text-mako-600{{ end }} w-full">
+        <label tabindex="0" class="flex items-center">
+          <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.labels" }}</strong>
+          {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+            <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+          {{ end }}
+        </label>
+        {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+          <div jq-select-menu class="card-compact card dropdown-content" data-action="update" data-issue-id="{{ $.Issue.ID }}" data-update-url="{{ $.RepoLink }}/issues/labels">
+            {{ template "repo/issue/dropdown/label_content" . }}
+          </div>
+        {{ end }}
+      </div>
+      {{ template "repo/issue/labels/labels_sidebar" dict "root" $ "ctx" . }}
+    </div>
+
+    <div jq-select-milestone class="space-y-2 py-2">
+      <div jq-dropdown class="{{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}dropdown dropdown-end{{ else }}text-mako-600{{ end }} w-full">
+        <label tabindex="0" class="flex items-center">
+          <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.milestone" }}</strong>
+          {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+            <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+          {{ end }}
+        </label>
+        {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+          <div jq-select-menu class="card-compact card dropdown-content" data-action="update" data-issue-id="{{ $.Issue.ID }}" data-update-url="{{ $.RepoLink }}/issues/milestone">
+            {{ template "repo/issue/dropdown/milestone_content" . }}
+          </div>
+        {{ end }}
+      </div>
+      <div jq-milestones class="flex gap-x-1">
+        <strong jq-no-select class="{{ if .Issue.Milestone }}hidden{{ end }} text-primary-content">{{ .i18n.Tr "repo.issues.new.no_milestone" }}</strong>
+        <div jq-selected class="cu-links-primary-content">
+          {{ if .Issue.Milestone }}
+            <a class="flex items-center gap-x-1" href="{{ .RepoLink }}/milestone/{{ .Issue.Milestone.ID }}">
+              {{ svg "octicon-milestone" 18 }}
+              {{ .Issue.Milestone.Name }}
+            </a>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+
+    {{ if .IsProjectsEnabled }}
+      <div jq-select-project class="space-y-2 py-2">
+        <div jq-dropdown class="{{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}dropdown dropdown-end{{ else }}text-mako-600{{ end }} w-full">
+          <label tabindex="0" class="flex items-center">
+            <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.projects" }}</strong>
+            {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+              <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+            {{ end }}
+          </label>
+          {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+            <div jq-select-menu class="card-compact card dropdown-content" data-action="update" data-issue-id="{{ $.Issue.ID }}" data-update-url="{{ $.RepoLink }}/issues/projects">
+              {{ template "repo/issue/dropdown/project_content" . }}
+            </div>
+          {{ end }}
+        </div>
+        <div jq-projects class="flex gap-x-1">
+          <span jq-no-select class="{{ if .Issue.ProjectID }}hidden{{ end }}">{{ .i18n.Tr "repo.issues.new.no_projects" }}</span>
+          <div jq-selected class="cu-links-primary-content">
+            {{ if .Issue.ProjectID }}
+              <a class="flex items-center gap-x-1" href="{{ .RepoLink }}/projects/{{ .Issue.ProjectID }}">
+                {{ svg "octicon-project" 18 }}
+                {{ .Issue.Project.Title }}
+              </a>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    {{ end }}
+
+
+    <div jq-select-assignees-modify class="space-y-2 py-2">
+      <input id="assignee_id" name="assignee_id" type="hidden" value="{{ .assignee_id }}" />
+      <div jq-dropdown class="{{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}dropdown-end dropdown{{ else }}text-mako-600{{ end }} w-full">
+        <label tabindex="0" class="flex items-center">
+          <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.assignees" }}</strong>
+          {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+            <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+          {{ end }}
+        </label>
+        {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+          <div jq-select-menu class="card-compact card dropdown-content" data-action="update" data-issue-id="{{ $.Issue.ID }}" data-update-url="{{ $.RepoLink }}/issues/assignee">
+            <div class="card-body">
+              <h3 class="card-title transform-none text-base">{{ .i18n.Tr "repo.issues.new.add_assignees_title" }}</h3>
+              <div class="relative">
+                <i class="absolute right-0 top-0 m-2">{{ svg "octicon-search" }}</i>
+                <input jq-input-search type="text" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.issues.filter_assignees" }}" />
+              </div>
+              <div jq-no-select-item class="cursor-pointer text-primary hover:underline">{{ .i18n.Tr "repo.issues.new.clear_assignees" }}</div>
+              <ul class="cu-menu p-2">
+                {{ range .Assignees }}
+                  {{ $AssigneeID := .ID }}
+                  {{ $checked := false }}
+                  {{ range $.Issue.Assignees }}
+                    {{ if eq .ID $AssigneeID }}
+                      {{ $checked = true }}
+                    {{ end }}
+                  {{ end }}
+                  <li jq-select-item class="{{ if $checked }}checked{{ end }}" data-id="{{ .ID }}" data-id-selector="assignee-{{ .ID }}">
+                    <div class="flex w-full items-center">
+                      <span jq-octicon-check class="{{ if not $checked }}invisible{{ end }}">{{ svg "octicon-check" }}</span>
+                      <span class="avatar items-center gap-x-1">
+                        <span class="w-5 rounded-full">
+                          {{ avatar . 28 }}
+                        </span>
+                        {{ .GetDisplayName }}
+                      </span>
+                    </div>
+                  </li>
+                {{ end }}
+              </ul>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+      <div jq-assignees class="cu-links-primary-content flex flex-col gap-2 space-y-1">
+        <span jq-no-select class="{{ if .Issue.Assignees }}hidden{{ end }} text-primary-content">{{ .i18n.Tr "repo.issues.new.no_assignees" }}</span>
+        {{ range .Issue.Assignees }}
+          <a jq-assignee-{{ .ID }} class="avatar items-center gap-x-1" href="{{ $.RepoLink }}/{{ if $.Issue.IsPull }}pulls{{ else }}issues{{ end }}?assignee={{ .ID }}">
+            <span class="w-5 rounded-full">
+              {{ avatar . 28 }}
+            </span>
+            {{ .GetDisplayName }}
+          </a>
+        {{ end }}
+      </div>
+    </div>
+
+    {{ if .Participants }}
+      <div class="space-y-2 py-2">
+        <strong>{{ .i18n.Tr "repo.issues.num_participants" .NumParticipants }}</strong>
+        <div class="flex gap-2">
+          {{ range .Participants }}
+            <a class="tooltip avatar" {{ if gt .ID 0 }}href="{{ .HomeLink }}"{{ end }} data-tip="{{ .GetDisplayName }}">
+              <span class="w-5 rounded-full">
+                {{ avatar . }}
+              </span>
+            </a>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+
+    {{ if and $.IssueWatch (not .Repository.IsArchived) }}
+      <div class="space-y-2 py-2">
+        <strong>{{ .i18n.Tr "notification.notifications" }}</strong>
+        <form method="POST" action="{{ .Issue.Link }}/watch">
+          <input type="hidden" name="watch" value="{{ if $.IssueWatch.IsWatching }}0{{ else }}1{{ end }}" />
+          {{ $.CsrfTokenHtml }}
+          <button class="btn-sm btn w-full gap-x-2">
+            {{ if $.IssueWatch.IsWatching }}
+              {{ svg "octicon-mute" 16 }}
+              {{ .i18n.Tr "repo.issues.unsubscribe" }}
+            {{ else }}
+              {{ svg "octicon-unmute" 16 }}
+              {{ .i18n.Tr "repo.issues.subscribe" }}
+            {{ end }}
+          </button>
+        </form>
+      </div>
+    {{ end }}
+    {{ if .Repository.IsTimetrackerEnabled }}
+      {{ if and .CanUseTimetracker (not .Repository.IsArchived) }}
+        <div class="space-y-2 py-2">
+          <strong>{{ .i18n.Tr "repo.issues.tracker" }}</strong>
+          <div class="flex flex-col space-y-1">
+            <!-- <form method="POST" action="{{ .Issue.Link }}/times/stopwatch/toggle" id="toggle_stopwatch_form"> -->
+            <!--   {{ $.CsrfTokenHtml }} -->
+            <!-- </form> -->
+            <!-- <form method="POST" action="{{ .Issue.Link }}/times/stopwatch/cancel" id="cancel_stopwatch_form"> -->
+            <!--   {{ $.CsrfTokenHtml }} -->
+            <!-- </form> -->
+            {{ if  $.IsStopwatchRunning }}
+              <!-- issue-stop-time -->
+              <button svelte-async-button data-href="{{ .Issue.Link }}/times/stopwatch/toggle" class="btn-sm btn">{{ .i18n.Tr "repo.issues.stop_tracking" }}</button>
+              <!-- issue-cancel-time -->
+              <button svelte-async-button data-href="{{ .Issue.Link }}/times/stopwatch/cancel" class="btn-red btn-sm btn">{{ .i18n.Tr "repo.issues.cancel_tracking" }}</button>
+            {{ else }}
+              {{ if .HasUserStopwatch }}
+                <div class="cu-links-primary mb-4 gap-2 break-words rounded-lg border !border-yellow-600/40 p-2 text-center text-yellow-600">
+                  {{ .i18n.Tr "repo.issues.tracking_already_started" (.OtherStopwatchURL|Escape) | Safe }}
+                </div>
+              {{ end }}
+              <!-- issue-start-time -->
+              <button svelte-async-button data-href="{{ .Issue.Link }}/times/stopwatch/toggle" class="tooltip btn-sm btn" data-tip="{{ .i18n.Tr "repo.issues.start_tracking" }}">{{ .i18n.Tr "repo.issues.start_tracking_short" }}</button>
+              <!-- issue-add-time -->
+              <label for="modal-issue-add-time" class="btn-primary tooltip btn-sm btn" data-tip="{{ .i18n.Tr "repo.issues.add_time" }}">{{ .i18n.Tr "repo.issues.add_time_short" }}</label>
+              <!-- Put this part before </body> tag -->
+              <input type="checkbox" id="modal-issue-add-time" class="modal-toggle" />
+              <label for="modal-issue-add-time" class="modal cursor-pointer">
+                <label class="modal-box relative" for="">
+                  <h3 class="text-lg font-bold">{{ .i18n.Tr "repo.issues.add_time" }}</h3>
+                  <form jq-issue-add-time method="POST" class="py-4" action="{{ .Issue.Link }}/times/add">
+                    {{ $.CsrfTokenHtml }}
+                    <input placeholder="{{ .i18n.Tr "repo.issues.add_time_hours" }}" type="number" name="hours" class="input-bordered input input-sm max-w-xs" />
+                    <input placeholder="{{ .i18n.Tr "repo.issues.add_time_minutes" }}" type="number" name="minutes" class="input-bordered input input-sm max-w-xs" />
+                    <div class="modal-action">
+                      <label for="modal-issue-add-time" class="btn">{{ .i18n.Tr "repo.issues.add_time_cancel" }}</label>
+                      <button class="btn-primary btn">{{ .i18n.Tr "repo.issues.add_time_short" }}</button>
+                    </div>
+                  </form>
+                </label>
+              </label>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+      {{ if gt (len .WorkingUsers) 0 }}
+        <div class="space-y-2 py-2">
+          <strong>{{ .i18n.Tr "repo.issues.time_spent_from_all_authors"  ($.Issue.TotalTrackedTime | Sec2Time) | Safe }}</strong>
+          <div>
+            {{ range $user, $trackedtime := .WorkingUsers }}
+              <div class="flex items-center gap-2">
+                <div class="avatar">
+                  <span class="w-8 rounded-full">
+                    {{ avatar $user }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span>{{ $user.DisplayName }}</span>
+                  <span>{{ $trackedtime }}</span>
+                </div>
+              </div>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+    {{ end }}
+
+
+    <div jq-deadline class="space-y-2 py-2">
+      <strong>{{ .i18n.Tr "repo.issues.due_date" }}</strong>
+      <div>
+        <!-- id="deadline-loader" -->
+        <div jq-loader class="hidden">
+          {{ template "base/loading" }}
+        </div>
+        <div class="space-y-2">
+          <!-- id="deadline-err-invalid-date" -->
+          <div jq-invalid-date class="cu-links-primary relative mb-4 hidden break-words rounded-lg border !border-red-600/40 p-2 text-red-600">
+            <div class="gap-2 p-4">
+              {{ .i18n.Tr "repo.issues.due_date_invalid" }}
+            </div>
+            <button class="absolute right-0 top-0 m-2 cursor-pointer" jq-error-message>
+              {{ svg "fa-xmark-solid" 18 "h-[18px] w-[18px]" }}
+            </button>
+            {{ Asset "js/base-alert.js" }}
+          </div>
+          {{ if ne .Issue.DeadlineUnix 0 }}
+            <div class="flex items-center">
+              <div class="due-date {{ if .Issue.IsOverdue }}text-red-600{{ end }} tooltip flex-1 gap-x-1" {{ if .Issue.IsOverdue }}data-tip="{{ .i18n.Tr "repo.issues.due_date_overdue" }}"{{ end }}>
+                {{ svg "octicon-calendar" 16 }}
+                {{ .Issue.DeadlineUnix.FormatDate }}
+              </div>
+              <div class="flex items-center gap-x-1">
+                {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+                  <!-- issue-due-edit  -->
+                  <span jq-due-edit class="tooltip tooltip-left cursor-pointer" data-tip="{{ $.i18n.Tr "repo.issues.due_date_form_edit" }}">{{ svg "octicon-pencil" }}</span>
+                  <!-- issue-due-remove -->
+                  <span jq-due-remove class="tooltip tooltip-left cursor-pointer" data-tip="{{ $.i18n.Tr "repo.issues.due_date_form_remove" }}">{{ svg "octicon-trash" }}</span>
+                {{ end }}
+              </div>
+            </div>
+          {{ else }}
+            {{ .i18n.Tr "repo.issues.due_date_not_set" }}
+          {{ end }}
+
+          {{ if and .HasIssuesOrPullsWritePermission (not .Repository.IsArchived) }}
+            <!-- id="deadlineForm" -->
+            <!-- id="update-issue-deadline-form" class="issue-due-form" -->
+            <form jq-form class="{{ if ne .Issue.DeadlineUnix 0 }}hidden{{ end }}" action="{{ AppSubUrl }}/{{ PathEscape .Repository.Owner.Name }}/{{ PathEscape .Repository.Name }}/issues/{{ .Issue.Index }}/deadline" method="post">
+              {{ $.CsrfTokenHtml }}
+              <label class="input-group">
+                <!-- id="deadlineDate" -->
+                <input required placeholder="{{ .i18n.Tr "repo.issues.due_date_form" }}" {{ if gt .Issue.DeadlineUnix 0 }}value="{{ .Issue.DeadlineUnix.Format "2006-01-02" }}"{{ end }} type="date" name="deadlineDate" class="input-bordered input input-sm w-[calc(100%-2rem)]" />
+                <button class="btn-primary btn-sm btn w-[2rem] p-0">
+                  {{ if ne .Issue.DeadlineUnix 0 }}
+                    {{ svg "octicon-pencil" 16 "w-4 h-4" }}
+                  {{ else }}
+                    {{ svg "octicon-plus" 16 "w-4 h-4" }}
+                  {{ end }}
+                </button>
+              </label>
+            </form>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+
+    {{ if .Repository.IsDependenciesEnabled }}
+      <div class="space-y-2 py-2">
+        {{ if (and (not .BlockedByDependencies) (not .BlockingDependencies)) }}
+          <strong>{{ .i18n.Tr "repo.issues.dependency.title" }}</strong>
+          <p>
+            {{ if .Issue.IsPull }}
+              {{ .i18n.Tr "repo.issues.dependency.pr_no_dependencies" }}
+            {{ else }}
+              {{ .i18n.Tr "repo.issues.dependency.issue_no_dependencies" }}
+            {{ end }}
+          </p>
+        {{ end }}
+
+        {{ $exists := NewSlice }}
+        {{ if .BlockingDependencies }}
+          <span class="tooltip" data-tip="{{ if .Issue.IsPull }}{{ .i18n.Tr "repo.issues.dependency.pr_close_blocks" }}{{ else }}{{ .i18n.Tr "repo.issues.dependency.issue_close_blocks" }}{{ end }}">
+            <strong>{{ .i18n.Tr "repo.issues.dependency.blocks_short" }}</strong>
+          </span>
+          <div class="w-full space-y-1 divide-y">
+            {{ range .BlockingDependencies }}
+              {{ $exists = AppendSlice $exists .Issue.ID }}
+              <div class="dependency flex items-center">
+                <div class="w-[90%] flex-1">
+                  <a class="{{ if .Issue.IsClosed }}line-through{{ else }}link-hover{{ end }} link-primary link tooltip" href="{{ .Issue.Link }}" data-tip="#{{ .Issue.Index }} {{ .Issue.Title | RenderEmoji }}">
+                    <span class="line-clamp-1 text-left text-base">
+                      #{{ .Issue.Index }}
+                      {{ .Issue.Title | RenderEmoji }}
+                    </span>
+                  </a>
+                  <div class="text-xs">
+                    {{ .Repository.OwnerName }}/{{ .Repository.Name }}
+                  </div>
+                </div>
+                <div class="flex w-[10%] justify-end ">
+                  {{ if and $.CanCreateIssueDependencies (not $.Repository.IsArchived) }}
+                    <span
+                      svelte-simple-modal
+                      class="tooltip tooltip-left"
+                      data-async="false"
+                      data-form-key[0]="removeDependencyID"
+                      data-form-val[0]="{{ .Issue.ID }}"
+                      data-form-key[1]="dependencyType"
+                      data-form-val[1]="blocking"
+                      data-href="{{ $.Issue.Link }}/dependency/delete"
+                      data-title="{{ $.i18n.Tr "repo.issues.dependency.remove_header" }}"
+                      data-desc="{{ if $.Issue.IsPull }}
+                        {{ $.i18n.Tr "repo.issues.dependency.pr_remove_text" }}
+                      {{ else }}
+                        {{ $.i18n.Tr "repo.issues.dependency.issue_remove_text" }}
+                      {{ end }}"
+                      data-tip="{{ $.i18n.Tr "repo.issues.dependency.remove_info" }}"
+                      data-inverted=""
+                    >
+                      {{ svg "octicon-trash" 16 }}
+                    </span>
+                  {{ end }}
+                </div>
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ if .BlockedByDependencies }}
+          <span class="tooltip" data-tip="{{ if .Issue.IsPull }}{{ .i18n.Tr "repo.issues.dependency.pr_closing_blockedby" }}{{ else }}{{ .i18n.Tr "repo.issues.dependency.issue_closing_blockedby" }}{{ end }}">
+            <strong>{{ .i18n.Tr "repo.issues.dependency.blocked_by_short" }}</strong>
+          </span>
+          <div class="w-full space-y-1 divide-y">
+            {{ range .BlockedByDependencies }}
+              {{ $exists = AppendSlice $exists .Issue.ID }}
+              <div class="dependency flex items-center">
+                <div class="w-[90%] flex-1">
+                  <a class="{{ if .Issue.IsClosed }}line-through{{ else }}link-hover{{ end }} link-primary link tooltip" href="{{ .Issue.Link }}" data-tip="#{{ .Issue.Index }} {{ .Issue.Title | RenderEmoji }}">
+                    <span class="line-clamp-1 text-left text-base">
+                      #{{ .Issue.Index }}
+                      {{ .Issue.Title | RenderEmoji }}
+                    </span>
+                  </a>
+                  <div class="text-xs">
+                    {{ .Repository.OwnerName }}/{{ .Repository.Name }}
+                  </div>
+                </div>
+                <div class="flex w-[10%] justify-end">
+                  {{ if and $.CanCreateIssueDependencies (not $.Repository.IsArchived) }}
+                    <span
+                      svelte-simple-modal
+                      class="tooltip tooltip-left"
+                      data-async="false"
+                      data-form-key[0]="removeDependencyID"
+                      data-form-val[0]="{{ .Issue.ID }}"
+                      data-form-key[1]="dependencyType"
+                      data-form-val[1]="blockedBy"
+                      data-href="{{ $.Issue.Link }}/dependency/delete"
+                      data-title="{{ $.i18n.Tr "repo.issues.dependency.remove_header" }}"
+                      data-desc="{{ if $.Issue.IsPull }}
+                        {{ $.i18n.Tr "repo.issues.dependency.pr_remove_text" }}
+                      {{ else }}
+                        {{ $.i18n.Tr "repo.issues.dependency.issue_remove_text" }}
+                      {{ end }}"
+                      data-tip="{{ $.i18n.Tr "repo.issues.dependency.remove_info" }}"
+                      data-inverted=""
+                    >
+                      {{ svg "octicon-trash" 16 }}
+                    </span>
+                  {{ end }}
+                </div>
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ if and .CanCreateIssueDependencies (not .Repository.IsArchived) }}
+          <div svelte-typeahead-issue-dependencies-dropdown data-cross-repo-search="{{ .AllowCrossRepositoryDependencies }}" data-action="{{ .Issue.Link }}/dependency/add" data-placeholder="{{ .i18n.Tr "repo.issues.dependency.add" }}" data-issue-id="{{ .Issue.ID }}" data-repolink="{{ .RepoRelPath }}" data-repoid="{{ .Repository.ID }}" data-issue-type="{{ .IssueType }}" data-exists="{{ Json $exists }}">
+            <!-- <input type="hidden" id="crossRepoSearch" value="{{ .AllowCrossRepositoryDependencies }}" /> -->
+            <!-- <form method="POST" action="{{ .Issue.Link }}/dependency/add" id="addDependencyForm"> -->
+            <!-- {{ $.CsrfTokenHtml }} -->
+            <!-- <input name="newDependency" type="hidden" /> -->
+            <!-- <label class="input-group"> -->
+            <!-- <div class="ui search selection dropdown" id="new-dependency-drop-list" data-issue-id="{{ .Issue.ID }}"> -->
+            <!--   {{ svg "octicon-triangle-down" 14 "dropdown icon" }} -->
+            <!--   <input type="text" class="search" /> -->
+            <!--   <div class="default text">{{ .i18n.Tr "repo.issues.dependency.add" }}</div> -->
+            <!-- </div> -->
+            <!-- <select class="select-bordered select select-sm w-[calc(100%-2rem)]" data-issue-id="{{ .Issue.ID }}"></select> -->
+            <!-- <button class="btn-primary btn-sm btn w-[2rem] p-0"> -->
+            <!-- {{ svg "octicon-plus" 16 "w-4 h-4" }} -->
+            <!-- </button> -->
+            <!-- </label> -->
+            <!-- </form> -->
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+
+
+    <div class="flex items-center gap-x-1 py-2">
+      {{ $issueReferenceLink := printf "%s#%d" .Issue.Repo.FullName .Issue.Index }}
+      <span class="w-[90%] flex-1 truncate">{{ .i18n.Tr "repo.issues.reference_link" $issueReferenceLink }}</span>
+      <button class="flex w-[10%] justify-end" data-clipboard-text="{{ $issueReferenceLink }}">{{ svg "octicon-copy" 14 }}</button>
+    </div>
+
+    {{ if and .IsRepoAdmin (not .Repository.IsArchived) }}
+      <div class="flex flex-col space-y-2 py-2">
+        <label for="lock-conversation" class="{{ if .Issue.IsLocked }}btn-red{{ end }} btn-sm btn gap-x-1">
+          {{ if .Issue.IsLocked }}
+            {{ svg "octicon-key" }}
+            {{ .i18n.Tr "repo.issues.unlock" }}
+          {{ else }}
+            {{ svg "octicon-lock" }}
+            {{ .i18n.Tr "repo.issues.lock" }}
+          {{ end }}
+        </label>
+
+        <input type="checkbox" id="lock-conversation" class="modal-toggle" />
+        <label for="lock-conversation" class="modal cursor-pointer">
+          <label class="modal-box relative" for="">
+            <h3 class="text-lg font-bold">
+              {{ if .Issue.IsLocked }}
+                {{ .i18n.Tr "repo.issues.unlock.title" }}
+              {{ else }}
+                {{ .i18n.Tr "repo.issues.lock.title" }}
+              {{ end }}
+            </h3>
+            <div class="py-4">
+              <div class="cu-links-primary mb-4 gap-2 break-words rounded-lg border !border-yellow-600/40 p-2 text-yellow-600">
+                {{ if .Issue.IsLocked }}
+                  {{ .i18n.Tr "repo.issues.unlock.notice_1" }}<br />
+                  {{ .i18n.Tr "repo.issues.unlock.notice_2" }}<br />
+                {{ else }}
+                  {{ .i18n.Tr "repo.issues.lock.notice_1" }}<br />
+                  {{ .i18n.Tr "repo.issues.lock.notice_2" }}<br />
+                  {{ .i18n.Tr "repo.issues.lock.notice_3" }}<br />
+                {{ end }}
+              </div>
+              <form action="{{ .Issue.Link }}{{ if .Issue.IsLocked }}/unlock{{ else }}/lock{{ end }}" method="post">
+                {{ .CsrfTokenHtml }}
+                {{ if not .Issue.IsLocked }}
+                  <strong>{{ .i18n.Tr "repo.issues.lock.reason" }}</strong>
+                  <select name="reason" class="select-bordered select w-full">
+                    <option value=""></option>
+                    {{ range .LockReasons }}
+                      <option value="{{ . }}">{{ . }}</option>
+                    {{ end }}
+                  </select>
+                {{ end }}
+                <div class="modal-action">
+                  <label for="lock-conversation" class="btn">{{ .i18n.Tr "settings.cancel" }}</label>
+                  <button class="btn-red btn">
+                    {{ if .Issue.IsLocked }}
+                      {{ .i18n.Tr "repo.issues.unlock_confirm" }}
+                    {{ else }}
+                      {{ .i18n.Tr "repo.issues.lock_confirm" }}
+                    {{ end }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </label>
+        </label>
+
+        <span svelte-simple-modal class="btn-red btn-sm btn" data-async="false" data-href="{{ .Issue.Link }}/delete" data-title="{{ .i18n.Tr "repo.issues.delete.title" }}" data-desc="{{ .i18n.Tr "repo.issues.delete.text" }}" data-action-approve-color="red">
+          {{ svg "octicon-trash" }}
+          {{ .i18n.Tr "repo.issues.delete" }}
+        </span>
+      </div>
+    {{ end }}
+
+    {{ if and .Issue.IsPull .IsIssuePoster (not .Issue.IsClosed) }}
+      {{ if and (not (eq .Issue.PullRequest.HeadRepo.FullName .Issue.PullRequest.BaseRepo.FullName)) .CanWriteToHeadRepo }}
+        <label jq-allow-edits-from-maintainers class="flex items-center gap-x-1 py-2" data-url="{{ .Issue.Link }}" data-prompt-tip="{{ .i18n.Tr "repo.pulls.allow_edits_from_maintainers_desc" }}" data-prompt-error="{{ .i18n.Tr "repo.pulls.allow_edits_from_maintainers_err" }}">
+          <input type="checkbox" class="checkbox h-4 w-4 rounded" {{ if .Issue.PullRequest.AllowMaintainerEdit }}checked{{ end }} />
+          <strong>{{ .i18n.Tr "repo.pulls.allow_edits_from_maintainers" }}</strong>
+        </label>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
+{{ Asset "js/repo-issue-view_content-sidebar.js" }}

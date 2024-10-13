@@ -1,0 +1,20 @@
+{{ template "base/head" . }}
+<!--  user settings security -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "user/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        {{ template "user/settings/security/twofa" . }}
+        {{ template "user/settings/security/webauthn" . }}
+        {{ template "user/settings/security/accountlinks" . }}
+        {{ if .EnableOpenIDSignIn }}
+          {{ template "user/settings/security/openid" . }}
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ template "base/footer" . }}

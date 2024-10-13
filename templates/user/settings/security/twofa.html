@@ -1,0 +1,23 @@
+<h4 class="text-xl font-bold">
+  {{ .i18n.Tr "settings.twofa" }}
+</h4>
+<div class="divider my-2"></div>
+<div class="space-y-2">
+  <p>{{ .i18n.Tr "settings.twofa_desc" }}</p>
+  {{ if .TOTPEnrolled }}
+    <p>{{ $.i18n.Tr "settings.twofa_is_enrolled" | Str2html }}</p>
+    <p>{{ .i18n.Tr "settings.regenerate_scratch_token_desc" }}</p>
+    <form action="{{ AppSubUrl }}/user/settings/security/two_factor/regenerate_scratch" method="post" enctype="multipart/form-data">
+      {{ .CsrfTokenHtml }}
+      <button class="btn-primary btn">{{ $.i18n.Tr "settings.twofa_scratch_token_regenerate" }}</button>
+    </form>
+    <p>{{ .i18n.Tr "settings.twofa_disable_note" }}</p>
+    <form action="{{ AppSubUrl }}/user/settings/security/two_factor/disable" method="post" enctype="multipart/form-data" id="disable-form">
+      {{ .CsrfTokenHtml }}
+      <div svelte-simple-modal class="btn-red btn" data-title="{{ .i18n.Tr "settings.twofa_disable" }}" data-desc="{{ .i18n.Tr "settings.twofa_disable_desc" }}" data-action-approve-color="red" data-modal-id="disable-twofa" data-confirm-form="#disable-form">{{ $.i18n.Tr "settings.twofa_disable" }}</div>
+    </form>
+  {{ else }}
+    <p>{{ .i18n.Tr "settings.twofa_not_enrolled" }}</p>
+    <a class="btn-primary btn" href="{{ AppSubUrl }}/user/settings/security/two_factor/enroll">{{ $.i18n.Tr "settings.twofa_enroll" }}</a>
+  {{ end }}
+</div>

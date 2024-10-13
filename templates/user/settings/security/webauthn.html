@@ -1,0 +1,28 @@
+<h4 class="mt-10 text-xl font-bold">
+  {{ .i18n.Tr "settings.webauthn" }}
+</h4>
+<div class="divider my-2"></div>
+<div class="space-y-2">
+  <p>{{ .i18n.Tr "settings.webauthn_desc" | Str2html }}</p>
+  <div class="divide-y">
+    {{ range .WebAuthnCredentials }}
+      <div class="flex items-center justify-between py-2">
+        <div class="flex flex-col gap-1">
+          <strong>{{ .Name }}</strong>
+          <span class="text-gray-500">{{ TimeSinceUnix .CreatedUnix $.i18n.Lang }}</span>
+        </div>
+        <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="delete-registration" data-title="{{ $.i18n.Tr "settings.webauthn_delete_key" }}" data-desc="{{ $.i18n.Tr "settings.webauthn_delete_key_desc" }}" data-href="{{ $.Link }}/webauthn/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}" data-action-approve-color="red">
+          {{ $.i18n.Tr "settings.delete_key" }}
+        </button>
+      </div>
+    {{ end }}
+  </div>
+  {{ .CsrfTokenHtml }}
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "settings.webauthn_nickname" }}</span></label>
+    <input class="input-bordered input" id="nickname" name="nickname" type="text" required />
+  </div>
+  <button id="register-webauthn" class="btn-primary btn">{{ svg "octicon-key" }} {{ .i18n.Tr "settings.webauthn_register_key" }}</button>
+</div>
+{{ template "user/auth/webauthn_error" . }}
+{{ Asset "js/user-settings-security-webauthn.js" }}

@@ -1,0 +1,7 @@
+{{ template "explore/header" . }}
+<div class="my-4 flex flex-1 flex-col px-8">
+  {{ template "explore/repo_search" . }}
+  {{ template "explore/repo_list" . }}
+  {{ template "base/paginate" . }}
+</div>
+{{ template "explore/footer" . }}

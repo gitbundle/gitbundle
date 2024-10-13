@@ -1,0 +1,73 @@
+{{ template "base/head" . }}
+<!-- repository new fork -->
+<div jq-repository-new-fork class="main-container">
+  <form class="mx-auto h-fit w-full max-w-[1280px] rounded-lg border" action="{{ .Link }}" method="post">
+    {{ template "base/alert" . }}
+    {{ .CsrfTokenHtml }}
+    <h3 class="rounded-t-lg bg-base-200 px-4 py-3">
+      {{ .i18n.Tr "new_fork" }}
+    </h3>
+    <div class="flex flex-col space-y-4 border-t py-4">
+      <div class="{{ if .Err_Owner }}error{{ end }} grid grid-cols-12 items-center gap-4">
+        <label class="col-span-4 text-right">{{ .i18n.Tr "repo.owner" }}</label>
+        <div svelte-repo-owner-select class="col-span-8">
+          <script>
+            (() => {
+              const items = []
+              {{ if .CanForkToUser }}
+              items.push({value: {{ .SignedUser.ID }}, Name: {{ .SignedUser.Name }}, Avatar: {{ avatar .SignedUser 28 "!w-7 !h-7 rounded" }}, label: {{ .SignedUser.ShortName 40 }}})
+              {{ end }}
+              {{ range .Orgs }}
+              items.push({value: {{.ID}}, Name: {{.Name}}, Avatar: {{ avatar . 28 "!w-7 !h-7 rounded" }}, label: {{ .ShortName 40 }}})
+              {{ end }}
+
+              window.config.pageData.repoOwnerSelect = {
+                ContextUserValue: {{.ContextUser.ID}},
+                ContextUserName: {{.ContextUser.Name}},
+                ContextUserAvatar: {{ avatar .ContextUser 28 "!w-7 !h-7 rounded" }},
+                ContextUserLabel: {{ .ContextUser.ShortName 40 }},
+                items,
+                ClassName: "!select-bordered !select w-full max-w-md",
+                Name: "uid",
+                Required: true,
+              }
+            })()
+          </script>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 items-center gap-4">
+        <label class="col-span-4 text-right">{{ .i18n.Tr "repo.fork_from" }}</label>
+        <a class="link-hover link-primary link col-span-8" href="{{ .ForkRepo.Link }}">{{ .ForkRepo.FullName }}</a>
+      </div>
+
+      <div class="{{ if .Err_RepoName }}error{{ end }} grid grid-cols-12 items-center gap-4">
+        <label for="repo_name" class="col-span-4 text-right">{{ .i18n.Tr "repo.repo_name" }}</label>
+        <input class="input-bordered input col-span-8 w-full max-w-md" id="repo_name" name="repo_name" value="{{ .repo_name }}" required />
+      </div>
+
+      <div class="grid grid-cols-12 items-start gap-4">
+        <label class="col-span-4 text-right">{{ .i18n.Tr "repo.visibility" }}</label>
+        <div class="col-span-8">
+          <label class="flex items-center gap-2"><input class="checkbox checkbox-sm" type="checkbox" {{ if .IsPrivate }}checked{{ end }} />{{ .i18n.Tr "repo.visibility_helper" | Safe }}</label>
+          <span class="text-gray-600">{{ .i18n.Tr "repo.fork_visibility_helper" }}</span>
+        </div>
+      </div>
+
+      <div class="{{ if .Err_Description }}error{{ end }} grid grid-cols-12 items-start gap-4">
+        <label for="description" class="col-span-4 text-right">{{ .i18n.Tr "repo.repo_desc" }}</label>
+        <textarea class="textarea-bordered textarea col-span-8 w-full max-w-md" rows="8" id="description" name="description">{{ .description }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-12 items-center gap-4">
+        <label class="col-span-4"></label>
+        <div class="col-span-8">
+          <button class="btn-primary btn mr-2">{{ .i18n.Tr "repo.fork_repo" }}</button>
+          <a class="btn" href="{{ .ForkRepo.Link }}">{{ .i18n.Tr "cancel" }}</a>
+        </div>
+      </div>
+    </div>
+  </form>
+  {{ Asset "js/repo-pulls-fork.js" }}
+</div>
+{{ template "base/footer" . }}

@@ -1,0 +1,23 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository labels -->
+<div jq-repository-labels class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <div class="flex items-center justify-between">
+      {{ template "repo/issue/navbar" . }}
+      {{ if and (or .CanWriteIssues .CanWritePulls) (not .Repository.IsArchived) }}
+        <div jq-new-label-button class="btn-primary btn">{{ .i18n.Tr "repo.issues.new_label" }}</div>
+      {{ end }}
+    </div>
+    {{ if and (or .CanWriteIssues .CanWritePulls) (not .Repository.IsArchived) }}
+      {{ template "repo/issue/labels/label_new" . }}
+    {{ end }}
+    {{ template "repo/issue/labels/label_list" . }}
+  </div>
+  {{ if and (or .CanWriteIssues .CanWritePulls) (not .Repository.IsArchived) }}
+    {{ template "repo/issue/labels/edit_delete_label" . }}
+  {{ end }}
+  {{ Asset "js/repo-issue-labels.js" }}
+</div>
+{{ template "base/footer" . }}

@@ -1,0 +1,8 @@
+<div class="{{ if .Err_Auth }}error{{ end }} form-control w-full">
+  <label for="auth_token" class="label">
+    <span class="label-text flex items-center font-bold">
+      {{ .i18n.Tr "access_token" }}
+    </span>
+  </label>
+  <input id="auth_token" class="input-bordered input w-full" name="auth_token" value="{{ .auth_token }}" {{ if not .auth_token }}data-need-clear="true"{{ end }} />
+</div>

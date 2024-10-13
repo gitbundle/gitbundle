@@ -1,0 +1,7 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  {{ template "repo/settings/webhook/base_list" .SystemWebhooks }}
+  {{ template "repo/settings/webhook/base_list" .DefaultWebhooks }}
+</div>
+{{ template "admin/base/footer" . }}

@@ -1,0 +1,13 @@
+{{ template "repo/migrate/top" . }}
+<div class="{{ if .Err_Auth }}error{{ end }} form-control w-full">
+  <label class="label">
+    <span class="label-text flex items-center font-bold">
+      {{ .i18n.Tr "access_token" }}
+      <a target="_blank" class="link-primary link" href="https://docs.gitbundle.com/developers/api-usage/">{{ svg "octicon-question" }}</a>
+    </span>
+  </label>
+  <input class="input-bordered input" id="auth_token" name="auth_token" value="{{ .auth_token }}" {{ if not .auth_token }}data-need-clear="true"{{ end }} />
+</div>
+{{ template "repo/migrate/options" . }}
+{{ template "repo/migrate/extra_options" . }}
+{{ template "repo/migrate/bottom" . }}

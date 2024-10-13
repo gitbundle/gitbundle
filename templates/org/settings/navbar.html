@@ -1,0 +1,35 @@
+<div class="sticky top-0 col-span-4 h-fit px-2">
+  <h4 class="indent-5 font-bold text-base-content/60">{{ .i18n.Tr "org.settings" }}</h4>
+  <ul class="cu-bordered-menu">
+    <li class="{{ if .PageIsSettingsOptions }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsSettingsOptions }}active{{ end }}" href="{{ .OrgLink }}/settings">
+        {{ svg "octicon-gear" 16 "w-4 h-4" }}
+        {{ .i18n.Tr "org.settings.options" }}
+      </a>
+    </li>
+    {{ if not DisableWebhooks }}
+      <li class="{{ if .PageIsSettingsHooks }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsHooks }}active{{ end }}" href="{{ .OrgLink }}/settings/hooks">
+          {{ svg "icons8-webhook" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "repo.settings.hooks" }}
+        </a>
+      </li>
+    {{ end }}
+    <li class="{{ if .PageIsOrgSettingsLabels }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsOrgSettingsLabels }}active{{ end }}" href="{{ .OrgLink }}/settings/labels">
+        {{ svg "octicon-tag" 16 "w-4 h-4" }}
+        {{ .i18n.Tr "repo.labels" }}
+      </a>
+    </li>
+    <li class="{{ if .PageIsSettingsDelete }}cu-bordered{{ end }}">
+      <div class="divider-y"></div>
+      <a class="{{ if .PageIsSettingsDelete }}active{{ end }}" href="{{ .OrgLink }}/settings/delete">
+        {{ svg "fa-trash-can" 16 "w-4 h-4" }}
+        {{ .i18n.Tr "org.settings.delete" }}
+      </a>
+    </li>
+  </ul>
+</div>

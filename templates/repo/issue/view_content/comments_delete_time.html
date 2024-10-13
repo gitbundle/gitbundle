@@ -1,0 +1,10 @@
+{{ if .comment.Time }}
+  {{/* compatibility with time comments made before v1.14 */}}
+  {{ if (not .comment.Time.Deleted) }}
+    {{ if (or .ctx.IsAdmin (and .ctx.IsSigned (eq .ctx.SignedUserID .comment.PosterID))) }}
+      <span svelte-simple-modal class="btn-outline tooltip btn-xs btn" data-action-negative-text="{{ .ctx.i18n.Tr "repo.issues.add_time_cancel" }}" data-action-approve-color="red" data-action-approve-text="{{ .ctx.i18n.Tr "repo.issues.context.delete" }}" data-async="false" data-desc="" data-title="{{ .ctx.i18n.Tr "repo.issues.del_time" }}" data-href="{{ .ctx.RepoLink }}/issues/{{ .ctx.Issue.Index }}/times/{{ .comment.TimeID }}/delete" data-tip="{{ .ctx.i18n.Tr "repo.issues.del_time" }}">
+        {{ svg "octicon-trash" }}
+      </span>
+    {{ end }}
+  {{ end }}
+{{ end }}

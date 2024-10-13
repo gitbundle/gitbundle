@@ -1,0 +1,12 @@
+{{ if eq .HookType "feishu" }}
+  <p class="cu-links-primary">{{ .i18n.Tr "repo.settings.add_web_hook_desc" "https://feishu.cn" (.i18n.Tr "repo.settings.web_hook_name_feishu") | Str2html }}</p>
+  <p class="cu-links-primary">{{ .i18n.Tr "repo.settings.add_web_hook_desc" "https://larksuite.com" (.i18n.Tr "repo.settings.web_hook_name_larksuite") | Str2html }}</p>
+  <form action="{{ .BaseLink }}/feishu/{{ or .Webhook.ID "new" }}" method="post">
+    {{ .CsrfTokenHtml }}
+    <div class="{{ if .Err_PayloadURL }}error{{ end }} form-control required">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.payload_url" }}</span></label>
+      <input class="input-bordered input" id="payload_url" name="payload_url" type="url" value="{{ .Webhook.URL }}" autofocus required />
+    </div>
+    {{ template "repo/settings/webhook/settings" . }}
+  </form>
+{{ end }}

@@ -1,0 +1,64 @@
+{{ if and (not .Issue.IsPull) (not .PageIsComparePull) }}
+  <div jq-branch-selector>
+    <input name="ref" type="hidden" value="{{ .Reference }}" />
+    <input name="edit_mode" type="hidden" value="{{ (or .IsIssueWriter .HasIssuesOrPullsWritePermission) }}" />
+    <form jq-issueref-form method="POST" action="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/ref">
+      {{ $.CsrfTokenHtml }}
+    </form>
+    <div jq-dropdown class="{{ if .HasIssuesOrPullsWritePermission }}dropdown{{ else }}text-mako-600{{ end }} w-full" data-no-results="{{ .i18n.Tr "repo.pulls.no_results" }}">
+      <label tabindex="0" class="btn-outline btn-sm btn">
+        <span jq-branch-name>{{ if .Reference }}{{ $.RefEndName }}{{ else }}{{ .i18n.Tr "repo.issues.no_ref" }}{{ end }}</span>
+        {{ if .HasIssuesOrPullsWritePermission }}{{ svg "octicon-triangle-down" 14 }}{{ end }}
+      </label>
+      {{ if .HasIssuesOrPullsWritePermission }}
+        <div class="card dropdown-content card-compact">
+          <div class="card-body">
+            {{ if or .Labels .OrgLabels }}
+              <div class="relative">
+                <i class="absolute right-0 top-0 m-2">{{ svg "octicon-filter" 16 }}</i>
+                <input jq-input-search type="text" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.filter_branch_and_tag" }}..." />
+              </div>
+            {{ end }}
+            <div class="card-title mb-0">
+              <div jq-tabs class="tabs">
+                <div class="tab-bordered tab tab-active items-center gap-x-1 text-xs" data-target="branch">
+                  {{ svg "octicon-git-branch" 16 }}{{ .i18n.Tr "repo.branches" }}
+                </div>
+                <div class="tab-bordered tab items-center gap-x-1 text-xs" data-target="tag">
+                  {{ svg "octicon-tag" 16 }}{{ .i18n.Tr "repo.tags" }}
+                </div>
+              </div>
+            </div>
+            <div jq-menu class="-m-4">
+              <ul jq-branch class="menu max-h-52 flex-nowrap overflow-y-auto p-2" data-input-name="ref" {{ if not .Issue }}jq-new-issue{{ end }}>
+                {{ if .Reference }}
+                  <div jq-no-checked class="cursor-pointer text-primary hover:underline" data-id="">
+                    {{ $.i18n.Tr "repo.clear_ref" }}
+                  </div>
+                {{ end }}
+                {{ range .Branches }}
+                  <li jq-select-item data-id="refs/heads/{{ . }}" data-name="{{ . }}">
+                    <div>{{ . }}</div>
+                  </li>
+                {{ end }}
+              </ul>
+              <ul jq-tag class="menu !hidden max-h-52 flex-nowrap overflow-y-auto p-2" data-input-name="ref" {{ if not .Issue }}jq-new-issue{{ end }}>
+                {{ if .Reference }}
+                  <div jq-no-checked class="cursor-pointer text-primary hover:underline" data-id="">
+                    {{ .i18n.Tr "repo.clear_ref" }}
+                  </div>
+                {{ end }}
+                {{ range .Tags }}
+                  <li jq-select-item data-id="refs/tags/{{ . }}" data-name="tags/{{ . }}">
+                    <div>{{ . }}</div>
+                  </li>
+                {{ end }}
+              </ul>
+            </div>
+          </div>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+  {{ Asset "js/repo-issue-branch_selector_field.js" }}
+{{ end }}

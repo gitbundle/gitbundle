@@ -1,0 +1,13 @@
+{{ template "base/head" . }}
+<!--  user activate -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <h2 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.prohibit_login" }}
+    </h2>
+    <div class="cu-links-primary-hover mx-auto w-3/5 space-y-2 pb-8">
+      <p>{{ .i18n.Tr "auth.prohibit_login_desc" }}</p>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

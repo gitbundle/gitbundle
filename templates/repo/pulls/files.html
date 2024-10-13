@@ -1,0 +1,21 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository view issue pull files diff -->
+<div class="main-container">
+  <input type="hidden" id="repolink" value="{{ $.RepoRelPath }}" />
+  <input type="hidden" id="issueIndex" value="{{ .Issue.Index }}" />
+  <div class="{{ if .IsSplitStyle }}w-full{{ else }}mx-auto max-w-[1280px] w-full{{ end }} space-y-4">
+    {{ template "base/alert" . }}
+    {{/*<div class="navbar">
+      {{ template "repo/issue/navbar" . }}
+      <div class="ui right">
+        <a class="ui green button {{ if not .PullRequestCtx.Allowed }}disabled{{ end }}" href="{{ .RepoLink }}/compare/{{ .BranchName | PathEscapeSegments }}...{{ .PullRequestCtx.HeadInfoSubURL }}">{{ .i18n.Tr "repo.pulls.new" }}</a>
+      </div>
+    </div>
+    <div class="ui divider"></div>*/}}
+    {{ template "repo/issue/view_title" . }}
+    {{ template "repo/pulls/tab_menu" . }}
+    {{ template "repo/diff/box" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

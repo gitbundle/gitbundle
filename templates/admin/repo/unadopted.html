@@ -1,0 +1,46 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.repos.unadopted" }}
+      <a class="btn-primary btn-sm btn" href="{{ AppSubUrl }}/admin/repos">{{ .i18n.Tr "admin.repos.repo_manage_panel" }}</a>
+    </h4>
+    <form class="ignore-dirty px-4 py-2">
+      <input name="search" value="true" type="hidden" />
+      <div class="input-group">
+        <input class="input-bordered input input-sm w-full" name="q" value="{{ .Keyword }}" placeholder="{{ .i18n.Tr "repo.adopt_search" }}" autofocus />
+        <button class="btn-primary btn-sm btn">{{ .i18n.Tr "explore.search" }}</button>
+      </div>
+    </form>
+    {{ if .search }}
+      {{ if .Dirs }}
+        <div class="divide-y">
+          {{ range $dirI, $dir := .Dirs }}
+            <div class="flex items-center gap-1 px-4 py-2">
+              <span>{{ svg "octicon-file-directory-fill" }}</span>
+              <span class="mr-2">{{ $dir }}</span>
+              <div class="right floated content">
+                <button svelte-simple-modal class="btn-primary btn-xs btn gap-1" data-title="{{ $.i18n.Tr "repo.adopt_preexisting" }}" data-desc="{{ $.i18n.Tr "repo.adopt_preexisting_content" $dir }}" data-href="{{ AppSubUrl }}/admin/repos/unadopted" data-form-key[0]="id" data-form-val[0]="{{ $dir }}" data-form-key[1]="action" data-form-val[1]="adopt" data-form-key[2]="q" data-form-val[2]="{{ $.Keyword }}" data-form-key[3]="page" data-form-val[3]="{{ $.CurrentPage }}" data-async="false" data-modal="#adopt-unadopted-modal-{{ $dirI }}">
+                  <span>{{ svg "octicon-plus" }}</span>
+                  <span class="badge">{{ $.i18n.Tr "repo.adopt_preexisting_label" }}</span>
+                </button>
+
+                <button svelte-simple-modal class="btn-red btn-xs btn" data-title="{{ $.i18n.Tr "repo.delete_preexisting" }}" data-desc="{{ $.i18n.Tr "repo.delete_preexisting_content" $dir }}" data-href="{{ AppSubUrl }}/admin/repos/unadopted" data-form-key[0]="id" data-form-val[0]="{{ $dir }}" data-form-key[1]="action" data-form-val[1]="delete" data-form-key[2]="q" data-form-val[2]="{{ $.Keyword }}" data-form-key[3]="page" data-form-val[3]="{{ $.CurrentPage }}" data-async="false" data-modal="#delete-unadopted-modal-{{ $dirI }}">
+                  <span>{{ svg "octicon-x" }}</span>
+                  <span class="badge">{{ $.i18n.Tr "repo.delete_preexisting_label" }}</span>
+                </button>
+              </div>
+            </div>
+          {{ end }}
+        </div>
+        {{ template "base/paginate" . }}
+      {{ else }}
+        <p>
+          {{ .i18n.Tr "admin.repos.unadopted.no_more" }}
+        </p>
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

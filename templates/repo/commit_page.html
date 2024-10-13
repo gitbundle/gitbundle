@@ -1,0 +1,276 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository diff -->
+<div jq-repo-commit_page class="main-container">
+  <div class="{{ if .IsSplitStyle }}w-full{{ else }}mx-auto max-w-[1280px] w-full{{ end }} space-y-4">
+    {{ $class := "" }}
+    {{ if .Commit.Signature }}
+      {{ if .Verification.Verified }}
+        {{ if eq .Verification.TrustStatus "trusted" }}
+          {{ $class = "border-green-600 bg-green-900" }}
+        {{ else if eq .Verification.TrustStatus "untrusted" }}
+          {{ $class = "border-yellow-500 bg-yellow-700" }}
+        {{ else }}
+          {{ $class = "border-orange-600 bg-orange-800" }}
+        {{ end }}
+      {{ else if .Verification.Warning }}
+        {{ $class = "text-red-600 bg-red-900" }}
+      {{ end }}
+    {{ end }}
+    <div>
+      <!-- ui top attached header clearing segment pr commit-header ac  -->
+      <div class="{{ $class }} flex flex-col rounded-t-lg border border-b-0 bg-base-200 px-4 py-2">
+        <div class="flex items-center">
+          <div class="flex flex-1 items-center gap-x-1">
+            <h3 class="line-clamp-1 flex items-center gap-x-1" title="{{ .Commit.Summary }}">
+              {{ RenderCommitMessage $.Context .Commit.Message $.RepoLink $.Repository.ComposeMetas }}
+              {{ template "repo/commit_statuses" dict "Status" .CommitStatus "Statuses" .CommitStatuses "root" $ }}
+            </h3>
+            <div class="flex items-center gap-x-2">
+              {{ if .BranchName }}
+                <span class="badge-primary badge-outline badge items-center gap-1">
+                  {{ svg "octicon-git-branch" 12 "!w-3 !h-3" }}{{ .BranchName }}
+                </span>
+              {{ end }}
+              {{ if .TagName }}
+                <span class="badge-primary badge-outline badge items-center gap-1">
+                  {{ svg "octicon-tag" 12 "!w-3 !h-3" }}{{ .TagName }}
+                </span>
+              {{ end }}
+            </div>
+          </div>
+          {{ if not $.PageIsWiki }}
+            <div class="flex items-center">
+              <a class="btn-primary btn-sm btn mr-2" href="{{ .SourcePath }}">{{ .i18n.Tr "repo.diff.browse_source" }}</a>
+              {{ if and ($.Permission.CanWrite $.UnitTypeCode) (not $.Repository.IsArchived) (not .IsDeleted) }}
+                {{- /* */ -}}
+                <div jq-dropdown-commit-menu class="dropdown-end dropdown">
+                  <label tabindex="0" class="btn-primary btn-sm btn flex-nowrap whitespace-nowrap">
+                    {{ .i18n.Tr "repo.commit.actions" }}
+                    {{ svg "octicon-triangle-down" 14 }}
+                  </label>
+                  <div class="dropdown-content menu p-2">
+                    <ul>
+                      <li>
+                        <div svelte-simple-modal data-async="false" data-action-approve-text="{{ .i18n.Tr "repo.branch.confirm_create_branch" }}" data-title="{{ .i18n.Tr "repo.branch.new_branch_from" ( ShortSha .CommitID) }}" data-title-svg-name="octicon-git-branch" data-href="{{ .RepoLink }}/branches/_new/commit/{{ .CommitID }}" data-form-key[0]="new_branch_name" data-form-type[0]="text" data-form-label[0]="{{ .i18n.Tr "repo.branch.name" }}">
+                          {{ .i18n.Tr "repo.branch.create_branch_operation" }}
+                        </div>
+                      </li>
+                      <li>
+                        <div svelte-simple-modal data-async="false" data-action-approve-text="{{ .i18n.Tr "repo.tag.confirm_create_tag" }}" data-title="{{ $.i18n.Tr "repo.tag.create_tag_from" (ShortSha .CommitID) }}" data-title-svg-name="octicon-tag" data-href="{{ .RepoLink }}/branches/_new/commit/{{ .CommitID }}" data-form-key[0]="new_branch_name" data-form-type[0]="text" data-form-label[0]="{{ .i18n.Tr "repo.release.tag_name" }}" data-form-key[1]="create_tag" data-form-val[1]="true" data-form-type[1]="hidden">
+                          {{ .i18n.Tr "repo.tag.create_tag_operation" }}
+                        </div>
+                      </li>
+                      <li>
+                        <div jq-cherry-pick data-modal="#cherry-pick-modal" data-modal-cherry-pick-type="revert" data-modal-cherry-pick-header="{{ $.i18n.Tr "repo.commit.revert-header" (ShortSha .CommitID) }}" data-modal-cherry-pick-content="{{ $.i18n.Tr "repo.commit.revert-content" }}" data-modal-cherry-pick-submit="{{ .i18n.Tr "repo.commit.revert" }}">{{ .i18n.Tr "repo.commit.revert" }}</div>
+                      </li>
+                      <li>
+                        <div jq-cherry-pick data-modal="#cherry-pick-modal" data-modal-cherry-pick-type="cherry-pick" data-modal-cherry-pick-header="{{ $.i18n.Tr "repo.commit.cherry-pick-header" (ShortSha .CommitID) }}" data-modal-cherry-pick-content="{{ $.i18n.Tr "repo.commit.cherry-pick-content" }}" data-modal-cherry-pick-submit="{{ .i18n.Tr "repo.commit.cherry-pick" }}">{{ .i18n.Tr "repo.commit.cherry-pick" }}</div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div>
+                  <input type="checkbox" id="cherry-pick-modal" class="modal-toggle" />
+                  <div class="modal hidden cursor-pointer">
+                    <div class="modal-box relative overflow-y-visible">
+                      <h3 jq-header class="text-lg font-bold"></h3>
+                      <div class="form-control w-full py-4">
+                        <label class="label">
+                          <span jq-label class="label-text"></span>
+                        </label>
+                        {{ template "repo/branch_dropdown" dict "root" .
+                          "noTag" "true" "canCreateBranch" "false"
+                          "branchForm" "branch-dropdown-form"
+                          "branchURLPrefix" (printf "%s/_cherrypick/%s/" $.RepoLink .CommitID) "branchURLSuffix" ""
+                          "setAction" "true" "submitForm" "true"
+                        }}
+                      </div>
+                      <form method="GET" action="{{ $.RepoLink }}/_cherrypick/{{ .CommitID }}/{{ if $.BranchName }}{{ PathEscapeSegments $.BranchName }}{{ else }}{{ PathEscapeSegments $.Repository.DefaultBranch }}{{ end }}" class="modal-action">
+                        <input type="hidden" name="ref" value="{{ if $.BranchName }}{{ $.BranchName }}{{ else }}{{ $.Repository.DefaultBranch }}{{ end }}" />
+                        <input type="hidden" name="refType" value="branch" />
+                        <input type="hidden" name="cherry-pick-type" />
+                        <button jq-cancel type="button" class="btn">{{ .i18n.Tr "modal.no" }}</button>
+                        <button jq-submit type="submit" class="btn-primary btn"></button>
+                      </form>
+                    </div>
+                  </div>
+                  {{ Asset "js/repo-commit_page.js" }}
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+        {{ if IsMultilineCommitMessage .Commit.Message }}
+          <pre>{{ RenderCommitBody $.Context .Commit.Message $.RepoLink $.Repository.ComposeMetas }}</pre>
+        {{ end }}
+      </div>
+      <!-- ui attached segment df ac sb py-2 commit-header-row fw -->
+      <div class="{{ $class }} {{ if .Commit.Signature }}border{{ else }}rounded-b-lg border{{ end }} flex items-center px-4 py-2">
+        <div class="cu-links-primary-hover flex flex-1 items-center gap-x-1">
+          {{ if .Author }}
+            <div class="avatar">
+              <span class="h-7 w-7 rounded-full">
+                {{ avatar .Author 28 }}
+              </span>
+            </div>
+            {{ if .Author.FullName }}
+              <a href="{{ .Author.HomeLink }}"><strong>{{ .Author.FullName }}</strong></a>
+            {{ else }}
+              <a href="{{ .Author.HomeLink }}"><strong>{{ .Commit.Author.Name }}</strong></a>
+            {{ end }}
+          {{ else }}
+            <div class="avatar">
+              <span class="h-7 w-7 rounded-full">
+                {{ avatarByEmail .Commit.Author.Email .Commit.Author.Email 28 }}
+              </span>
+            </div>
+            <strong>{{ .Commit.Author.Name }}</strong>
+          {{ end }}
+          <span id="authored-time">{{ TimeSince .Commit.Author.When $.i18n.Lang }}</span>
+          {{ if or (ne .Commit.Committer.Name .Commit.Author.Name) (ne .Commit.Committer.Email .Commit.Author.Email) }}
+            <span>{{ .i18n.Tr "repo.diff.committed_by" }}</span>
+            {{ if ne .Verification.CommittingUser.ID 0 }}
+              <div class="avatar">
+                <span class="h-7 w-7 rounded-full">
+                  {{ avatar .Verification.CommittingUser 28 }}
+                </span>
+              </div>
+              <a href="{{ .Verification.CommittingUser.HomeLink }}"><strong>{{ .Commit.Committer.Name }}</strong></a>
+            {{ else }}
+              <div class="avatar">
+                <span class="h-7 w-7 rounded-full">
+                  {{ avatarByEmail .Commit.Committer.Email .Commit.Committer.Name 28 }}
+                </span>
+              </div>
+              <strong>{{ .Commit.Committer.Name }}</strong>
+            {{ end }}
+          {{ end }}
+        </div>
+        <div class="flex items-center gap-x-1">
+          {{ if .Parents }}
+            <span>{{ .i18n.Tr "repo.diff.parent" }}</span>
+            {{ range .Parents }}
+              {{ if $.PageIsWiki }}
+                <a class="btn-primary btn-xs btn" href="{{ $.RepoLink }}/wiki/commit/{{ PathEscape . }}">{{ ShortSha . }}</a>
+              {{ else }}
+                <a class="btn-primary btn-xs btn" href="{{ $.RepoLink }}/commit/{{ PathEscape . }}">{{ ShortSha . }}</a>
+              {{ end }}
+            {{ end }}
+          {{ end }}
+          <span>{{ .i18n.Tr "repo.diff.commit" }}</span>
+          <span class="badge-primary badge">{{ ShortSha .CommitID }}</span>
+        </div>
+      </div>
+      {{ if .Commit.Signature }}
+        <div class="{{ $class }} flex items-center rounded-b-lg border border-t-0 px-4 py-2">
+          <div class="cu-links-primary-hover flex flex-1 items-center gap-x-1">
+            {{ if .Verification.Verified }}
+              {{ if ne .Verification.SigningUser.ID 0 }}
+                {{ svg "gitea-lock" 16 }}
+                {{ if eq .Verification.TrustStatus "trusted" }}
+                  <span>{{ .i18n.Tr "repo.commits.signed_by" }}:</span>
+                {{ else if eq .Verification.TrustStatus "untrusted" }}
+                  <span>{{ .i18n.Tr "repo.commits.signed_by_untrusted_user" }}:</span>
+                {{ else }}
+                  <span>{{ .i18n.Tr "repo.commits.signed_by_untrusted_user_unmatched" }}:</span>
+                {{ end }}
+                <div class="avatar">
+                  <span class="h-7 w-7 rounded-full">
+                    {{ avatar .Verification.SigningUser 28 }}
+                  </span>
+                </div>
+                <a href="{{ .Verification.SigningUser.HomeLink }}"><strong>{{ .Verification.SigningUser.GetDisplayName }}</strong></a>
+              {{ else }}
+                <span title="{{ .i18n.Tr "gpg.default_key" }}">{{ svg "gitea-lock-cog" 16 "mr-3" }}</span>
+                <span>{{ .i18n.Tr "repo.commits.signed_by" }}:</span>
+                <div class="avatar">
+                  <span class="h-7 w-7 rounded-full">
+                    {{ avatarByEmail .Verification.SigningEmail "" 28 }}
+                  </span>
+                </div>
+                <strong>{{ .Verification.SigningUser.GetDisplayName }}</strong>
+              {{ end }}
+            {{ else }}
+              {{ svg "gitea-unlock" 16 }}
+              <span>{{ .i18n.Tr .Verification.Reason }}</span>
+            {{ end }}
+          </div>
+          <div class="flex items-center gap-x-1">
+            {{ if .Verification.Verified }}
+              {{ if ne .Verification.SigningUser.ID 0 }}
+                {{ svg "octicon-shield-check" 16 }}
+                {{ if .Verification.SigningSSHKey }}
+                  <span>{{ .i18n.Tr "repo.commits.ssh_key_fingerprint" }}:</span>
+                  {{ .Verification.SigningSSHKey.Fingerprint }}
+                {{ else }}
+                  <span>{{ .i18n.Tr "repo.commits.gpg_key_id" }}:</span>
+                  {{ .Verification.SigningKey.KeyID }}
+                {{ end }}
+              {{ else }}
+                {{ svg "octicon-shield-lock" 16 }}
+                {{ if .Verification.SigningSSHKey }}
+                  <span class="tooltip" data-tip="{{ .i18n.Tr "gpg.default_key" }}">{{ .i18n.Tr "repo.commits.ssh_key_fingerprint" }}:</span>
+                  {{ .Verification.SigningSSHKey.Fingerprint }}
+                {{ else }}
+                  <span class="tooltip" data-tip="{{ .i18n.Tr "gpg.default_key" }}">{{ .i18n.Tr "repo.commits.gpg_key_id" }}:</span>
+                  {{ .Verification.SigningKey.KeyID }}
+                {{ end }}
+              {{ end }}
+            {{ else if .Verification.Warning }}
+              {{ svg "octicon-shield" 16 }}
+              {{ if .Verification.SigningSSHKey }}
+                <span>{{ .i18n.Tr "repo.commits.ssh_key_fingerprint" }}:</span>
+                {{ .Verification.SigningSSHKey.Fingerprint }}
+              {{ else }}
+                <span>{{ .i18n.Tr "repo.commits.gpg_key_id" }}:</span>
+                {{ .Verification.SigningKey.KeyID }}
+              {{ end }}
+            {{ else }}
+              {{ if .Verification.SigningKey }}
+                {{ if ne .Verification.SigningKey.KeyID "" }}
+                  {{ svg "octicon-shield" 16 }}
+                  <span>{{ .i18n.Tr "repo.commits.gpg_key_id" }}:</span>
+                  {{ .Verification.SigningKey.KeyID }}
+                {{ end }}
+              {{ end }}
+              {{ if .Verification.SigningSSHKey }}
+                {{ if ne .Verification.SigningSSHKey.Fingerprint "" }}
+                  {{ svg "octicon-shield" 16 }}
+                  <span>{{ .i18n.Tr "repo.commits.ssh_key_fingerprint" }}:</span>
+                  {{ .Verification.SigningSSHKey.Fingerprint }}
+                {{ end }}
+              {{ end }}
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+    </div>
+
+    {{ if .Note }}
+      <div>
+        <div class="cu-links-primary-hover flex items-center gap-x-1 rounded-t-lg border border-b-0 bg-base-200 p-4">
+          {{ svg "octicon-note" 16 }}
+          {{ .i18n.Tr "repo.diff.git-notes" }}:
+          {{ if .NoteAuthor }}
+            <a href="{{ .NoteAuthor.HomeLink }}">
+              {{ if .NoteAuthor.FullName }}
+                <strong>{{ .NoteAuthor.FullName }}</strong>
+              {{ else }}
+                <strong>{{ .NoteCommit.Author.Name }}</strong>
+              {{ end }}
+            </a>
+          {{ else }}
+            <strong>{{ .NoteCommit.Author.Name }}</strong>
+          {{ end }}
+          <span id="note-authored-time">{{ TimeSince .NoteCommit.Author.When $.i18n.Lang }}</span>
+        </div>
+        <div class="flex items-center gap-x-1 rounded-b-lg border px-4 py-2">
+          <pre>{{ RenderNote $.Context .Note $.RepoLink $.Repository.ComposeMetas }}</pre>
+        </div>
+      </div>
+    {{ end }}
+    {{ template "repo/diff/box" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

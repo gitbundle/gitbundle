@@ -1,0 +1,16 @@
+{{template "base/head" .}}
+{{template "repo/header" .}}
+<div class="main-container">
+	<div class="mx-auto w-full max-w-[1280px] space-y-4">
+		<!-- <div class="navbar">
+			{{template "repo/issue/navbar" .}}
+			<div class="ui right">
+				<a class="ui green button {{if not .PullRequestCtx.Allowed}}disabled{{end}}" href="{{.RepoLink}}/compare/{{.BranchName | PathEscapeSegments}}...{{.PullRequestCtx.HeadInfoSubURL}}">{{.i18n.Tr "repo.pulls.new"}}</a>
+			</div>
+		</div> -->
+		{{template "repo/issue/view_title" .}}
+		{{template "repo/pulls/tab_menu" .}}
+    {{template "repo/commits_table" .}}
+	</div>
+</div>
+{{template "base/footer" .}}

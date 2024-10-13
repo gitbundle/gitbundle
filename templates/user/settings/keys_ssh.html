@@ -1,0 +1,103 @@
+<h4 class="flex items-center justify-between text-xl font-bold">
+  {{ .i18n.Tr "settings.manage_ssh_keys" }}
+  <div class="text-sm">
+    {{ if not .DisableSSH }}
+      <div jq-show-panel id="add-ssh-button" class="btn-primary btn-sm btn" data-panel="#add-ssh-key-panel">
+        {{ .i18n.Tr "settings.add_key" }}
+      </div>
+    {{ else }}
+      <div class="btn-primary disabled btn-sm btn">{{ .i18n.Tr "settings.ssh_disabled" }}</div>
+    {{ end }}
+  </div>
+</h4>
+<div class="divider my-2"></div>
+<div class="">
+  <form class="{{ if not .HasSSHError }}hidden{{ end }} mb-4" id="add-ssh-key-panel" action="{{ .Link }}" method="post">
+    {{ .CsrfTokenHtml }}
+    <div class="{{ if .Err_Title }}error{{ end }} form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "settings.key_name" }}</span></label>
+      <input class="input-bordered input" id="ssh-key-title" name="title" value="{{ .title }}" autofocus required />
+    </div>
+    <div class="{{ if .Err_Content }}error{{ end }} form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "settings.key_content" }}</span></label>
+      <textarea class="textarea-bordered textarea leading-none" rows="5" id="ssh-key-content" name="content" class="js-quick-submit" placeholder="{{ .i18n.Tr "settings.key_content_ssh_placeholder" }}" required>{{ .content }}</textarea>
+    </div>
+    <input name="type" type="hidden" value="ssh" />
+    <div class="form-control mt-2 flex-row items-center gap-2">
+      <button class="btn-primary btn">
+        {{ .i18n.Tr "settings.add_key" }}
+      </button>
+      <button jq-hide-panel type="button" id="cancel-ssh-button" class="btn" data-panel="#add-ssh-key-panel">
+        {{ .i18n.Tr "cancel" }}
+      </button>
+    </div>
+  </form>
+  <div class="space-y-2">
+    <p>
+      {{ .i18n.Tr "settings.ssh_desc" }}
+    </p>
+    <div class="divide-y">
+      {{ range $index, $key := .Keys }}
+        <div class="flex items-center justify-between py-2">
+          <div class="flex items-center gap-2">
+            <div class="left floated content">
+              <span class="{{ if .HasRecentActivity }}text-green-600{{ end }} tooltip" {{ if .HasRecentActivity }}data-tip="{{ $.i18n.Tr "settings.key_state_desc" }}"{{ end }}>{{ svg "octicon-key" 32 "!w-8 !h-8" }}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              {{ if .Verified }}
+                <span class="tooltip" data-content="{{ $.i18n.Tr "settings.ssh_key_verified_long" }}">{{ svg "octicon-shield-check" }} <strong>{{ $.i18n.Tr "settings.ssh_key_verified" }}</strong></span>
+              {{ end }}
+              <strong>{{ .Name }}</strong>
+              <div class="text-gray-500">
+                {{ .Fingerprint }}
+              </div>
+              <i class="flex items-center gap-1">{{ $.i18n.Tr "settings.add_on" }} <span>{{ .CreatedUnix.FormatShort }}</span> — {{ svg "octicon-info" }} {{ if .HasUsed }}{{ $.i18n.Tr "settings.last_used" }} <span {{ if .HasRecentActivity }}class="green"{{ end }}>{{ .UpdatedUnix.FormatShort }}</span>{{ else }}{{ $.i18n.Tr "settings.no_activity" }}{{ end }}</i>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button svelte-simple-modal class="btn-red {{ if index $.ExternalKeys $index }}disabled{{ end }} btn-xs btn" data-modal-id="delete-ssh" data-href="{{ $.Link }}/delete?type=ssh" data-title="{{ $.i18n.Tr "settings.ssh_key_deletion" }}" data-desc="{{ $.i18n.Tr "settings.ssh_key_deletion_desc" }}" data-form-key[0]="id" data-form-val[0]="{{ .ID }}" {{ if index $.ExternalKeys $index }}title="{{ $.i18n.Tr "settings.ssh_externally_managed" }}"{{ end }}>
+              {{ $.i18n.Tr "settings.delete_key" }}
+            </button>
+            {{ if and (not .Verified) (ne $.VerifyingFingerprint .Fingerprint) }}
+              <a class="button btn-primary btn-xs btn" href="{{ $.Link }}?verify_ssh={{ .Fingerprint }}">{{ $.i18n.Tr "settings.ssh_key_verify" }}</a>
+            {{ end }}
+          </div>
+        </div>
+        {{ if and (not .Verified) (eq $.VerifyingFingerprint .Fingerprint) }}
+          <div class="space-y-2 py-4">
+            <h4 class="text-base font-bold">{{ $.i18n.Tr "settings.ssh_token_required" }}</h4>
+            <form class="{{ if $.HasSSHVerifyError }}error{{ end }}" action="{{ $.Link }}" method="post">
+              {{ $.CsrfTokenHtml }}
+              <input type="hidden" name="title" value="none" />
+              <input type="hidden" name="content" value="{{ .Content }}" />
+              <input type="hidden" name="fingerprint" value="{{ .Fingerprint }}" />
+              <div class="form-control">
+                <label class="label"><span class="label-text">{{ $.i18n.Tr "settings.ssh_token" }}</span></label>
+                <input class="input-bordered input" readonly="" value="{{ $.TokenToSign }}" />
+                <div class="help">
+                  <p>{{ $.i18n.Tr "settings.ssh_token_help" }}</p>
+                  <p><code>{{ printf "echo -n '%s' | ssh-keygen -Y sign -n gitea -f /path_to_your_pubkey" $.TokenToSign }}</code></p>
+                </div>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text">{{ $.i18n.Tr "settings.ssh_token_signature" }}</span></label>
+                <textarea class="textarea-bordered textarea leading-none" rows="5" id="ssh-key-signature" name="signature" class="js-quick-submit" placeholder="{{ $.i18n.Tr "settings.key_signature_ssh_placeholder" }}" required>{{ $.signature }}</textarea>
+              </div>
+              <input name="type" type="hidden" value="verify_ssh" />
+              <div class="form-control mt-2 flex-row items-center gap-2">
+                <button class="btn-primary btn">
+                  {{ $.i18n.Tr "settings.ssh_key_verify" }}
+                </button>
+                <a class="btn" href="{{ $.Link }}">
+                  {{ $.i18n.Tr "settings.cancel" }}
+                </a>
+              </div>
+            </form>
+          </div>
+        {{ end }}
+      {{ end }}
+    </div>
+  </div>
+</div>
+<br />
+<p class="cu-links-primary-gradient">{{ .i18n.Tr "settings.ssh_helper" "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/connecting-to-github-with-ssh" "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/troubleshooting-ssh" | Str2html }}</p>

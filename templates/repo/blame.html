@@ -1,0 +1,65 @@
+<div jq-repo-home class="{{ TabSizeClass .Editorconfig .FileName }} non-diff-file-content gap-2 rounded-t-lg border">
+  <h4 class="file-header flex gap-1 rounded-t-lg bg-base-200 p-4 text-sm">
+    <div class="flex flex-1 items-center gap-1">
+      {{ .NumLines }}
+      {{ .i18n.TrN .NumLines "repo.line" "repo.lines" }}
+      {{ FileSize .FileSize }}
+    </div>
+    <div class="flex items-center gap-1">
+      <div class="btn-group btn-group-horizontal">
+        <a class="btn-outline btn-xs btn" href="{{ $.RawFileLink }}">{{ .i18n.Tr "repo.file_raw" }}</a>
+        {{ if not .IsViewCommit }}
+          <a class="btn-outline btn-xs btn" href="{{ .RepoLink }}/src/commit/{{ .CommitID | PathEscape }}/{{ .TreePath | PathEscapeSegments }}">{{ .i18n.Tr "repo.file_permalink" }}</a>
+        {{ end }}
+        <a class="btn-outline btn-xs btn" href="{{ .RepoLink }}/src/{{ .BranchNameSubURL }}/{{ .TreePath | PathEscapeSegments }}">{{ .i18n.Tr "repo.normal_view" }}</a>
+        <a class="btn-outline btn-xs btn" href="{{ .RepoLink }}/commits/{{ .BranchNameSubURL }}/{{ .TreePath | PathEscapeSegments }}">{{ .i18n.Tr "repo.file_history" }}</a>
+        <a class="unescape-button btn-outline btn-xs btn">{{ .i18n.Tr "repo.unescape_control_characters" }}</a>
+        <a class="escape-button btn-outline btn-xs btn hidden">{{ .i18n.Tr "repo.escape_control_characters" }}</a>
+      </div>
+    </div>
+  </h4>
+  <div class="border-t-0">
+    <div class="file-view code-view unicode-escaped">
+      <table>
+        <tbody>
+          {{ range $row := .BlameRows }}
+            <tr class="{{ if and (gt $.CommitCnt 1) ($row.CommitMessage) }}top-line-blame border-t{{ end }}">
+              <td class="lines-commit">
+                <div class="flex items-center gap-2 px-4">
+                  <div class="avatar">
+                    <span class="w-4 rounded-full">
+                      {{ $row.Avatar }}
+                    </span>
+                  </div>
+                  <a class="link-hover link-primary link" href="{{ $row.CommitURL }}" title="{{ $row.CommitMessage }}">
+                    {{ $row.CommitMessage }}
+                  </a>
+                  <div class="whitespace-nowrap text-xs">
+                    {{ $row.CommitSince }}
+                  </div>
+                </div>
+              </td>
+              <td class="lines-blame-btn">
+                {{ if $row.PreviousSha }}
+                  <a href="{{ $row.PreviousShaURL }}" class="tooltip" data-tip="{{ $.i18n.Tr "repo.blame_prior" }}">
+                    {{ svg "octicon-versions" }}
+                  </a>
+                {{ end }}
+              </td>
+              <td class="lines-num">
+                <span id="L{{ $row.RowNumber }}" data-line-number="{{ $row.RowNumber }}"></span>
+              </td>
+              {{ if $.EscapeStatus.Escaped }}
+                <td class="lines-escape">{{ if $row.EscapeStatus.Escaped }}<a href="" class="toggle-escape-button" title="{{ $.i18n.Tr "repo.line_unicode" }}"></a>{{ end }}</td>
+              {{ end }}
+              <td rel="L{{ $row.RowNumber }}" rel="L{{ $row.RowNumber }}" class="lines-code blame-code chroma w-1/2">
+                <code class="code-inner pl-3">{{ $row.Code }}</code>
+              </td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{ Asset "js/repo-home.js" }}
+</div>

@@ -1,0 +1,92 @@
+{{ template "explore/header" . }}
+<div class="my-4 flex flex-1 flex-col gap-4 px-8">
+  <div>
+    <div class="flex items-center justify-between gap-2">
+      <form class="ignore-dirty flex flex-1">
+        {{ if not .PageIsExploreCode }}
+          <div class="input-group">
+            <input class="input-bordered input w-full" name="q" value="{{ .Keyword }}" {{ if .CodeIndexerUnavailable }}disabled{{ end }} placeholder="{{ .i18n.Tr "explore.search" }}..." autofocus />
+            <!-- <select class="{{ if .CodeIndexerUnavailable }}disabled{{ end }} select-bordered select" name="t">
+          <option value="" {{ if eq .queryType "" }}selected{{ end }}>{{ .i18n.Tr "explore.search.fuzzy" }}</option>
+          <option value="match" {{ if eq .queryType "match" }}selected{{ end }}>{{ .i18n.Tr "explore.search.match" }}</option>
+        </select> -->
+            <button class="btn-primary btn" {{ if .CodeIndexerUnavailable }}disabled{{ end }}>{{ .i18n.Tr "explore.search" }}</button>
+          </div>
+        {{ else if .Keyword }}
+          <h3 class="cu-links-primary">
+            {{ .i18n.Tr "explore.code_search_results" (.Keyword|Escape) | Str2html }}
+          </h3>
+        {{ end }}
+      </form>
+      <div class="{{ if .CodeIndexerUnavailable }}disabled{{ end }} dropdown-end dropdown">
+        <label tabindex="0" class="btn-normal btn-outline btn flex items-center gap-1">
+          {{ .i18n.Tr (printf "explore.search.%s" (or .queryType "fuzzy")) }}
+          {{ svg "octicon-triangle-down" 14 }}
+        </label>
+        <ul class="dropdown-content menu p-2">
+          <li>
+            <a class="{{ if eq .queryType "" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}">{{ .i18n.Tr "explore.search.fuzzy" }}</a>
+          </li>
+          <li>
+            <a class="{{ if eq .queryType "match" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&t=match">{{ .i18n.Tr "explore.search.match" }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="divider my-2"></div>
+  </div>
+
+  {{ if .CodeIndexerUnavailable }}
+    <div svelte-simple-alert data-type="error" data-icon="true" data-desc="{{ $.i18n.Tr "explore.code_search_unavailable" }}"></div>
+  {{ else if .SearchResults }}
+    <div class="flex items-center gap-1">
+      {{ range $term := .SearchResultLanguages }}
+        <a class="{{ if eq $.Language $term.Language }}btn-outline-primary{{ end }} btn-outline btn-sm btn gap-1" href="{{ AppSubUrl }}/explore/code?q={{ $.Keyword }}{{ if ne $.Language $term.Language }}&l={{ $term.Language }}{{ end }}{{ if ne $.queryType "" }}&t={{ $.queryType }}{{ end }}">
+          <span class="badge badge-sm" style="background-color: {{ $term.Color }}"></span>
+          {{ $term.Language }}
+          <div class="ml-2">{{ $term.Count }}</div>
+        </a>
+      {{ end }}
+    </div>
+    {{ range $result := .SearchResults }}
+      {{ $repo := (index $.RepoMaps .RepoID) }}
+      <div class="diff-file-box diff-box file-content non-diff-file-content repo-search-result divide-y rounded-lg border">
+        <h4 class="rounded-t-lg bg-base-200 px-4 py-2">
+          <span class="cu-links-primary">
+            <a rel="nofollow" href="{{ $repo.HTMLURL }}">{{ $repo.FullName }}</a>
+            {{ if $repo.IsArchived }}
+              <span class="badge-ghost badge">{{ $.i18n.Tr "repo.desc.archived" }}</span>
+            {{ end }}
+            -
+            {{ .Filename }}
+          </span>
+          <a class="btn-xs btn" rel="nofollow" href="{{ $repo.HTMLURL }}/src/commit/{{ $result.CommitID | PathEscape }}/{{ .Filename | PathEscapeSegments }}">{{ $.i18n.Tr "repo.diff.view_file" }}</a>
+        </h4>
+        <div class="flex w-full">
+          <div class="file-body file-code code-view table w-full">
+            <table>
+              <tbody>
+                <tr>
+                  <td class="lines-num">
+                    <div class="flex flex-col">
+                      {{ range .LineNumbers }}
+                        <a class="link-hover link hover:text-primary-content" href="{{ $repo.HTMLURL }}/src/commit/{{ $result.CommitID | PathEscape }}/{{ $result.Filename | PathEscapeSegments }}#L{{ . }}"><span>{{ . }}</span></a>
+                      {{ end }}
+                    </div>
+                  </td>
+                  <td class="lines-code chroma"><code class="code-inner">{{ .FormattedLines | Safe }}</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {{ template "shared/searchbottom" dict "root" $ "result" . }}
+      </div>
+    {{ end }}
+  {{ else }}
+    <p>{{ $.i18n.Tr "explore.code_no_results" }}</p>
+  {{ end }}
+
+  {{ template "base/paginate" . }}
+</div>
+{{ template "explore/footer" . }}

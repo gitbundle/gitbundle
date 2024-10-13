@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+#       /etc/rc.d/init.d/gitbundle
+#
+#       Runs the GitBundle (A modern git service).
+#
+#
+# chkconfig:   - 85 15
+#
+
+### BEGIN INIT INFO
+# Provides:          gitbundle
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start gitbundle at boot time.
+# Description:       Control gitbundle.
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+# Default values
+
+NAME=gitbundle
+GITBUNDLE_HOME=/var/lib/${NAME}
+GITBUNDLE_PATH=/usr/local/bin/${NAME}
+GITBUNDLE_USER=git
+SERVICENAME="GitBundle - A modern git service"
+LOCKFILE=/var/lock/subsys/gitbundle
+LOGPATH=${GITBUNDLE_HOME}/log
+LOGFILE=${LOGPATH}/gitbundle.log
+RETVAL=0
+
+# Read configuration from /etc/sysconfig/gitbundle to override defaults
+[ -r /etc/sysconfig/$NAME ] && . /etc/sysconfig/$NAME
+
+# Don't do anything if nothing is installed
+[ -x ${GITBUNDLE_PATH} ] || exit 0
+# exit if logpath dir is not created.
+[ -x ${LOGPATH} ] || exit 0
+
+DAEMON_OPTS="--check $NAME"
+
+# Set additional options, if any
+[ ! -z "$GITBUNDLE_USER" ] && DAEMON_OPTS="$DAEMON_OPTS --user=${GITBUNDLE_USER}"
+
+start() {
+  cd ${GITBUNDLE_HOME}
+  echo -n "Starting ${SERVICENAME}: "
+  daemon $DAEMON_OPTS "${GITBUNDLE_PATH} web -c /etc/${NAME}/app.ini > ${LOGFILE} 2>&1 &"
+  RETVAL=$?
+  echo
+  [ $RETVAL = 0 ] && touch ${LOCKFILE}
+
+  return $RETVAL
+}
+
+stop() {
+  cd ${GITBUNDLE_HOME}
+        echo -n "Shutting down ${SERVICENAME}: "
+        killproc ${NAME}
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && rm -f ${LOCKFILE}
+}
+
+case "$1" in
+    start)
+        status ${NAME} > /dev/null 2>&1 && exit 0
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status ${NAME}
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    reload)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: ${NAME} {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+exit $RETVAL

@@ -1,0 +1,11 @@
+<form class="ui form ignore-dirty form-control">
+  <input type="hidden" name="type" value="{{ $.ViewType }}" />
+  <input type="hidden" name="state" value="{{ $.State }}" />
+  <input type="hidden" name="labels" value="{{ .SelectLabels }}" />
+  <input type="hidden" name="milestone" value="{{ $.MilestoneID }}" />
+  <input type="hidden" name="assignee" value="{{ $.AssigneeID }}" />
+  <label class="input-group">
+    <input name="q" value="{{ .Keyword }}" class="input-bordered input w-full" placeholder="{{ .i18n.Tr "explore.search" }}..." />
+    <button class="btn-primary btn" type="submit" title="{{ .i18n.Tr "explore.search" }}">{{ svg "octicon-search" }}</button>
+  </label>
+</form>

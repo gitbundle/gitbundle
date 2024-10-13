@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# $FreeBSD$
+#
+# PROVIDE: gitbundle
+# REQUIRE: NETWORKING SYSLOG
+# KEYWORD: shutdown
+#
+# Add the following lines to /etc/rc.conf to enable gitbundle:
+#
+#gitbundle_enable="YES"
+
+. /etc/rc.subr
+
+name="gitbundle"
+rcvar="gitbundle_enable"
+
+load_rc_config $name
+
+: ${gitbundle_user:="git"}
+: ${gitbundle_enable:="NO"}
+: ${gitbundle_directory:="/var/lib/gitbundle"}
+
+command="/usr/local/bin/gitbundle web -c /etc/gitbundle/app.ini"
+procname="$(echo $command |cut -d' ' -f1)"
+
+pidfile="${gitbundle_directory}/${name}.pid"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+
+gitbundle_start() {
+	cd ${gitbundle_directory}
+	export USER=${gitbundle_user}
+	export HOME=/usr/home/${gitbundle_user}
+	export GITBUNDLE_WORK_DIR=${gitbundle_directory}
+	/usr/sbin/daemon -f -u ${gitbundle_user} -p ${pidfile} $command
+}
+
+gitbundle_stop() {
+	if [ ! -f $pidfile ]; then
+		echo "GITBUNDLE PID File not found. Maybe GITBUNDLE is not running?"
+	else
+		kill $(cat $pidfile)
+	fi
+}
+
+run_rc_command "$1"

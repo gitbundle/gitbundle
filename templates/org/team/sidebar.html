@@ -1,0 +1,87 @@
+<div class="col-span-6 h-fit divide-y rounded-lg border">
+  <h4 class="flex items-center justify-between rounded-t-lg bg-base-200 px-4 py-2">
+    <strong>{{ .Team.Name }}</strong>
+    {{ if .Team.IsMember $.SignedUser.ID }}
+      <button svelte-simple-modal class="btn-red btn-xs btn" data-modal-id="leave-team-sidebar" data-href="{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}/action/leave" data-form-key[0]="uid" data-form-val[0]="{{ $.SignedUser.ID }}" data-title="{{ $.i18n.Tr "org.teams.leave" }}" data-title-svg-name="octicon-x" data-desc="{{ $.i18n.Tr "org.teams.leave.detail" .Team.Name | Safe }}">{{ $.i18n.Tr "org.teams.leave" }}</button>
+    {{ else if .IsOrganizationOwner }}
+      <form method="post" action="{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}/action/join">
+        {{ $.CsrfTokenHtml }}
+        <input type="hidden" name="page" value="team" />
+        <button type="submit" class="btn-primary btn-xs btn" name="uid" value="{{ $.SignedUser.ID }}">{{ $.i18n.Tr "org.teams.join" }}</button>
+      </form>
+    {{ end }}
+  </h4>
+  <div class="flex flex-col divide-y">
+    <div class="px-4 py-2">
+      {{ if .Team.Description }}
+        {{ .Team.Description }}
+      {{ else }}
+        <span class="italic text-gray-500">{{ .i18n.Tr "org.teams.no_desc" }}</span>
+      {{ end }}
+    </div>
+    {{ if eq .Team.LowerName "owners" }}
+      <div class="px-4 py-2">
+        {{ .i18n.Tr "org.teams.owners_permission_desc" | Str2html }}
+      </div>
+    {{ else }}
+      <div class="px-4 py-2">
+        <h3>{{ .i18n.Tr "org.team_access_desc" }}</h3>
+        <ul class="ml-4 list-disc">
+          {{ if .Team.IncludesAllRepositories }}
+            <li>
+              {{ .i18n.Tr "org.teams.all_repositories" | Str2html }}
+            </li>
+          {{ else }}
+            <li>
+              {{ .i18n.Tr "org.teams.specific_repositories" | Str2html }}
+            </li>
+          {{ end }}
+          {{ if .Team.CanCreateOrgRepo }}
+            <li>
+              {{ .i18n.Tr "org.teams.can_create_org_repo" }}
+            </li>
+          {{ end }}
+        </ul>
+        {{ if (eq .Team.AccessMode 2) }}
+          <h3 class="mt-2">{{ .i18n.Tr "org.settings.permission" }}</h3>
+          {{ .i18n.Tr "org.teams.write_permission_desc" | Str2html }}
+        {{ else if (eq .Team.AccessMode 3) }}
+          <h3 class="mt-2">{{ .i18n.Tr "org.settings.permission" }}</h3>
+          {{ .i18n.Tr "org.teams.admin_permission_desc" | Str2html }}
+        {{ else }}
+          <table class="mt-2 table">
+            <thead>
+              <tr>
+                <th>{{ .i18n.Tr "units.unit" }}</th>
+                <th>{{ .i18n.Tr "org.team_permission_desc" }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $t, $unit := $.Units }}
+                {{ if and (lt $unit.MaxPerm 2) (not $unit.Type.UnitGlobalDisabled) }}
+                  <tr>
+                    <td><strong>{{ $.i18n.Tr $unit.NameKey }}</strong></td>
+                    <td>
+                      {{ if eq ($.Team.UnitAccessMode $unit.Type) 0 -}}
+                        {{ $.i18n.Tr "org.teams.none_access" }}
+                      {{- else if or (eq $.Team.ID 0) (eq ($.Team.UnitAccessMode $unit.Type) 1) -}}
+                        {{ $.i18n.Tr "org.teams.read_access" }}
+                      {{- else if eq ($.Team.UnitAccessMode $unit.Type) 2 -}}
+                        {{ $.i18n.Tr "org.teams.write_access" }}
+                      {{- end }}
+                    </td>
+                  </tr>
+                {{ end }}
+              {{ end }}
+            </tbody>
+          </table>
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+  {{ if .IsOrganizationOwner }}
+    <div class="px-4 py-2">
+      <a class="btn-primary btn-sm btn" href="{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}/edit">{{ svg "octicon-gear" }} {{ $.i18n.Tr "org.teams.settings" }}</a>
+    </div>
+  {{ end }}
+</div>

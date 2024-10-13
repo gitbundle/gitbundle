@@ -1,0 +1,26 @@
+{{ template "base/head" . }}
+<!--  organization settings labels -->
+<div jq-org-settings-labels class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    <div class="grid grid-cols-16 gap-8">
+      {{ template "org/settings/navbar" . }}
+      <div class="col-span-12">
+        <div class="flex items-center justify-between">
+          <span class="flex flex-1 text-xl">{{ $.i18n.Tr "org.settings.labels_desc" | Str2html }}</span>
+          <div jq-new-label-button class="btn-primary btn-sm btn">{{ .i18n.Tr "repo.issues.new_label" }}</div>
+        </div>
+        <div class="divider h-[1px]"></div>
+        <div class="space-y-4">
+          {{ template "repo/issue/labels/label_new" . }}
+          {{ template "base/alert" . }}
+          {{ template "repo/issue/labels/label_list" . }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/org-settings-labels.js" }}
+</div>
+
+{{ template "repo/issue/labels/edit_delete_label" . }}
+{{ template "base/footer" . }}

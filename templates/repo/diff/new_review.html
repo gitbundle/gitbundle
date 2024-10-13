@@ -1,0 +1,48 @@
+<div jq-review-box class="dropdown-end dropdown">
+  <label jq-open-button tabindex="0" class="btn-primary btn-sm btn">
+    {{ .i18n.Tr "repo.diff.review" }}
+    <span jq-review-comments-counter class="review-comments-counter badge badge-sm" data-pending-comment-number="{{ .PendingCodeCommentNumber }}">{{ .PendingCodeCommentNumber }}</span>
+    {{ svg "octicon-triangle-down" 14 }}
+  </label>
+  <div jq-dropdown-content tabindex="0" class="card-compact card dropdown-content p-2 text-primary-content sm:w-[320px] md:w-[384px] lg:w-[512px] xl:w-[640px]">
+    <div class="card-body">
+      <h3 class="card-title flex justify-between">
+        <div class="f1">{{ $.i18n.Tr "repo.diff.review.header" }}</div>
+        <span jq-close-button class="cursor-pointer">{{ svg "octicon-x" 16 }}</span>
+      </h3>
+      <form action="{{ .Link }}/reviews/submit" method="post">
+        {{ .CsrfTokenHtml }}
+        <input type="hidden" name="commit_id" value="{{ .AfterCommitID }}" />
+        <textarea easymde-editor class="textarea w-full" name="content" tabindex="0" rows="2" placeholder="{{ $.i18n.Tr "repo.diff.review.placeholder" }}"></textarea>
+        {{ if .IsAttachmentEnabled }}
+          {{ template "repo/upload" . }}
+        {{ end }}
+        <div class="divider"></div>
+        <div class="flex gap-x-1">
+          <button
+            type="submit"
+            name="type"
+            value="approve"
+            {{ if and $.IsSigned ($.Issue.IsPoster $.SignedUser.ID) }}disabled{{ end }}
+            class="btn-primary btn"
+          >
+            {{ $.i18n.Tr "repo.diff.review.approve" }}
+          </button>
+          <button type="submit" name="type" value="comment" class="btn-outline btn">
+            {{ $.i18n.Tr "repo.diff.review.comment" }}
+          </button>
+          <button
+            type="submit"
+            name="type"
+            value="reject"
+            {{ if and $.IsSigned ($.Issue.IsPoster $.SignedUser.ID) }}disabled{{ end }}
+            class="btn-red btn"
+          >
+            {{ $.i18n.Tr "repo.diff.review.reject" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{ Asset "js/repo-diff-new_review.js" }}

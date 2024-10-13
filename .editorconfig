@@ -1,0 +1,39 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+tab_width = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{go,mod,sum,py}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+[templates/*.html]
+indent_size = 2
+tab_width = 2
+
+[templates/custom/*.html]
+insert_final_newline = false
+
+[templates/swagger/v1_json.html]
+indent_style = space
+
+[templates/user/auth/oidc_wellknown.html]
+indent_style = space
+
+[Makefile]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+[*.svg]
+insert_final_newline = false
+
+[*.md]
+trim_trailing_whitespace = false

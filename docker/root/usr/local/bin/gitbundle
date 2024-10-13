@@ -1,0 +1,15 @@
+#!/bin/bash
+
+###############################################################
+# This script sets defaults for gitbundle to run in the container #
+###############################################################
+
+# It assumes that you place this script as gitbundle in /usr/local/bin
+#
+# And place the original in /usr/lib/gitbundle with working files in /data/gitbundle
+GITBUNDLE="/app/gitbundle/gitbundle"
+WORK_DIR="/app/gitbundle"
+CUSTOM_PATH="/data/gitbundle"
+
+# Provide docker defaults
+GITBUNDLE_WORK_DIR="${GITBUNDLE_WORK_DIR:-$WORK_DIR}" GITBUNDLE_CUSTOM="${GITBUNDLE_CUSTOM:-$CUSTOM_PATH}" exec -a "$0" "$GITBUNDLE" $CONF_ARG "$@"

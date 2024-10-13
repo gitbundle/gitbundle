@@ -1,0 +1,72 @@
+<div class="divide-y">
+  {{ range .Repos }}
+    <div class="flex flex-col gap-2 px-1 py-4 hover:bg-base-content/10">
+      <div class="flex items-center gap-1">
+        <div class="flex flex-1 items-center gap-1 text-xl">
+          {{ $avatar := (repoAvatar . 32 "mr-2") }}
+          {{ if $avatar }}
+            {{ $avatar }}
+          {{ end }}
+          <a class="link-hover link-primary link font-bold" href="{{ .Link }}">
+            {{ if or $.PageIsExplore $.PageIsProfileStarList }}{{ if .Owner }}{{ .Owner.Name }}&nbsp;/&nbsp;{{ end }}{{ end }}{{ .Name }}
+          </a>
+          <div class="font-normal opacity-60">
+            {{ if .IsArchived }}
+              <span class="badge-outline-yellow badge-outline badge badge-sm">{{ $.i18n.Tr "repo.desc.archived" }}</span>
+            {{ end }}
+            {{ if .IsTemplate }}
+              {{ if .IsPrivate }}
+                <span class="badge-outline-red badge-outline badge badge-sm">{{ $.i18n.Tr "repo.desc.private_template" }}</span>
+              {{ else }}
+                {{ if .Owner.Visibility.IsPrivate }}
+                  <span class="badge-outline-red badge-outline badge badge-sm">{{ $.i18n.Tr "repo.desc.internal_template" }}</span>
+                {{ end }}
+              {{ end }}
+            {{ else }}
+              {{ if .IsPrivate }}
+                <span class="badge-outline-red badge-outline badge badge-sm">{{ $.i18n.Tr "repo.desc.private" }}</span>
+              {{ else }}
+                {{ if .Owner.Visibility.IsPrivate }}
+                  <span class="badge-outline-red badge-outline badge badge-sm">{{ $.i18n.Tr "repo.desc.internal" }}</span>
+                {{ end }}
+              {{ end }}
+            {{ end }}
+            {{ if .IsFork }}
+              <span class="badge-outline-gray badge-outline badge badge-sm">{{ svg "octicon-repo-forked" }}</span>
+            {{ else if .IsMirror }}
+              <span class="badge-outline-gray badge-outline badge badge-sm">{{ svg "octicon-mirror" }}</span>
+            {{ end }}
+
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          {{ if .PrimaryLanguage }}
+            <a href="{{ $.Link }}?q={{ $.Keyword }}&sort={{ $.SortType }}&language={{ .PrimaryLanguage.Language }}">
+              <span class="flex items-center gap-1 text-gray-400"><i class="inline-block h-4 w-4 rounded-full" style="background-color: {{ .PrimaryLanguage.Color }}"></i>{{ .PrimaryLanguage.Language }}</span>
+            </a>
+          {{ end }}
+          {{ if not $.DisableStars }}
+            <span class="flex items-center">{{ svg "octicon-star" 16 "mr-1" }}{{ .NumStars }}</span>
+          {{ end }}
+          <span class="flex items-center">{{ svg "octicon-git-branch" 16 "mr-1" }}{{ .NumForks }}</span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        {{ $description := .DescriptionHTML $.Context }}
+        {{ if $description }}<p>{{ $description }}</p>{{ end }}
+        {{ if .Topics }}
+          <div class="flex flex-wrap items-center gap-1">
+            {{ range .Topics }}
+              {{ if ne . "" }}<a href="{{ AppSubUrl }}/explore/repos?q={{ . }}&topic=1"><div class="badge-ghost badge">{{ . }}</div></a>{{ end }}
+            {{ end }}
+          </div>
+        {{ end }}
+        <p class="text-xs text-gray-500">{{ $.i18n.Tr "org.repo_updated" }} {{ TimeSinceUnix .UpdatedUnix $.i18n.Lang }}</p>
+      </div>
+    </div>
+  {{ else }}
+    <div>
+      {{ $.i18n.Tr "explore.repo_no_results" }}
+    </div>
+  {{ end }}
+</div>

@@ -1,0 +1,30 @@
+{{ template "base/head" . }}
+<!--  ui one column stackable center aligned page oauth2-authorize-application-box ac js grid -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <h4 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.authorize_title" .Application.Name }}
+    </h4>
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <div class="flex flex-col gap-2 space-y-2 pb-8">
+      <p>
+        <b>{{ .i18n.Tr "auth.authorize_application_description" }}</b><br />
+        {{ .i18n.Tr "auth.authorize_application_created_by" .ApplicationUserLinkHTML | Str2html }}
+      </p>
+      <p>{{ .i18n.Tr "auth.authorize_redirect_notice" .ApplicationRedirectDomainHTML | Str2html }}</p>
+      <form method="post" action="{{ AppSubUrl }}/login/oauth/grant">
+        {{ .CsrfTokenHtml }}
+        <input type="hidden" name="client_id" value="{{ .Application.ClientID }}" />
+        <input type="hidden" name="state" value="{{ .State }}" />
+        <input type="hidden" name="scope" value="{{ .Scope }}" />
+        <input type="hidden" name="nonce" value="{{ .Nonce }}" />
+        <input type="hidden" name="redirect_uri" value="{{ .RedirectURI }}" />
+        <input type="submit" id="authorize-app" value="{{ .i18n.Tr "auth.authorize_application" }}" class="btn-red btn" />
+        <a href="{{ .RedirectURI }}" class="btn-outline-primary btn-outline btn">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

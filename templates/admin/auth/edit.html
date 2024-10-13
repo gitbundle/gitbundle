@@ -1,0 +1,367 @@
+{{ template "admin/base/header" . }}
+<!--  edit authentication -->
+<div jq-edit-authentication class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.auths.edit" }}
+    </h4>
+
+    <form class="space-y-2 px-4 py-2" action="{{ .Link }}" method="post">
+      {{ template "base/disable_form_autofill" }}
+      {{ .CsrfTokenHtml }}
+      <input type="hidden" name="id" value="{{ .Source.ID }}" />
+      <div class="form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ $.i18n.Tr "admin.auths.auth_type" }}</span></label>
+        <input type="hidden" id="auth_type" name="type" value="{{ .Source.Type.Int }}" />
+        <input class="input-bordered input" type="text" value="{{ .Source.TypeName }}" readonly />
+      </div>
+      <div class="required {{ if .Err_Name }}error{{ end }} form-control flex-row items-center gap-2">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.auth_name" }}</span></label>
+        <input class="input-bordered input" id="name" name="name" value="{{ .Source.Name }}" autofocus required />
+      </div>
+
+      <!-- LDAP and DLDAP -->
+      {{ if or .Source.IsLDAP .Source.IsDLDAP }}
+        {{ $cfg:=.Source.Cfg }}
+        <div class="required {{ if .Err_SecurityProtocol }}error{{ end }} form-control flex-row items-center gap-2">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.security_protocol" }}</span></label>
+          <select name="security_protocol" id="security_protocol" class="select-bordered select">
+            {{ range .SecurityProtocols }}
+              <option value="{{ .Type.Int }}" {{ if and (eq $cfg.SecurityProtocol.Int .Type.Int) (eq $cfg.SecurityProtocolName .Name) }}selected{{ end }}>{{ .Name }}</option>
+            {{ end }}
+          </select>
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.host" }}</span></label>
+          <input class="input-bordered input" id="host" name="host" value="{{ $cfg.Host }}" placeholder="e.g. mydomain.com" required />
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.port" }}</span></label>
+          <input class="input-bordered input" id="port" name="port" value="{{ $cfg.Port }}" placeholder="e.g. 636" required />
+        </div>
+        <div class="has-tls {{ if not .HasTLS }}hide{{ end }} form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="skip_verify" type="checkbox" {{ if .Source.SkipVerify }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_tls_verify" }}</strong></label>
+        </div>
+        {{ if .Source.IsLDAP }}
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.bind_dn" }}</span></label>
+            <input class="input-bordered input" id="bind_dn" name="bind_dn" value="{{ $cfg.BindDN }}" placeholder="e.g. cn=Search,dc=mydomain,dc=com" />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.bind_password" }}</span></label>
+            <input class="input-bordered input" id="bind_password" name="bind_password" type="password" value="{{ $cfg.BindPassword }}" />
+          </div>
+        {{ end }}
+        <div class="{{ if .Source.IsLDAP }}required{{ end }} form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.user_base" }}</span></label>
+          <input class="input-bordered input" id="user_base" name="user_base" value="{{ $cfg.UserBase }}" placeholder="e.g. ou=Users,dc=mydomain,dc=com" {{ if .Source.IsLDAP }}required{{ end }} />
+        </div>
+        {{ if .Source.IsDLDAP }}
+          <div class="required form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.user_dn" }}</span></label>
+            <input class="input-bordered input" id="user_dn" name="user_dn" value="{{ $cfg.UserDN }}" placeholder="e.g. uid=%s,ou=Users,dc=mydomain,dc=com" required />
+          </div>
+        {{ end }}
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.filter" }}</span></label>
+          <input class="input-bordered input" id="filter" name="filter" value="{{ $cfg.Filter }}" placeholder="e.g. (&(objectClass=posixAccount)(uid=%s))" required />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.admin_filter" }}</span></label>
+          <input class="input-bordered input" id="admin_filter" name="admin_filter" value="{{ $cfg.AdminFilter }}" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.restricted_filter" }}</span></label>
+          <input class="input-bordered input" id="restricted_filter" name="restricted_filter" value="{{ $cfg.RestrictedFilter }}" />
+          <p class="help">{{ .i18n.Tr "admin.auths.restricted_filter_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_username" }}</span></label>
+          <input class="input-bordered input" id="attribute_username" name="attribute_username" value="{{ $cfg.AttributeUsername }}" placeholder="{{ .i18n.Tr "admin.auths.attribute_username_placeholder" }}" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_name" }}</span></label>
+          <input class="input-bordered input" id="attribute_name" name="attribute_name" value="{{ $cfg.AttributeName }}" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_surname" }}</span></label>
+          <input class="input-bordered input" id="attribute_surname" name="attribute_surname" value="{{ $cfg.AttributeSurname }}" />
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_mail" }}</span></label>
+          <input class="input-bordered input" id="attribute_mail" name="attribute_mail" value="{{ $cfg.AttributeMail }}" placeholder="e.g. mail" required />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_ssh_public_key" }}</span></label>
+          <input class="input-bordered input" id="attribute_ssh_public_key" name="attribute_ssh_public_key" value="{{ $cfg.AttributeSSHPublicKey }}" placeholder="e.g. SshPublicKey" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.attribute_avatar" }}</span></label>
+          <input class="input-bordered input" id="attribute_avatar" name="attribute_avatar" value="{{ $cfg.AttributeAvatar }}" placeholder="e.g. jpegPhoto" />
+        </div>
+
+        <!-- ldap group begin -->
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" type="checkbox" name="groups_enabled" class="js-ldap-group-toggle" {{ if $cfg.GroupsEnabled }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.enable_ldap_groups" }}</strong></label>
+        </div>
+
+        <!-- TODO: add hidden -->
+        <div id="ldap-group-options" class="space-y-2" {{ if not $cfg.GroupsEnabled }}hidden{{ end }}>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.group_search_base" }}</span></label>
+            <input class="input-bordered input" name="group_dn" value="{{ $cfg.GroupDN }}" placeholder="e.g. ou=group,dc=mydomain,dc=com" />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.group_attribute_list_users" }}</span></label>
+            <input class="input-bordered input" name="group_member_uid" value="{{ $cfg.GroupMemberUID }}" placeholder="e.g. memberUid" />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.user_attribute_in_group" }}</span></label>
+            <input class="input-bordered input" name="user_uid" value="{{ $cfg.UserUID }}" placeholder="e.g. uid" />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.verify_group_membership" }}</span></label>
+            <input class="input-bordered input" name="group_filter" value="{{ $cfg.GroupFilter }}" placeholder="e.g. (|(cn=gitea_users)(cn=admins))" />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.map_group_to_team" }}</span></label>
+            <input class="input-bordered input" name="group_team_map" value="{{ $cfg.GroupTeamMap }}" placeholder='e.g. {"cn=my-group,cn=groups,dc=example,dc=org": {"MyGitBundleOrganization": ["MyGitBundleTeam1", "MyGitBundleTeam2"]}}' />
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="group_team_map_removal" type="checkbox" {{ if $cfg.GroupTeamMapRemoval }}checked{{ end }} />{{ .i18n.Tr "admin.auths.map_group_to_team_removal" }}</label>
+          </div>
+        </div>
+        <!-- ldap group end -->
+
+        {{ if .Source.IsLDAP }}
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="use_paged_search" name="use_paged_search" type="checkbox" {{ if $cfg.UsePagedSearch }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.use_paged_search" }}</strong></label>
+          </div>
+          <div class="required search-page-size{{ if not $cfg.UsePagedSearch }}1hidden{{ end }} form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.search_page_size" }}</span></label>
+            <input class="input-bordered input" id="search_page_size" name="search_page_size" value="{{ if $cfg.UsePagedSearch }}{{ $cfg.SearchPageSize }}{{ end }}" />
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="attributes_in_bind" type="checkbox" {{ if $cfg.AttributesInBind }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.attributes_in_bind" }}</strong></label>
+          </div>
+        {{ end }}
+        <div class="optional form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if $cfg.SkipLocalTwoFA }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="allow_deactivate_all" name="allow_deactivate_all" type="checkbox" {{ if $cfg.AllowDeactivateAll }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.allow_deactivate_all" }}</strong></label>
+        </div>
+      {{ end }}
+
+
+      <!-- SMTP -->
+      {{ if .Source.IsSMTP }}
+        {{ $cfg:=.Source.Cfg }}
+        <div class="required form-control flex-row items-center gap-2">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.smtp_auth" }}</span></label>
+          <select name="smtp_auth" id="smtp_auth" class="select-bordered select" required>
+            {{ range .SMTPAuths }}
+              <option value="{{ . }}" {{ if eq $cfg.Auth . }}selected{{ end }}>{{ . }}</option>
+            {{ end }}
+          </select>
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.smtphost" }}</span></label>
+          <input class="input-bordered input" id="smtp_host" name="smtp_host" value="{{ $cfg.Host }}" required />
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.smtpport" }}</span></label>
+          <input class="input-bordered input" id="smtp_port" name="smtp_port" value="{{ $cfg.Port }}" required />
+        </div>
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="force_smtps" name="force_smtps" type="checkbox" {{ if $cfg.ForceSMTPS }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.force_smtps" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.force_smtps_helper" }}</p>
+        </div>
+        <div class="has-tls {{ if not .HasTLS }}hidden{{ end }} form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="skip_verify" type="checkbox" {{ if .Source.SkipVerify }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_tls_verify" }}</strong></label>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.helo_hostname" }}</span></label>
+          <input class="input-bordered input" id="helo_hostname" name="helo_hostname" value="{{ $cfg.HeloHostname }}" />
+          <p class="help">{{ .i18n.Tr "admin.auths.helo_hostname_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="disable_helo" name="disable_helo" type="checkbox" {{ if $cfg.DisableHelo }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.disable_helo" }}</strong></label>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.allowed_domains" }}</span></label>
+          <input class="input-bordered input" id="allowed_domains" name="allowed_domains" value="{{ $cfg.AllowedDomains }}" />
+          <p class="help">{{ .i18n.Tr "admin.auths.allowed_domains_helper" }}</p>
+        </div>
+        <div class="optional form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if $cfg.SkipLocalTwoFA }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+        </div>
+      {{ end }}
+
+
+      <!-- PAM -->
+      {{ if .Source.IsPAM }}
+        {{ $cfg:=.Source.Cfg }}
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.pam_service_name" }}</span></label>
+          <input class="input-bordered input" id="pam_service_name" name="pam_service_name" value="{{ $cfg.ServiceName }}" required />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.pam_email_domain" }}</span></label>
+          <input class="input-bordered input" id="pam_email_domain" name="pam_email_domain" value="{{ $cfg.EmailDomain }}" />
+        </div>
+        <div class="optional form-control">
+          <label class="flex items-center gap-1"><input id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if $cfg.SkipLocalTwoFA }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+        </div>
+      {{ end }}
+
+
+      <!-- OAuth2 -->
+      {{ if .Source.IsOAuth2 }}
+        {{ $cfg:=.Source.Cfg }}
+        <div class="required form-control flex-row items-center gap-2">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_provider" }}</span></label>
+          <select name="oauth2_provider" id="oauth2_provider" class="select-bordered select">
+            {{ range .OAuth2Providers }}
+              <option value="{{ .Name }}" {{ if and (eq $cfg.Provider .Name) (eq $.CurrentOAuth2Provider.DisplayName .DisplayName) }}selected{{ end }}>{{ .DisplayName }}</option>
+            {{ end }}
+          </select>
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_clientID" }}</span></label>
+          <input class="input-bordered input" id="oauth2_key" name="oauth2_key" value="{{ $cfg.ClientID }}" required />
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_clientSecret" }}</span></label>
+          <input class="input-bordered input" id="oauth2_secret" name="oauth2_secret" value="{{ $cfg.ClientSecret }}" required />
+        </div>
+        <div class="optional form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_icon_url" }}</span></label>
+          <input class="input-bordered input" id="oauth2_icon_url" name="oauth2_icon_url" value="{{ $cfg.IconURL }}" />
+        </div>
+        <div class="open_id_connect_auto_discovery_url required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.openIdConnectAutoDiscoveryURL" }}</span></label>
+          <input class="input-bordered input" id="open_id_connect_auto_discovery_url" name="open_id_connect_auto_discovery_url" value="{{ $cfg.OpenIDConnectAutoDiscoveryURL }}" />
+        </div>
+        <div class="optional form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if $cfg.SkipLocalTwoFA }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+        </div>
+        <div class="oauth2_use_custom_url form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="oauth2_use_custom_url" name="oauth2_use_custom_url" type="checkbox" {{ if $cfg.CustomURLMapping }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.oauth2_use_custom_url" }}</strong></label>
+        </div>
+        <div class="oauth2_use_custom_url_form-control oauth2_auth_url required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_authURL" }}</span></label>
+          <input class="input-bordered input" id="oauth2_auth_url" name="oauth2_auth_url" value="{{ if $cfg.CustomURLMapping }}{{ $cfg.CustomURLMapping.AuthURL }}{{ end }}" />
+        </div>
+        <div class="oauth2_use_custom_url_form-control oauth2_token_url required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_tokenURL" }}</span></label>
+          <input class="input-bordered input" id="oauth2_token_url" name="oauth2_token_url" value="{{ if $cfg.CustomURLMapping }}{{ $cfg.CustomURLMapping.TokenURL }}{{ end }}" />
+        </div>
+        <div class="oauth2_use_custom_url_form-control oauth2_profile_url required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_profileURL" }}</span></label>
+          <input class="input-bordered input" id="oauth2_profile_url" name="oauth2_profile_url" value="{{ if $cfg.CustomURLMapping }}{{ $cfg.CustomURLMapping.ProfileURL }}{{ end }}" />
+        </div>
+        <div class="oauth2_use_custom_url_form-control oauth2_email_url required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_emailURL" }}</span></label>
+          <input class="input-bordered input" id="oauth2_email_url" name="oauth2_email_url" value="{{ if $cfg.CustomURLMapping }}{{ $cfg.CustomURLMapping.EmailURL }}{{ end }}" />
+        </div>
+        <div class="oauth2_use_custom_url_form-control oauth2_tenant required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_tenant" }}</span></label>
+          <input class="input-bordered input" id="oauth2_tenant" name="oauth2_tenant" value="{{ if $cfg.CustomURLMapping }}{{ $cfg.CustomURLMapping.Tenant }}{{ end }}" />
+        </div>
+
+        {{ range .OAuth2Providers }}
+          {{ if .CustomURLSettings }}
+            <input id="{{ .Name }}_customURLSettings" type="hidden" data-required="{{ .CustomURLSettings.Required }}" data-available="true" />
+            <input id="{{ .Name }}_token_url" value="{{ .CustomURLSettings.TokenURL.Value }}" data-available="{{ .CustomURLSettings.TokenURL.Available }}" data-required="{{ .CustomURLSettings.TokenURL.Required }}" type="hidden" />
+            <input id="{{ .Name }}_auth_url" value="{{ .CustomURLSettings.AuthURL.Value }}" data-available="{{ .CustomURLSettings.AuthURL.Available }}" data-required="{{ .CustomURLSettings.AuthURL.Required }}" type="hidden" />
+            <input id="{{ .Name }}_profile_url" value="{{ .CustomURLSettings.ProfileURL.Value }}" data-available="{{ .CustomURLSettings.ProfileURL.Available }}" data-required="{{ .CustomURLSettings.ProfileURL.Required }}" type="hidden" />
+            <input id="{{ .Name }}_email_url" value="{{ .CustomURLSettings.EmailURL.Value }}" data-available="{{ .CustomURLSettings.EmailURL.Available }}" data-required="{{ .CustomURLSettings.EmailURL.Required }}" type="hidden" />
+            <input id="{{ .Name }}_tenant" value="{{ .CustomURLSettings.Tenant.Value }}" data-available="{{ .CustomURLSettings.Tenant.Available }}" data-required="{{ .CustomURLSettings.Tenant.Required }}" type="hidden" />
+          {{ end }}
+
+        {{ end }}
+
+
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_scopes" }}</span></label>
+          <input class="input-bordered input" id="oauth2_scopes" name="oauth2_scopes" value="{{ if $cfg.Scopes }}{{ Join $cfg.Scopes "," }}{{ end }}" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_required_claim_name" }}</span></label>
+          <input class="input-bordered input" id="oauth2_required_claim_name" name="oauth2_required_claim_name" values="{{ $cfg.RequiredClaimName }}" />
+          <p class="help">{{ .i18n.Tr "admin.auths.oauth2_required_claim_name_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_required_claim_value" }}</span></label>
+          <input class="input-bordered input" id="oauth2_required_claim_value" name="oauth2_required_claim_value" values="{{ $cfg.RequiredClaimValue }}" />
+          <p class="help">{{ .i18n.Tr "admin.auths.oauth2_required_claim_value_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_group_claim_name" }}</span></label>
+          <input class="input-bordered input" id="oauth2_group_claim_name" name="oauth2_group_claim_name" value="{{ $cfg.GroupClaimName }}" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_admin_group" }}</span></label>
+          <input class="input-bordered input" id="oauth2_admin_group" name="oauth2_admin_group" value="{{ $cfg.AdminGroup }}" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_restricted_group" }}</span></label>
+          <input class="input-bordered input" id="oauth2_restricted_group" name="oauth2_restricted_group" value="{{ $cfg.RestrictedGroup }}" />
+        </div>
+      {{ end }}
+
+
+      <!-- SSPI -->
+      {{ if .Source.IsSSPI }}
+        {{ $cfg:=.Source.Cfg }}
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input id="sspi_auto_create_users" name="sspi_auto_create_users" class="sspi-auto-create-users checkbox checkbox-sm" type="checkbox" {{ if $cfg.AutoCreateUsers }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.sspi_auto_create_users" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.sspi_auto_create_users_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input id="sspi_auto_activate_users" name="sspi_auto_activate_users" class="sspi-auto-activate-users checkbox checkbox-sm" type="checkbox" {{ if $cfg.AutoActivateUsers }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.sspi_auto_activate_users" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.sspi_auto_activate_users_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input id="sspi_strip_domain_names" name="sspi_strip_domain_names" class="sspi-strip-domain-names checkbox checkbox-sm" type="checkbox" {{ if $cfg.StripDomainNames }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.sspi_strip_domain_names" }}</strong></label>
+          <p class="help">{{ .i18n.Tr "admin.auths.sspi_strip_domain_names_helper" }}</p>
+        </div>
+        <div class="required form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.sspi_separator_replacement" }}</span></label>
+          <input class="input-bordered input" id="sspi_separator_replacement" name="sspi_separator_replacement" value="{{ $cfg.SeparatorReplacement }}" required />
+          <p class="help">{{ .i18n.Tr "admin.auths.sspi_separator_replacement_helper" }}</p>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.sspi_default_language" }}</span></label>
+          <select name="sspi_default_language" id="sspi_default_language" class="select-bordered select">
+            <option {{ if not $.SSPIDefaultLanguage }}selected{{ end }} value="">-</option>
+            {{ range .AllLangs }}
+              <option {{ if eq $cfg.DefaultLanguage .Lang }}selected{{ end }} value="{{ .Lang }}">{{ .Name }}</option>
+            {{ end }}
+          </select>
+          <p class="help">{{ .i18n.Tr "admin.auths.sspi_default_language_helper" }}</p>
+        </div>
+      {{ end }}
+      {{ if .Source.IsLDAP }}
+        <div class="form-control">
+          <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="is_sync_enabled" type="checkbox" {{ if .Source.IsSyncEnabled }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.syncenabled" }}</strong></label>
+        </div>
+      {{ end }}
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="is_active" type="checkbox" {{ if .Source.IsActive }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.activated" }}</strong></label>
+      </div>
+
+      <div class="form-control flex-row gap-2">
+        <button class="btn-primary btn">{{ .i18n.Tr "admin.auths.update" }}</button>
+        <div svelte-simple-modal class="btn-red btn" data-title="{{ .i18n.Tr "admin.auths.delete_auth_title" }}" data-desc="{{ .i18n.Tr "admin.auths.delete_auth_desc" }}" data-href="{{ $.Link }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .Source.ID }}" data-action-approve-color="red">{{ .i18n.Tr "admin.auths.delete" }}</div>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

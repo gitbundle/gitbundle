@@ -1,0 +1,4 @@
+<div class="btn-group">
+  <a class="{{ if .PageIsLabels }}btn-active{{ end }} btn-outline btn gap-x-1" href="{{ .RepoLink }}/labels">{{ svg "octicon-tag" }}{{ .i18n.Tr "repo.labels" }}</a>
+  <a class="{{ if .PageIsMilestones }}btn-active{{ end }} btn-outline btn gap-x-1" href="{{ .RepoLink }}/milestones">{{ svg "octicon-milestone" }}{{ .i18n.Tr "repo.milestones" }}</a>
+</div>

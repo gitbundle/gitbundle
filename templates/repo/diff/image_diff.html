@@ -1,0 +1,78 @@
+{{ if or .blobBase .blobHead }}
+  <tr jq-repo-diff-image_diff>
+    <td colspan="2">
+      <div class="image-diff flex w-full flex-col items-center justify-center" data-path-before="{{ .root.BeforeRawPath }}/{{ PathEscapeSegments .file.OldName }}" data-path-after="{{ .root.RawPath }}/{{ PathEscapeSegments .file.Name }}">
+        <div class="tabs w-full justify-center pt-2">
+          <a class="tab-bordered tab tab-active" data-tab="diff-side-by-side-{{ .file.Index }}">{{ .root.i18n.Tr "repo.diff.image.side_by_side" }}</a>
+          {{ if and .blobBase .blobHead }}
+            <a class="tab-bordered tab" data-tab="diff-swipe-{{ .file.Index }}">{{ .root.i18n.Tr "repo.diff.image.swipe" }}</a>
+            <a class="tab-bordered tab" data-tab="diff-overlay-{{ .file.Index }}">{{ .root.i18n.Tr "repo.diff.image.overlay" }}</a>
+          {{ end }}
+        </div>
+        <div jq-contents class="hide my-7">
+          <div data-tab="diff-side-by-side-{{ .file.Index }}" class="image-diff-container">
+            <div class="diff-side-by-side">
+              {{ if .blobBase }}
+                <span class="side">
+                  <p class="py-2">{{ .root.i18n.Tr "repo.diff.file_before" }}</p>
+                  <span class="before-container"><img class="image-before" /></span>
+                  <p class="py-2">
+                    <span class="bounds-info-before">
+                      {{ .root.i18n.Tr "repo.diff.file_image_width" }}: <span class="bounds-info-width"></span> &nbsp;|&nbsp; {{ .root.i18n.Tr "repo.diff.file_image_height" }}: <span class="bounds-info-height"></span>
+                      &nbsp;|&nbsp;
+                    </span>
+                    {{ .root.i18n.Tr "repo.diff.file_byte_size" }}: <span class="{{ if or (not .blobHead) (not (eq (FileSize .blobBase.Size) (FileSize .blobHead.Size))) }}text-red-800{{ end }}">{{ FileSize .blobBase.Size }}</span>
+                  </p>
+                </span>
+              {{ end }}
+              {{ if .blobHead }}
+                <span class="side">
+                  <p class="py-2">{{ .root.i18n.Tr "repo.diff.file_after" }}</p>
+                  <span class="after-container"><img class="image-after" /></span>
+                  <p class="py-2">
+                    <span class="bounds-info-after">
+                      {{ .root.i18n.Tr "repo.diff.file_image_width" }}: <span class="bounds-info-width"></span> &nbsp;|&nbsp; {{ .root.i18n.Tr "repo.diff.file_image_height" }}: <span class="bounds-info-height"></span>
+                      &nbsp;|&nbsp;
+                    </span>
+                    {{ .root.i18n.Tr "repo.diff.file_byte_size" }}: <span class="{{ if or (not .blobBase) (not (eq (FileSize .blobBase.Size) (FileSize .blobHead.Size))) }}text-green-800{{ end }}">{{ FileSize .blobHead.Size }}</span>
+                  </p>
+                </span>
+              {{ end }}
+            </div>
+          </div>
+          {{ if and .blobBase .blobHead }}
+            <div class="image-diff-container hidden" data-tab="diff-swipe-{{ .file.Index }}">
+              <div class="diff-swipe">
+                <div class="swipe-frame">
+                  <span class="before-container"><img class="image-before" /></span>
+                  <span class="swipe-container">
+                    <span class="after-container"><img class="image-after" /></span>
+                  </span>
+                  <span class="swipe-bar">
+                    <span class="handle top-handle"></span>
+                    <span class="handle bottom-handle"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="image-diff-container hidden" data-tab="diff-overlay-{{ .file.Index }}">
+              <div class="diff-overlay">
+                <div class="overlay-frame">
+                  <div class="text-center">
+                    <input type="range" min="0" max="100" value="50" />
+                  </div>
+                  <span class="before-container"><img class="image-before" /></span>
+                  <span class="after-container"><img class="image-after" /></span>
+                </div>
+              </div>
+            </div>
+          {{ end }}
+        </div>
+        <div class="loader">
+          {{ template "base/loading" }}
+        </div>
+      </div>
+    </td>
+  </tr>
+  {{ Asset "js/repo-diff-image_diff.js" }}
+{{ end }}

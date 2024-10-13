@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+"$GITBUNDLE_ROOT/gitbundle" hook --config="$GITBUNDLE_ROOT/$GITBUNDLE_CONF" post-receive

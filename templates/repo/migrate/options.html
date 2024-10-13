@@ -1,0 +1,35 @@
+<div jq-repo-migrate-options>
+  {{ if not .DisableNewPullMirrors }}
+    <div class="form-control w-full flex-row items-start gap-2">
+      <label class="label">
+        <span class="label-text font-bold">
+          {{ .i18n.Tr "repo.migrate_options" }}
+        </span>
+      </label>
+      <div class="mt-2 flex flex-col gap-2">
+        <label class="flex items-center gap-1"><input id="mirror" class="checkbox checkbox-sm" name="mirror" type="checkbox" {{ if .mirror }}checked{{ end }} />{{ .i18n.Tr "repo.migrate_options_mirror_helper" | Safe }}</label>
+        {{ if .LFSActive }}
+          <label class="flex items-center gap-1">
+            <input id="lfs" class="checkbox checkbox-sm" name="lfs" type="checkbox" {{ if .lfs }}checked{{ end }} />
+            {{ .i18n.Tr "repo.migrate_options_lfs" }}
+            <span id="lfs_settings" class="hidden">(<a class="link-primary link" id="lfs_settings_show" href="#">{{ .i18n.Tr "repo.settings.advanced_settings" }}</a>)</span>
+          </label>
+        {{ end }}
+      </div>
+    </div>
+  {{ end }}
+  {{ if .LFSActive }}
+    <div id="lfs_endpoint" class="{{ if .Err_LFSEndpoint }}error{{ end }} form-control w-full">
+      <label class="label">
+        <span class="label-text font-bold">
+          {{ .i18n.Tr "repo.migrate_options_lfs_endpoint.label" }}
+        </span>
+      </label>
+      <input class="input-bordered input w-full" name="lfs_endpoint" value="{{ .lfs_endpoint }}" placeholder="{{ .i18n.Tr "repo.migrate_options_lfs_endpoint.placeholder" }}" />
+      <div class="label">
+        <span class="help label-text-alt">{{ .i18n.Tr "repo.migrate_options_lfs_endpoint.description" "https://github.com/git-lfs/git-lfs/blob/main/docs/api/server-discovery.md#server-discovery" | Str2html }}{{ if .ContextUser.CanImportLocal }}{{ .i18n.Tr "repo.migrate_options_lfs_endpoint.description.local" }}{{ end }}</span>
+      </div>
+    </div>
+  {{ end }}
+  {{ Asset "js/repo-migrate-options.js" }}
+</div>

@@ -1,0 +1,21 @@
+.DS_Store
+/node_modules
+/pkg
+/contrib
+/options
+/public
+/package
+/integrations
+.env
+.env.*
+!.env.example
+
+# Ignore files for PNPM, NPM and YARN
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+/.make_evidence/
+/gitbundle-debug
+/__debug_bin
+/web_src/css/chroma
+/web_src/css/console

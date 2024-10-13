@@ -1,0 +1,39 @@
+<div>
+  <h4 class="sticky top-0 z-10 flex items-center gap-1 rounded-t-lg border border-b-0 bg-base-200 px-4 py-1 leading-10">
+    <div class="flex-1">
+      {{ if or .PageIsCommits (gt .CommitCount 0) }}
+        {{ .CommitCount }}
+        {{ .i18n.Tr "repo.commits.commits" }}
+        {{ if .RefName }}({{ .RefName }}){{ end }}
+      {{ else if .IsNothingToCompare }}
+        {{ .i18n.Tr "repo.commits.nothing_to_compare" }}
+        {{ if .RefName }}({{ .RefName }}){{ end }}
+      {{ else }}
+        {{ .i18n.Tr "repo.commits.no_commits" $.BaseBranch $.HeadBranch }}
+        {{ if .RefName }}({{ .RefName }}){{ end }}
+      {{ end }}
+    </div>
+    <div class="flex items-center gap-x-1">
+      {{ if .PageIsCommits }}
+        <form class="flex items-center" action="{{ .RepoLink }}/commits/{{ .BranchNameSubURL }}/search">
+          <input type="text" name="q" placeholder="{{ .i18n.Tr "repo.commits.search" }}" value="{{ .Keyword }}" autofocus class="input input-sm w-full max-w-xs" />
+          &nbsp;
+          <label for="all" class="label cursor-pointer items-center gap-x-1 whitespace-nowrap">
+            <input type="checkbox" name="all" id="all" value="true" class="checkbox checkbox-sm" {{ .All }} />
+            <span class="label-text">{{ .i18n.Tr "repo.commits.search_all" }}</span>
+          </label>
+          <button class="button btn-primary tooltip tooltip-left btn-sm btn" data-panel="#add-deploy-key-panel" data-tip="{{ .i18n.Tr "repo.commits.search.tooltip" }}">{{ .i18n.Tr "repo.commits.find" }}</button>
+        </form>
+      {{ else if .IsDiffCompare }}
+        <a href="{{ $.CommitRepoLink }}/commit/{{ .BeforeCommitID | PathEscape }}" class="btn-green btn-sm btn">{{ if not .BaseIsCommit }}{{ if .BaseIsBranch }}{{ svg "octicon-git-branch" }}{{ else if .BaseIsTag }}{{ svg "octicon-tag" }}{{ end }}{{ .BaseBranch }}{{ else }}{{ ShortSha .BaseBranch }}{{ end }}</a>
+        ...
+        <a href="{{ $.CommitRepoLink }}/commit/{{ .AfterCommitID | PathEscape }}" class="btn-green btn-sm btn">{{ if not .HeadIsCommit }}{{ if .HeadIsBranch }}{{ svg "octicon-git-branch" }}{{ else if .HeadIsTag }}{{ svg "octicon-tag" }}{{ end }}{{ .HeadBranch }}{{ else }}{{ ShortSha .HeadBranch }}{{ end }}</a>
+      {{ end }}
+    </div>
+  </h4>
+  {{ if and .Commits (gt .CommitCount 0) }}
+    {{ template "repo/commits_list" . }}
+  {{ end }}
+
+  {{ template "base/paginate" . }}
+</div>

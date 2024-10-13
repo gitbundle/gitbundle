@@ -1,0 +1,176 @@
+<div class="mt-2 gap-2 rounded-lg border">
+  <h3 class="cu-links-primary-hover collapse gap-1 rounded-t-lg bg-base-200 px-2 py-4 duration-300">
+    <div class="col-start-1 row-start-1 flex items-center gap-x-1 self-start">
+      <div class="{{ if not .LatestCommit }}notready{{ end }} flex flex-1 items-center gap-x-1">
+        {{ if not .LatestCommit }}
+          <span class="text-base-content">…</span>
+        {{ else }}
+          {{ if .LatestCommitUser }}
+            <div class="avatar">
+              <div class="w-6 rounded-full">
+                {{ avatar .LatestCommitUser 24 }}
+              </div>
+            </div>
+            {{ if .LatestCommitUser.FullName }}
+              <a href="{{ .LatestCommitUser.HomeLink }}">
+                <strong class="whitespace-nowrap">{{ .LatestCommitUser.FullName }}</strong>
+              </a>
+            {{ else }}
+              <a href="{{ .LatestCommitUser.HomeLink }}">
+                <strong class="whitespace-nowrap">
+                  {{ if .LatestCommit.Author }}
+                    {{ .LatestCommit.Author.Name }}
+                  {{ else }}
+                    {{ .LatestCommitUser.Name }}
+                  {{ end }}
+                </strong>
+              </a>
+            {{ end }}
+          {{ else }}
+            {{ if .LatestCommit.Author }}
+              <div class="avatar">
+                <div class="w-6 rounded-full">
+                  {{ avatarByEmail .LatestCommit.Author.Email .LatestCommit.Author.Name 24 }}
+                </div>
+              </div>
+              <strong class="whitespace-nowrap">{{ .LatestCommit.Author.Name }}</strong>
+            {{ end }}
+          {{ end }}
+
+          {{ $commitLink:= printf "%s/commit/%s" .RepoLink (PathEscape .LatestCommit.ID.String) }}
+          <span class="cu-links line-clamp-1 text-sm font-bold" title="{{ .LatestCommit.Summary }}">
+            {{ RenderCommitMessageLinkSubject $.Context .LatestCommit.Message $.RepoLink $commitLink $.Repository.ComposeMetas }}
+          </span>
+        {{ end }}
+      </div>
+      {{ if IsMultilineCommitMessage .LatestCommit.Message }}
+        <label for="full-commit-message" class="btn-gray btn-xs btn h-1 min-h-[0.75rem]">···</label>
+      {{ end }}
+      <div class="flex items-center gap-1">
+        {{ template "repo/commit_statuses" dict "Status" .LatestCommitStatus "Statuses" .LatestCommitStatuses "root" $ }}
+        <a
+          rel="nofollow"
+          class="{{ if .LatestCommit.Signature }}
+            isSigned
+            {{ if .LatestCommitVerification.Verified }}
+              isVerified{{ if eq .LatestCommitVerification.TrustStatus "trusted" }}
+              {{ else if eq .LatestCommitVerification.TrustStatus "untrusted" }}
+                Untrusted
+              {{ else }}
+                Unmatched
+              {{ end }}
+            {{ else if .LatestCommitVerification.Warning }}
+              isWarning
+            {{ end }}
+          {{ end }} btn-group btn-group-horizontal"
+          href="{{ .RepoLink }}/commit/{{ PathEscape .LatestCommit.ID.String }}"
+        >
+          <span class="btn-outline btn-xs btn normal-case">{{ ShortSha .LatestCommit.ID.String }}</span>
+          {{ if .LatestCommit.Signature }}
+            <span class="btn-outline btn-xs btn">
+              {{ template "repo/shabox_badge" dict "root" $ "verification" .LatestCommitVerification }}
+            </span>
+          {{ end }}
+        </a>
+        <span class=""
+          >{{ if .LatestCommit }}
+            {{ if .LatestCommit.Committer }}
+              {{ TimeSince .LatestCommit.Committer.When $.i18n.Lang }}
+            {{ end }}
+          {{ end }}</span
+        >
+
+        {{ if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) }}
+          <a
+            class="{{ if .PageIsCommits }}
+              active
+            {{ end }} link-hover link flex items-center gap-x-1 "
+            href="{{ .RepoLink }}/commits/{{ .BranchNameSubURL }}"
+            >{{ svg "octicon-history" }} <b>{{ .CommitsCount }}</b> <span>{{ .i18n.TrN .CommitsCount "repo.commit" "repo.commits" }}</span></a
+          >
+        {{ end }}
+      </div>
+    </div>
+    {{ if IsMultilineCommitMessage .LatestCommit.Message }}
+      <input type="checkbox" class="hidden" id="full-commit-message" />
+      <pre class="collapse-content !p-0 text-sm leading-8 text-base-content">{{ RenderCommitBody $.Context .LatestCommit.Message $.RepoLink $.Repository.ComposeMetas }}</pre>
+    {{ end }}
+  </h3>
+
+  <div class="cu-links-primary-hover divide-y border-t leading-10">
+    {{ if .HasParentPath }}
+      <div class="grid grid-cols-16 hover:bg-base-content/10">
+        <div class="col-span-16 inline-flex items-center gap-x-1 px-2">
+          <!-- {{ svg "octicon-reply" }} -->
+          <span class="w-4">{{ svg "octicon-file-directory-fill" 16 }}</span>
+          <a class="text-primary" href="{{ .BranchLink }}{{ if .ParentPath }}{{ PathEscapeSegments .ParentPath }}{{ end }}">..</a>
+        </div>
+      </div>
+    {{ end }}
+    {{ range $item := .Files }}
+      {{ $entry := $item.Entry }}
+      {{ $commit := $item.Commit }}
+      {{ $subModuleFile := $item.SubModuleFile }}
+      <div class="grid grid-cols-16 hover:bg-base-content/10 hover:last:rounded-b-lg">
+        <div class="{{ if not $commit }}not{{ end }} cu-links-primary col-span-5 pl-2" data-entryname="{{ $entry.Name }}" data-ready="{{ if $commit }}true{{ else }}false{{ end }}">
+          <div class="cu-links-primary-content flex h-10 items-center gap-x-1">
+            {{ if $entry.IsSubModule }}
+              <span class="w-4">{{ svg "octicon-file-submodule" 16 }}</span>
+              <span class="line-clamp-1 text-ellipsis">
+                {{ $refURL := $subModuleFile.RefURL AppUrl $.Repository.FullName $.SSHDomain }}
+                {{ if $refURL }}
+                  <a href="{{ $refURL }}">{{ $entry.Name }}</a>
+                  <span>@</span>
+                  <a href="{{ $refURL }}/commit/{{ PathEscape $subModuleFile.RefID }}">
+                    {{ ShortSha $subModuleFile.RefID }}
+                  </a>
+                {{ else }}
+                  {{ $entry.Name }}<span class="">@</span>
+                  <span>{{ ShortSha $subModuleFile.RefID }}</span>
+                {{ end }}
+              </span>
+            {{ else }}
+              {{ if $entry.IsDir }}
+                {{ $subJumpablePathName := $entry.GetSubJumpablePathName }}
+                {{ $subJumpablePath := SubJumpablePath $subJumpablePathName }}
+                <span class="w-4">{{ svg "octicon-file-directory-fill" }}</span>
+                <a class="line-clamp-1 text-ellipsis" href="{{ $.TreeLink }}/{{ PathEscapeSegments $subJumpablePathName }}" title="{{ $subJumpablePathName }}">
+                  {{ if eq (len $subJumpablePath) 2 }}
+                    <span class="">{{ index $subJumpablePath 0 }}</span>{{ index $subJumpablePath 1 }}
+                  {{ else }}
+                    {{ index $subJumpablePath 0 }}
+                  {{ end }}
+                </a>
+              {{ else }}
+                <span class="w-4">{{ svg (printf "octicon-%s" (EntryIcon $entry)) }}</span>
+                <a class="line-clamp-1 text-ellipsis" href="{{ $.TreeLink }}/{{ PathEscapeSegments $entry.Name }}" title="{{ $entry.Name }}">
+                  {{ $entry.Name }}
+                </a>
+              {{ end }}
+            {{ end }}
+          </div>
+        </div>
+        <div class="col-span-9 grid pl-2">
+          <span class="cu-links-hover line-clamp-1">
+            {{ if $commit }}
+              {{ $commitLink := printf "%s/commit/%s" $.RepoLink (PathEscape $commit.ID.String) }}
+              {{ RenderCommitMessageLinkSubject $.Context $commit.Message $.RepoLink $commitLink $.Repository.ComposeMetas }}
+            {{ else }}
+              <div>…</div>
+            {{ end }}
+          </span>
+        </div>
+        <div class="col-span-2 grid justify-items-end pr-2">
+          <span class="line-clamp-1">
+            {{ if $commit }}
+              {{ TimeSince $commit.Committer.When $.i18n.Lang }}
+            {{ end }}
+          </span>
+        </div>
+      </div>
+    {{ end }}
+  </div>
+</div>
+{{ if .ReadmeExist }}
+  {{ template "repo/view_file" . }}
+{{ end }}

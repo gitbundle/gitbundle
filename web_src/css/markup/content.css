@@ -1,0 +1,62 @@
+.markup {
+  @apply !text-base;
+
+  @apply prose max-w-full dark:prose-invert md:prose-lg;
+  @apply prose-img:m-0 prose-img:inline-block;
+  @apply prose-code:rounded-lg prose-code:bg-base-300 prose-pre:bg-base-300 prose-pre:text-primary-content;
+
+  @apply prose-table:table-zebra prose-table:block prose-table:align-middle;
+  @apply prose-thead:table-header-group prose-thead:border-base-content/10 prose-thead:align-middle;
+  @apply prose-tr:table-row;
+  @apply prose-th:table-cell prose-th:border prose-th:border-base-content/10 prose-th:bg-inherit prose-th:px-3 prose-th:py-1.5 prose-th:text-center prose-th:align-middle;
+  @apply prose-td:border prose-td:border-base-content/10 prose-td:px-3 prose-td:py-1.5 prose-td:align-middle;
+
+  /* @apply prose-td:border prose-td:border-base-300; */
+  @apply prose-h1:my-2 prose-h1:border-b prose-h1:border-b-base-content/10 prose-h1:py-2 prose-h1:text-primary-content;
+  @apply prose-h2:my-2 prose-h2:border-b prose-h2:border-b-base-content/10 prose-h2:py-2 prose-h2:text-primary-content;
+  @apply prose-h3:my-2 prose-h3:border-b prose-h3:border-b-base-content/10 prose-h3:py-2 prose-h3:text-primary-content;
+  @apply prose-h4:my-2 prose-h4:border-b prose-h4:border-b-base-content/10 prose-h4:py-2 prose-h4:text-primary-content;
+  @apply prose-h5:my-2 prose-h5:border-b prose-h5:border-b-base-content/10 prose-h5:py-2 prose-h5:text-primary-content;
+  @apply prose-h6:my-2 prose-h6:border-b prose-h6:border-b-base-content/10 prose-h6:py-2 prose-h6:text-primary-content;
+
+  @apply prose-li:m-0 prose-li:space-x-2 prose-li:leading-normal;
+  @apply prose-ul:m-1; /*prose-ul:list-none prose-ul:p-0;*/
+  @apply prose-ol:m-1;
+
+  @apply prose-p:m-0;
+
+  @apply prose-hr:border-base-content/10;
+
+  /* TODO: input checkbox custom style within @tailwindcss/typography  */
+  .task-list-item {
+    @apply flex space-x-52;
+    input {
+      @apply mr-1;
+    }
+    :not(input) {
+      @apply !ml-0;
+    }
+  }
+}
+
+.markup.file-view {
+  @apply p-6 prose-a:link-hover prose-a:link-primary;
+}
+
+.markup.no-extra-style {
+  /* @apply prose-*:p-0; */
+}
+
+.markup .code-block {
+  @apply relative;
+}
+
+.markup .code-copy {
+  @apply invisible absolute right-2 top-2;
+  animation: fadeout 0.2s both;
+}
+
+.markup .code-block:hover .code-copy {
+  @apply visible;
+  animation: fadein 0.2s both;
+}

@@ -1,0 +1,84 @@
+.diff-file-box .code-diff.code-diff-unified .ui.button.add-code-comment {
+  /* padding: 2px; */
+  /* position: absolute; */
+  /* margin-left: -22px; */
+  /* z-index: 5; */
+  /* opacity: 0; */
+  transition: transform 0.1s ease-in-out;
+  /* transform: scale(1); */
+  /* box-shadow: none !important; */
+  /* border: none !important; */
+
+  /*  -mt-1 -ml-7 */
+  @apply btn-primary btn-xs btn absolute -left-9 -top-1 z-[5] scale-100 bg-primary px-1 py-0 opacity-0;
+
+  &:hover {
+    /* transform: scale(1.1); */
+    @apply scale-110;
+  }
+}
+.diff-file-box .code-diff.code-diff-split .ui.button.add-code-comment {
+  /* padding: 2px; */
+  /* position: absolute; */
+  /* margin-left: -22px; */
+  /* z-index: 5; */
+  /* opacity: 0; */
+  transition: transform 0.1s ease-in-out;
+  /* transform: scale(1); */
+  /* box-shadow: none !important; */
+  /* border: none !important; */
+
+  /*  -mt-1 -ml-7 */
+  @apply btn-primary btn-xs btn absolute -left-7 -top-1 z-[5] scale-100 bg-primary px-1 py-0 opacity-0;
+
+  &:hover {
+    /* transform: scale(1.1); */
+    @apply scale-110;
+  }
+}
+
+.diff-file-box .lines-code:hover .ui.button.add-code-comment {
+  /* opacity: 1; */
+  @apply opacity-100;
+}
+
+.diff-file-box .code-diff .add-comment-left,
+.diff-file-box .code-diff .add-comment-right,
+.diff-file-box .code-diff .add-code-comment .add-comment-left,
+.diff-file-box .code-diff .add-code-comment .add-comment-right,
+.diff-file-box .code-diff .add-code-comment .lines-type-marker {
+  /* padding-left: 0 !important; */
+  /* padding-right: 0 !important; */
+  @apply px-0;
+}
+
+.diff-file-box .code-diff .lines-code {
+  @apply relative;
+}
+
+.review-comments-counter[data-pending-comment-number='0'] {
+  display: none;
+}
+
+a.blob-excerpt {
+  /* color: var(--color-text-light); */
+  /* height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; */
+  /* background: var(--color-expand-button); */
+
+  @apply -mr-2 h-[28px] items-center justify-center !bg-blue-900 text-base-content hover:!bg-primary hover:text-primary-content;
+}
+
+.lines-escape a.toggle-escape-button::before {
+  content: '⚠️';
+  font-family: var(--fonts-emoji);
+
+  @apply visible text-red-600;
+}
+
+.diff-file-box .code-diff td.lines-escape {
+  @apply pl-0;
+}

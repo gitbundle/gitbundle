@@ -1,0 +1,56 @@
+{{ if eq .PackageDescriptor.Package.Type "npm" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-code" }} {{ .i18n.Tr "packages.npm.registry" | Safe }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>{{ if .PackageDescriptor.Metadata.Scope }}{{ .PackageDescriptor.Metadata.Scope }}:{{ end }}registry={{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/npm/</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.npm.install" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>npm install {{ .PackageDescriptor.Package.Name }}@{{ .PackageDescriptor.Version.Version }}</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-code" }} {{ .i18n.Tr "packages.npm.install2" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>&quot;{{ .PackageDescriptor.Package.Name }}&quot;: &quot;{{ .PackageDescriptor.Version.Version }}&quot;</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.npm.documentation" | Safe }}</p>
+  </div>
+
+  {{ if or .PackageDescriptor.Metadata.Description .PackageDescriptor.Metadata.Readme }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <div>
+      {{ if .PackageDescriptor.Metadata.Readme }}
+        <div class="markup">
+          {{ RenderMarkdownToHtml .PackageDescriptor.Metadata.Readme }}
+        </div>
+      {{ else if .PackageDescriptor.Metadata.Description }}
+        {{ .PackageDescriptor.Metadata.Description }}
+      {{ end }}
+    </div>
+  {{ end }}
+
+  {{ if or .PackageDescriptor.Metadata.Dependencies .PackageDescriptor.Metadata.DevelopmentDependencies .PackageDescriptor.Metadata.PeerDependencies .PackageDescriptor.Metadata.OptionalDependencies }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.dependencies" }}</h4>
+    <div>
+      {{ template "package/content/npm_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.Dependencies "title" (.i18n.Tr "packages.npm.dependencies") }}
+      {{ template "package/content/npm_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.DevelopmentDependencies "title" (.i18n.Tr "packages.npm.dependencies.development") }}
+      {{ template "package/content/npm_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.PeerDependencies "title" (.i18n.Tr "packages.npm.dependencies.peer") }}
+      {{ template "package/content/npm_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.OptionalDependencies "title" (.i18n.Tr "packages.npm.dependencies.optional") }}
+    </div>
+  {{ end }}
+
+  {{ if .PackageDescriptor.Metadata.Keywords }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.keywords" }}</h4>
+    <div class="flex flex-wrap items-center gap-2">
+      {{ range .PackageDescriptor.Metadata.Keywords }}
+        <div class="badge-ghost badge">{{ . }}</div>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ end }}

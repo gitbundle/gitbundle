@@ -1,0 +1,85 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository settings -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="flex items-center justify-between text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.deploy_keys" }}
+          <div class="text-base">
+            {{ if not .DisableSSH }}
+              <div jq-show-panel class="btn-primary btn-sm btn" data-panel="#add-deploy-key-panel">{{ .i18n.Tr "repo.settings.add_deploy_key" }}</div>
+            {{ else }}
+              <div class="btn-primary disabled btn-sm btn">{{ .i18n.Tr "settings.ssh_disabled" }}</div>
+            {{ end }}
+          </div>
+        </h4>
+        <div class="divider my-2"></div>
+        <form class="{{ if not .HasError }}hidden{{ end }} mb-4" id="add-deploy-key-panel" action="{{ .Link }}" method="post">
+          {{ .CsrfTokenHtml }}
+          <div class="form-control">
+            <label class="label"
+              ><span class="label-text">
+                {{ .i18n.Tr "repo.settings.deploy_key_desc" }}
+              </span></label
+            >
+          </div>
+          <div class="{{ if .Err_Title }}error{{ end }} form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.title" }}</span></label>
+            <input class="input-bordered input" id="ssh-key-title" name="title" value="{{ .title }}" autofocus required />
+          </div>
+          <div class="{{ if .Err_Content }}error{{ end }} form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.deploy_key_content" }}</span></label>
+            <textarea class="textarea-bordered textarea leading-none" rows="8" id="ssh-key-content" name="content" placeholder="{{ .i18n.Tr "settings.key_content_ssh_placeholder" }}" required>{{ .content }}</textarea>
+          </div>
+          <div class="{{ if .Err_IsWritable }}error{{ end }} form-control">
+            <label class="label flex w-fit items-center gap-1 pb-0">
+              <input id="ssh-key-is-writable" name="is_writable" class="checkbox checkbox-sm" type="checkbox" value="1" />
+              <span class="label-text">
+                {{ .i18n.Tr "repo.settings.is_writable" }}
+              </span>
+            </label>
+            <small class="help" style="padding-left: 26px;">{{ $.i18n.Tr "repo.settings.is_writable_info" | Str2html }}</small>
+          </div>
+          <div class="mt-2 flex items-center gap-2">
+            <button class="btn-primary btn">
+              {{ .i18n.Tr "repo.settings.add_deploy_key" }}
+            </button>
+            <button jq-hide-panel type="button" class="btn" data-panel="#add-deploy-key-panel">
+              {{ .i18n.Tr "cancel" }}
+            </button>
+          </div>
+        </form>
+        {{ if .Deploykeys }}
+          {{ range .Deploykeys }}
+            <div class="flex items-center">
+              <div class="flex flex-1 items-center gap-2">
+                <div>
+                  <i class="{{ if .HasRecentActivity }}text-green-600{{ end }}" {{ if .HasRecentActivity }}data-content="{{ $.i18n.Tr "settings.key_state_desc" }}" data-variation="inverted"{{ end }}>{{ svg "octicon-key" 32 "!w-8 !h-8" }}</i>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <strong>{{ .Name }}</strong>
+                  <div class="text-gray-500">
+                    {{ .Fingerprint }}
+                  </div>
+                  <i class="flex items-center gap-1 text-gray-500">{{ $.i18n.Tr "settings.add_on" }} <span>{{ .CreatedUnix.FormatShort }}</span> — {{ svg "octicon-info" }} {{ if .HasUsed }}{{ $.i18n.Tr "settings.last_used" }} <span {{ if .HasRecentActivity }}class="text-green-600"{{ end }}>{{ .UpdatedUnix.FormatShort }}</span>{{ else }}{{ $.i18n.Tr "settings.no_activity" }}{{ end }} - <span>{{ $.i18n.Tr "settings.can_read_info" }}{{ if not .IsReadOnly }}/ {{ $.i18n.Tr "settings.can_write_info" }}{{ end }}</span></i>
+                </div>
+              </div>
+
+              <button svelte-simple-modal class="btn-outline-red btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "settings.delete_key" }}" data-href="{{ $.Link }}/delete" data-title="{{ $.i18n.Tr "repo.settings.deploy_key_deletion" }}" data-desc="{{ $.i18n.Tr "repo.settings.deploy_key_deletion_desc" }}" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">
+                {{ svg "octicon-trash" }}
+              </button>
+            </div>
+          {{ end }}
+
+        {{ else }}
+          {{ .i18n.Tr "repo.settings.no_deploy_keys" }}
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

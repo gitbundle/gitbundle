@@ -1,0 +1,89 @@
+{{ template "admin/base/header" . }}
+<div jq-admin-notice class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">{{ .i18n.Tr "admin.notices.system_notice_list" }} ({{ .i18n.Tr "admin.total" .Total }})</h4>
+
+    <table id="notice-table" class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th></th>
+          <th>ID</th>
+          <th>{{ .i18n.Tr "admin.notices.type" }}</th>
+          <th>{{ .i18n.Tr "admin.notices.desc" }}</th>
+          <th width="100px">{{ .i18n.Tr "admin.users.created" }}</th>
+          <th>{{ .i18n.Tr "admin.notices.op" }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Notices }}
+          <tr>
+            <td class="collapsing">
+              <div data-id="{{ .ID }}"><input class="checkbox checkbox-sm" type="checkbox" /></div>
+            </td>
+            <td>{{ .ID }}</td>
+            <td>{{ $.i18n.Tr .TrStr }}</td>
+            <td class="view-detail cursor-pointer"><span class="notice-description truncate whitespace-pre-wrap">{{ .Description }}</span></td>
+            <td><span class="notice-created-time tooltip" data-tip="{{ .CreatedUnix.AsTime }}">{{ .CreatedUnix.FormatShort }}</span></td>
+            <td><a class="link-hover link-primary link" href="#">{{ svg "octicon-note" 16 "view-detail" }}</a></td>
+          </tr>
+        {{ end }}
+      </tbody>
+      {{ if .Notices }}
+        <tfoot>
+          <tr>
+            <th></th>
+            <th colspan="5">
+              <div class="flex items-center justify-between">
+                <div class="flex flex-1 items-center gap-2">
+                  <div jq-dropdown class="dropdown">
+                    <label tabindex="0" class="btn-outline btn">{{ .i18n.Tr "admin.notices.actions" }}</label>
+                    <ul class="dropdown-content menu p-2">
+                      <li>
+                        <div class="action" data-action="select-all">
+                          {{ .i18n.Tr "admin.notices.select_all" }}
+                        </div>
+                      </li>
+                      <li>
+                        <div class="action" data-action="deselect-all">
+                          {{ .i18n.Tr "admin.notices.deselect_all" }}
+                        </div>
+                      </li>
+                      <li>
+                        <div class="action" data-action="inverse">
+                          {{ .i18n.Tr "admin.notices.inverse_selection" }}
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="btn-red btn" id="delete-selection" data-link="{{ .Link }}/delete" data-redirect="{{ .Link }}?page={{ .Page.Paginater.Current }}">
+                    {{ .i18n.Tr "admin.notices.delete_selected" }}
+                  </div>
+                </div>
+                <form method="post" action="{{ AppSubUrl }}/admin/notices/empty">
+                  {{ .CsrfTokenHtml }}
+                  <button type="submit" class="btn-red btn">{{ .i18n.Tr "admin.notices.delete_all" }}</button>
+                </form>
+              </div>
+            </th>
+          </tr>
+        </tfoot>
+      {{ end }}
+    </table>
+  </div>
+  {{ template "base/paginate" . }}
+  <div>
+    <input type="checkbox" id="detail-modal" class="modal-toggle" />
+    <div class="modal">
+      <div class="modal-box relative">
+        <label for="detail-modal" class="btn-sm btn-circle btn absolute right-2 top-2">✕</label>
+        <div class="text-lg font-bold">{{ $.i18n.Tr "admin.notices.view_detail_header" }}</div>
+        <div class="py-4">
+          <div jq-header></div>
+          <div jq-content></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

@@ -1,0 +1,83 @@
+[Unit]
+Description=GitBundle (A modern git service)
+After=syslog.target
+After=network.target
+###
+# Don't forget to add the database service dependencies
+###
+#
+#Wants=mysql.service
+#After=mysql.service
+#
+#Wants=mariadb.service
+#After=mariadb.service
+#
+#Wants=postgresql.service
+#After=postgresql.service
+#
+#Wants=memcached.service
+#After=memcached.service
+#
+#Wants=redis.service
+#After=redis.service
+#
+###
+# If using socket activation for main http/s
+###
+#
+#After=gitbundle.main.socket
+#Requires=gitbundle.main.socket
+#
+###
+# (You can also provide gitbundle an http fallback and/or ssh socket too)
+#
+# An example of /etc/systemd/system/gitbundle.main.socket
+###
+##
+## [Unit]
+## Description=GitBundle Web Socket
+## PartOf=gitbundle.service
+##
+## [Socket]
+## Service=gitbundle.service
+## ListenStream=<some_port>
+## NoDelay=true
+##
+## [Install]
+## WantedBy=sockets.target
+##
+###
+
+[Service]
+# Modify these two values and uncomment them if you have
+# repos with lots of files and get an HTTP error 500 because
+# of that
+###
+#LimitMEMLOCK=infinity
+#LimitNOFILE=65535
+RestartSec=2s
+Type=simple
+User=git
+Group=git
+WorkingDirectory=/var/lib/gitbundle/
+# If using Unix socket: tells systemd to create the /run/gitbundle folder, which will contain the gitbundle.sock file
+# (manually creating /run/gitbundle doesn't work, because it would not persist across reboots)
+#RuntimeDirectory=gitbundle
+ExecStart=/usr/local/bin/gitbundle web --config /etc/gitbundle/app.ini
+Restart=always
+Environment=USER=git HOME=/home/git GITBUNDLE_WORK_DIR=/var/lib/gitbundle
+# If you install Git to directory prefix other than default PATH (which happens
+# for example if you install other versions of Git side-to-side with
+# distribution version), uncomment below line and add that prefix to PATH
+# Don't forget to place git-lfs binary on the PATH below if you want to enable
+# Git LFS support
+#Environment=PATH=/path/to/git/bin:/bin:/sbin:/usr/bin:/usr/sbin
+# If you want to bind GitBundle to a port below 1024, uncomment
+# the two values below, or use socket activation to pass GitBundle its ports as above
+###
+#CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+#AmbientCapabilities=CAP_NET_BIND_SERVICE
+###
+
+[Install]
+WantedBy=multi-user.target

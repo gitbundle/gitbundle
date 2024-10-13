@@ -1,0 +1,147 @@
+{{ $isNew:=or .PageIsSettingsHooksNew .PageIsAdminDefaultHooksNew .PageIsAdminSystemHooksNew }}
+<div jq-webhook-settings class="mt-2 space-y-2">
+  <h4>{{ .i18n.Tr "repo.settings.event_desc" }}</h4>
+  <div class="form-control space-y-2">
+    <label jq-non-events class="flex items-center gap-1"><input class="radio radio-sm" name="events" type="radio" value="push_only" {{ if or $isNew .Webhook.PushOnly }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_push_only" | Str2html }}</label>
+    <label jq-non-events class="flex items-center gap-1"><input class="radio radio-sm" name="events" type="radio" value="send_everything" {{ if .Webhook.SendEverything }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_send_everything" | Str2html }}</label>
+    <label jq-events class="flex items-center gap-1"><input class="radio radio-sm" name="events" type="radio" value="choose_events" {{ if .Webhook.ChooseEvents }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_choose" | Str2html }}</label>
+  </div>
+
+  <div jq-events-fields class="{{ if not .Webhook.ChooseEvents }}hidden{{ end }} grid grid-cols-15 gap-2">
+    <!-- Repository Events -->
+    <div class="col-span-full">
+      <label>{{ .i18n.Tr "repo.settings.event_header_repository" }}</label>
+      <div class="divider my-0"></div>
+    </div>
+    <!-- Create -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="create" type="checkbox" tabindex="0" {{ if .Webhook.Create }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_create" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_create_desc" }}</span>
+    </div>
+    <!-- Delete -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="delete" type="checkbox" tabindex="0" {{ if .Webhook.Delete }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_delete" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_delete_desc" }}</span>
+    </div>
+    <!-- Fork -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="fork" type="checkbox" tabindex="0" {{ if .Webhook.Fork }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_fork" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_fork_desc" }}</span>
+    </div>
+    <!-- Push -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="push" type="checkbox" tabindex="0" {{ if .Webhook.Push }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_push" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_push_desc" }}</span>
+    </div>
+    <!-- Repository -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="repository" type="checkbox" tabindex="0" {{ if .Webhook.Repository }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_repository" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_repository_desc" }}</span>
+    </div>
+    <!-- Release -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="release" type="checkbox" tabindex="0" {{ if .Webhook.Release }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_release" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_release_desc" }}</span>
+    </div>
+    <!-- Package -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="package" type="checkbox" tabindex="0" {{ if .Webhook.Package }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_package" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_package_desc" }}</span>
+    </div>
+
+    <!-- Issue Events -->
+    <div class="col-span-full">
+      <label>{{ .i18n.Tr "repo.settings.event_header_issue" }}</label>
+      <div class="divider my-0"></div>
+    </div>
+    <!-- Issues -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issues" type="checkbox" tabindex="0" {{ if .Webhook.Issues }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_issues" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_issues_desc" }}</span>
+    </div>
+    <!-- Issue Assign -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issue_assign" type="checkbox" tabindex="0" {{ if .Webhook.IssueAssign }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_issue_assign" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_issue_assign_desc" }}</span>
+    </div>
+    <!-- Issue Label -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issue_label" type="checkbox" tabindex="0" {{ if .Webhook.IssueLabel }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_issue_label" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_issue_label_desc" }}</span>
+    </div>
+    <!-- Issue Milestone -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issue_milestone" type="checkbox" tabindex="0" {{ if .Webhook.IssueMilestone }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_issue_milestone" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_issue_milestone_desc" }}</span>
+    </div>
+    <!-- Issue Comment -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="issue_comment" type="checkbox" tabindex="0" {{ if .Webhook.IssueComment }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_issue_comment" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_issue_comment_desc" }}</span>
+    </div>
+
+    <!-- Pull Request Events -->
+    <div class="col-span-full">
+      <label>{{ .i18n.Tr "repo.settings.event_header_pull_request" }}</label>
+      <div class="divider my-0"></div>
+    </div>
+    <!-- Pull Request -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request" type="checkbox" tabindex="0" {{ if .Webhook.PullRequest }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_desc" }}</span>
+    </div>
+    <!-- Pull Request Assign -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_assign" type="checkbox" tabindex="0" {{ if .Webhook.PullRequestAssign }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request_assign" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_assign_desc" }}</span>
+    </div>
+    <!-- Pull Request Label -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_label" type="checkbox" tabindex="0" {{ if .Webhook.PullRequestLabel }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request_label" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_label_desc" }}</span>
+    </div>
+    <!-- Pull Request Milestone -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_milestone" type="checkbox" tabindex="0" {{ if .Webhook.PullRequestMilestone }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request_milestone" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_milestone_desc" }}</span>
+    </div>
+    <!-- Pull Request Comment -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_comment" type="checkbox" tabindex="0" {{ if .Webhook.PullRequestComment }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request_comment" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_comment_desc" }}</span>
+    </div>
+    <!-- Pull Request Review -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_review" type="checkbox" tabindex="0" {{ if .Webhook.PullRequestReview }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request_review" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_review_desc" }}</span>
+    </div>
+    <!-- Pull Request Sync -->
+    <div class="col-span-5">
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="pull_request_sync" type="checkbox" tabindex="0" {{ if .Webhook.PullRequestSync }}checked{{ end }} />{{ .i18n.Tr "repo.settings.event_pull_request_sync" }}</label>
+      <span class="help">{{ .i18n.Tr "repo.settings.event_pull_request_sync_desc" }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Branch filter -->
+<div class="form-control">
+  <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.branch_filter" }}</span></label>
+  <input class="input-bordered input" name="branch_filter" type="text" tabindex="0" value="{{ or .Webhook.BranchFilter "*" }}" />
+  <span class="help">{{ .i18n.Tr "repo.settings.branch_filter_desc" | Str2html }}</span>
+</div>
+
+<div class="divider my-2"></div>
+
+<div class="form-control">
+  <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="active" type="checkbox" tabindex="0" {{ if or $isNew .Webhook.IsActive }}checked{{ end }} />{{ .i18n.Tr "repo.settings.active" }}</label>
+  <p class="help">{{ .i18n.Tr "repo.settings.active_helper" }}</p>
+</div>
+<div class="mt-4 flex gap-2">
+  {{ if $isNew }}
+    <button class="btn-primary btn">{{ .i18n.Tr "repo.settings.add_webhook" }}</button>
+  {{ else }}
+    <button class="btn-primary btn">{{ .i18n.Tr "repo.settings.update_webhook" }}</button>
+    <a svelte-simple-modal class="btn-red btn" data-title="{{ $.i18n.Tr "repo.settings.webhook_deletion" }}" data-desc="{{ $.i18n.Tr "repo.settings.webhook_deletion_desc" }}" data-href="{{ .BaseLink }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .Webhook.ID }}">{{ .i18n.Tr "repo.settings.delete_webhook" }}</a>
+  {{ end }}
+</div>
+{{ Asset "js/repo-settings-webhook-settings.js" }}

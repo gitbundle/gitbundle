@@ -1,0 +1,138 @@
+<div class="flex flex-col justify-between bg-base-300 p-2">
+  <div>
+    <div class="dropdown w-full py-4">
+      <label tabindex="0" class="flex w-full items-center px-4">
+        <div class="avatar">
+          <div class="mr-3 w-6 rounded-full">
+            {{ avatar .ContextUser }}
+          </div>
+        </div>
+        <span class="overflow-hidden text-ellipsis">{{ .ContextUser.ShortName 40 }}</span>
+        {{ if .ContextUser.IsOrganization }}
+          {{ if .ContextUser.Visibility.IsLimited }}
+            <div class="badge badge-sm bg-orange-900">
+              {{ .i18n.Tr "org.settings.visibility.limited_shortname" }}
+            </div>
+          {{ end }}
+          {{ if .ContextUser.Visibility.IsPrivate }}
+            <div class="badge badge-sm bg-red-900">
+              {{ .i18n.Tr "org.settings.visibility.private_shortname" }}
+            </div>
+          {{ end }}
+        {{ end }}
+        {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+      </label>
+      <ul tabindex="0" class="dropdown-content menu rounded-box menu-compact mx-2 w-[calc(100%-1rem)] bg-base-100 p-2 shadow">
+        <li>
+          <a class="{{ if eq .ContextUser.ID .SignedUser.ID }}btn-active{{ end }} btn-ghost avatar btn justify-start px-2" href="{{ AppSubUrl }}/{{ if .PageIsIssues }}issues{{ else if .PageIsPulls }}pulls{{ else if .PageIsMilestonesDashboard }}milestones{{ end }}">
+            <div class="w-6 rounded-full">
+              {{ avatar .SignedUser }}
+            </div>
+            <span class="overflow-hidden text-ellipsis normal-case">{{ .SignedUser.ShortName 40 }}</span>
+          </a>
+        </li>
+        {{ range .Orgs }}
+          <li>
+            <a class="{{ if eq $.ContextUser.ID .ID }}btn-active{{ end }} btn-ghost avatar btn justify-start px-2" title="{{ .Name }}" href="{{ .OrganisationLink }}/{{ if $.PageIsIssues }}issues{{ else if $.PageIsPulls }}pulls{{ else if $.PageIsMilestonesDashboard }}milestones{{ else }}dashboard{{ end }}">
+              <div class="w-6 rounded-full">
+                {{ avatar . }}
+              </div>
+              <span class="overflow-hidden text-ellipsis normal-case">{{ .ShortName 40 }}</span>
+              <span>
+                {{ if .Visibility.IsLimited }}
+                  <div class="badge badge-sm bg-orange-900">
+                    {{ $.i18n.Tr "org.settings.visibility.limited_shortname" }}
+                  </div>
+                {{ end }}
+                {{ if .Visibility.IsPrivate }}
+                  <div class="badge badge-sm bg-red-900">
+                    {{ $.i18n.Tr "org.settings.visibility.private_shortname" }}
+                  </div>
+                {{ end }}
+              </span>
+            </a>
+          </li>
+        {{ end }}
+
+        {{ if .SignedUser.CanCreateOrganization }}
+          <div class="divider m-0"></div>
+          <li>
+            <a class="px-2" href="{{ AppSubUrl }}/org/create">
+              {{ svg "octicon-plus" 16 "m-1" }}{{ .i18n.Tr "new_org" }}
+            </a>
+          </li>
+        {{ end }}
+      </ul>
+    </div>
+
+    {{ if .ContextUser.IsOrganization }}
+      <div class="dropdown w-full pt-4">
+        <label tabindex="0" class="avatar w-full items-center px-4">
+          {{ svg "octicon-people" 18 "m-1 mr-3" }}
+          {{ if .Team }}
+            {{ .Team.Name }}
+          {{ else }}
+            {{ .i18n.Tr "org.teams" }}
+          {{ end }}
+          {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+        </label>
+        <ul tabindex="0" class="dropdown-content menu rounded-box menu-compact mx-2 w-[calc(100%-1rem)] bg-base-100 p-2 shadow">
+          <li class="menu-title my-3 px-2">
+            {{ .i18n.Tr "home.filter_by_team_repositories" }}
+          </li>
+          <li>
+            <a class="{{ if not $.Team }}btn-active{{ end }} btn-ghost btn justify-start px-2 normal-case" title="{{ .i18n.Tr "all" }}" href="{{ $.Org.OrganisationLink }}/{{ if $.PageIsIssues }}issues{{ else if $.PageIsPulls }}pulls{{ else if $.PageIsMilestonesDashboard }}milestones{{ else }}dashboard{{ end }}">
+              {{ .i18n.Tr "all" }}
+            </a>
+          </li>
+          {{ range .Teams }}
+            {{ if not .IncludesAllRepositories }}
+              <li>
+                <a class="{{ if $.Team }}{{ if eq $.Team.ID .ID }}btn-active{{ end }}{{ end }} btn-ghost btn justify-start px-2 normal-case" title="{{ .Name }}" href="{{ $.Org.OrganisationLink }}/{{ if $.PageIsIssues }}issues{{ else if $.PageIsPulls }}pulls{{ else if $.PageIsMilestonesDashboard }}milestones{{ else }}dashboard{{ end }}/{{ .Name }}">
+                  {{ .Name }}
+                </a>
+              </li>
+            {{ end }}
+          {{ end }}
+        </ul>
+      </div>
+    {{ end }}
+
+    {{ if .ContextUser.IsOrganization }}
+      <ul class="menu rounded-box w-full p-2">
+        <li>
+          <a class="{{ if .PageIsNews }}btn-active{{ end }} btn-ghost btn justify-start" href="{{ .ContextUser.DashboardLink }}{{ if .Team }}/{{ PathEscape .Team.Name }}{{ end }}">
+            {{ svg "octicon-rss" }}&nbsp;{{ .i18n.Tr "activities" }}
+          </a>
+        </li>
+        {{ if not .UnitIssuesGlobalDisabled }}
+          <li>
+            <a class="{{ if .PageIsIssues }}btn-active{{ end }} btn-ghost btn justify-start" href="{{ .ContextUser.OrganisationLink }}/issues{{ if .Team }}/{{ PathEscape .Team.Name }}{{ end }}">
+              {{ svg "octicon-issue-opened" }}&nbsp;{{ .i18n.Tr "issues" }}
+            </a>
+          </li>
+        {{ end }}
+        {{ if not .UnitPullsGlobalDisabled }}
+          <li>
+            <a class="{{ if .PageIsPulls }}btn-active{{ end }} btn-ghost btn justify-start" href="{{ .ContextUser.OrganisationLink }}/pulls{{ if .Team }}/{{ PathEscape .Team.Name }}{{ end }}">
+              {{ svg "octicon-git-pull-request" }}&nbsp;{{ .i18n.Tr "pull_requests" }}
+            </a>
+          </li>
+        {{ end }}
+        {{ if and .ShowMilestonesDashboardPage (not (and .UnitIssuesGlobalDisabled .UnitPullsGlobalDisabled)) }}
+          <li>
+            <a class="{{ if .PageIsMilestonesDashboard }}btn-active{{ end }} btn-ghost btn justify-start" href="{{ .ContextUser.OrganisationLink }}/milestones{{ if .Team }}/{{ PathEscape .Team.Name }}{{ end }}">
+              {{ svg "octicon-milestone" }}&nbsp;{{ .i18n.Tr "milestones" }}
+            </a>
+          </li>
+        {{ end }}
+        <li>
+          <a class="btn-primary btn w-full justify-start" href="{{ .ContextUser.HomeLink }}" title="{{ .i18n.Tr "home.view_home" .ContextUser.Name }}">
+            {{ .i18n.Tr "home.view_home" (.ContextUser.ShortName 40) }}
+          </a>
+        </li>
+      </ul>
+    {{ end }}
+  </div>
+  <p class="pl-4 text-base-content/40 text-xs">{{ .i18n.Tr "version" }}: {{ AppVer }}</p>
+</div>

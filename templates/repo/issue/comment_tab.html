@@ -1,0 +1,25 @@
+<div jq-comment-tab class="space-y-4">
+  <div jq-tabs class="tabs" data-write="write" data-preview="preview">
+    <span class="cu-tab-lifted cu-tab tab-active" data-tab="write">{{ .i18n.Tr "write" }}</span>
+    <span class="cu-tab-lifted cu-tab" data-tab="preview" data-url="{{ .Repository.HTMLURL }}/markdown" data-context="{{ .RepoLink }}">{{ .i18n.Tr "preview" }}</span>
+  </div>
+  <div jq-contents>
+    <div data-tab="write">
+      <textarea id="content" class="edit_area js-quick-submit textarea-bordered textarea w-full" name="content" tabindex="4" data-id="issue-{{ .RepoName }}" data-url="{{ .Repository.HTMLURL }}/markdown" data-context="{{ .Repo.RepoLink }}">
+			{{- if .BodyQuery }}{{ .BodyQuery }}{{ else if .IssueTemplate }}{{ .IssueTemplate }}{{ else if .PullRequestTemplate }}{{ .PullRequestTemplate }}{{ else }}{{ .content }}{{ end -}}
+      </textarea>
+    </div>
+    <div data-tab="preview" class="markup hidden">
+      <div class="text-center">
+        {{ template "base/loading" }}
+        {{ .i18n.Tr "loading" }}
+      </div>
+    </div>
+  </div>
+  {{ if .IsAttachmentEnabled }}
+    <div>
+      {{ template "repo/upload" . }}
+    </div>
+  {{ end }}
+</div>
+{{ Asset "js/repo-issue-comment_tab.js" }}

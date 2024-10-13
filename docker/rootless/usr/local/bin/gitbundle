@@ -1,0 +1,40 @@
+#!/bin/bash
+
+###############################################################
+# This script sets defaults for gitbundle to run in the container #
+###############################################################
+
+# It assumes that you place this script as gitbundle in /usr/local/bin
+#
+# And place the original in /usr/lib/gitbundle with working files in /data/gitbundle
+GITBUNDLE="/app/gitbundle/gitbundle"
+WORK_DIR="/var/lib/gitbundle"
+APP_INI="/etc/gitbundle/app.ini"
+
+APP_INI_SET=""
+for i in "$@"; do
+	case "$i" in
+	"-c")
+		APP_INI_SET=1
+		;;
+	"-c="*)
+		APP_INI_SET=1
+		;;
+	"--config")
+		APP_INI_SET=1
+		;;
+	"--config="*)
+		APP_INI_SET=1
+		;;
+	*)
+	;;
+	esac
+done
+
+if [ -z "$APP_INI_SET" ]; then
+	CONF_ARG=("-c" "${GITBUNDLE_APP_INI:-$APP_INI}")
+fi
+
+
+# Provide docker defaults
+GITBUNDLE_WORK_DIR="${GITBUNDLE_WORK_DIR:-$WORK_DIR}" exec -a "$0" "$GITBUNDLE" "${CONF_ARG[@]}" "$@"

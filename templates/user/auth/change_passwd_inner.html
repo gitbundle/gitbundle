@@ -1,0 +1,24 @@
+<h4 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+  {{ .i18n.Tr "settings.change_password" }}
+</h4>
+{{ if or (not .LinkAccountMode) (and .LinkAccountMode .LinkAccountModeSignIn) }}
+  <div class="px-4">
+    {{ template "base/alert" . }}
+  </div>
+{{ end }}
+<form class="ignore-dirty mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .ChangePasscodeLink }}" method="post">
+  {{ .CsrfTokenHtml }}
+  <div class="required {{ if and (.Err_Password) (or (not .LinkAccountMode) (and .LinkAccountMode .LinkAccountModeSignIn)) }}error{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "password" }}</span></label>
+    <input class="input-bordered input" id="password" name="password" type="password" value="{{ .password }}" autocomplete="new-password" required />
+  </div>
+
+  <div class="required {{ if and (.Err_Password) (or (not .LinkAccountMode) (and .LinkAccountMode .LinkAccountModeRegister)) }}error{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "re_type" }}</span></label>
+    <input class="input-bordered input" id="retype" name="retype" type="password" autocomplete="new-password" required />
+  </div>
+
+  <div class="form-control">
+    <button class="btn-primary btn">{{ .i18n.Tr "settings.change_password" }}</button>
+  </div>
+</form>

@@ -1,0 +1,16 @@
+{{ template "user/dashboard/header" . }}
+<div class="my-4 flex flex-1 justify-between gap-8 px-8">
+  <div class="mx-auto flex w-full max-w-7xl gap-8">
+    <!-- <div class="mx-auto flex w-full flex-col space-y-4 xl:w-[70%] cu-w:max-w-[calc((2560px-20rem)*0.7)]"> -->
+    <div class="flex w-full max-w-4xl flex-col space-y-4">
+      {{ template "base/alert" . }}
+      {{ template "user/heatmap" . }}
+      {{ template "user/dashboard/feeds" . }}
+    </div>
+    <!-- <div class="hidden xl:flex xl:w-[30%] cu-w:max-w-[calc((2560px-20rem)*0.3)]"> -->
+    <div class="hidden h-fit w-full max-w-sm xl:flex">
+      {{ template "user/dashboard/repolist" . }}
+    </div>
+  </div>
+</div>
+{{ template "user/dashboard/footer" . }}

@@ -1,0 +1,127 @@
+{{ template "base/head" . }}
+<!--  organization new team -->
+<div jq-org-team-new class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    <form action="{{ if .PageIsOrgTeamsNew }}{{ .OrgLink }}/teams/new{{ else }}{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}/edit{{ end }}" data-delete-url="{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}/delete" method="post">
+      {{ .CsrfTokenHtml }}
+      <h3 class="text-xl font-bold">{{ if .PageIsOrgTeamsNew }}{{ .i18n.Tr "org.create_new_team" }}{{ else }}{{ .i18n.Tr "org.teams.settings" }}{{ end }}</h3>
+      <div class="divider my-2"></div>
+      {{ template "base/alert" . }}
+      <div class="required {{ if .Err_TeamName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "org.team_name" }}</span></label>
+        {{ if eq .Team.LowerName "owners" }}
+          <input type="hidden" name="team_name" value="{{ .Team.Name }}" />
+        {{ end }}
+        <input class="{{ if eq .Team.LowerName "owners" }}disabled{{ end }} input-bordered input" id="team_name" name="team_name" value="{{ .Team.Name }}" required autofocus />
+        <span class="help">{{ .i18n.Tr "org.team_name_helper" }}</span>
+      </div>
+      <div class="{{ if .Err_Description }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "org.team_desc" }}</span></label>
+        <input class="input-bordered input" id="description" name="description" value="{{ .Team.Description }}" />
+        <span class="help">{{ .i18n.Tr "org.team_desc_helper" }}</span>
+      </div>
+      {{ if not (eq .Team.LowerName "owners") }}
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "org.team_access_desc" }}</span></label>
+          <div>
+            <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="repo_access" value="specific" {{ if not .Team.IncludesAllRepositories }}checked{{ end }} />{{ .i18n.Tr "org.teams.specific_repositories" }}</label>
+            <span class="help">{{ .i18n.Tr "org.teams.specific_repositories_helper" | Str2html }}</span>
+          </div>
+          <div class="mt-2">
+            <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="repo_access" value="all" {{ if .Team.IncludesAllRepositories }}checked{{ end }} />{{ .i18n.Tr "org.teams.all_repositories" }}</label>
+            <span class="help">{{ .i18n.Tr "org.teams.all_repositories_helper" | Str2html }}</span>
+          </div>
+          <div class="mt-2">
+            <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="can_create_org_repo" name="can_create_org_repo" type="checkbox" {{ if .Team.CanCreateOrgRepo }}checked{{ end }} />{{ .i18n.Tr "org.teams.can_create_org_repo" }}</label>
+            <span class="help">{{ .i18n.Tr "org.teams.can_create_org_repo_helper" }}</span>
+          </div>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "org.team_permission_desc" }}</span></label>
+          <div>
+            <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="permission" value="read" {{ if or .PageIsOrgTeamsNew (eq .Team.AccessMode 1) (eq .Team.AccessMode 2) }}checked{{ end }} />{{ .i18n.Tr "org.teams.general_access" }}</label>
+            <span class="help">{{ .i18n.Tr "org.teams.general_access_helper" }}</span>
+          </div>
+          <div class="mt-2">
+            <label class="flex items-center gap-1"><input class="radio radio-sm" type="radio" name="permission" value="admin" {{ if eq .Team.AccessMode 3 }}checked{{ end }} />{{ .i18n.Tr "org.teams.admin_access" }}</label>
+            <span class="help">{{ .i18n.Tr "org.teams.admin_access_helper" }}</span>
+          </div>
+        </div>
+        <div class="divider my-2"></div>
+
+        <div jq-team-units class="required {{ if eq .Team.AccessMode 3 }}hidden{{ end }} form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "org.team_unit_desc" }}</span></label>
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="text-center">{{ .i18n.Tr "units.unit" }}</th>
+                <th>
+                  <div class="flex items-center justify-center gap-1">{{ .i18n.Tr "org.teams.none_access" }}<span class="tooltip" data-tip="{{ .i18n.Tr "org.teams.none_access_helper" }}">{{ svg "fa-circle-question-solid" }}</span></div>
+                </th>
+                <th>
+                  <div class="flex items-center justify-center gap-1">
+                    {{ .i18n.Tr "org.teams.read_access" }}
+                    <span class="tooltip" data-tip="{{ .i18n.Tr "org.teams.read_access_helper" }}">{{ svg "fa-circle-question-solid" }}</span>
+                  </div>
+                </th>
+                <th>
+                  <div class="flex items-center justify-center gap-1">
+                    {{ .i18n.Tr "org.teams.write_access" }}
+                    <span class="tooltip" data-tip="{{ .i18n.Tr "org.teams.write_access_helper" }}">{{ svg "fa-circle-question-solid" }}</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $t, $unit := $.Units }}
+                {{ if ge $unit.MaxPerm 2 }}
+                  <tr>
+                    <td>
+                      <div {{ if $unit.Type.UnitGlobalDisabled }}class="tooltip" data-tip="{{ $.i18n.Tr "repo.unit_disabled" }}"{{- else -}}class="field"{{ end }}>
+                        <div class="ui">
+                          <label>{{ $.i18n.Tr $unit.NameKey }}{{ if $unit.Type.UnitGlobalDisabled }}{{ $.i18n.Tr "org.team_unit_disabled" }}{{ end }}</label>
+                          <span class="help">{{ $.i18n.Tr $unit.DescKey }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <input class="radio radio-sm" type="radio" class="hidden" name="unit_{{ $unit.Type.Value }}" value="0" {{ if or ($unit.Type.UnitGlobalDisabled) (eq ($.Team.UnitAccessMode $unit.Type) 0) }}checked{{ end }} />
+                    </td>
+                    <td class="text-center">
+                      <input class="radio radio-sm" type="radio" class="hidden" name="unit_{{ $unit.Type.Value }}" value="1" {{ if or (eq $.Team.ID 0) (eq ($.Team.UnitAccessMode $unit.Type) 1) }}checked{{ end }} {{ if $unit.Type.UnitGlobalDisabled }}disabled{{ end }} />
+                    </td>
+                    <td class="text-center">
+                      <input class="radio radio-sm" type="radio" class="hidden" name="unit_{{ $unit.Type.Value }}" value="2" {{ if (eq ($.Team.UnitAccessMode $unit.Type) 2) }}checked{{ end }} {{ if $unit.Type.UnitGlobalDisabled }}disabled{{ end }} />
+                    </td>
+                  </tr>
+                {{ end }}
+              {{ end }}
+            </tbody>
+          </table>
+          {{ range $t, $unit := $.Units }}
+            {{ if lt $unit.MaxPerm 2 }}
+              <div {{ if $unit.Type.UnitGlobalDisabled }}class="tooltip form-control" data-tip="{{ $.i18n.Tr "repo.unit_disabled" }}"{{ else }}class="form-control mt-2"{{ end }}>
+                <label class="flex items-center gap-1"><input type="checkbox" class="checkbox checkbox-sm" name="unit_{{ $unit.Type.Value }}" value="1" {{ if or (eq $.Team.ID 0) (eq ($.Team.UnitAccessMode $unit.Type) 1) }}checked{{ end }} {{ if $unit.Type.UnitGlobalDisabled }}disabled{{ end }} />{{ $.i18n.Tr $unit.NameKey }}{{ if $unit.Type.UnitGlobalDisabled }}{{ $.i18n.Tr "org.team_unit_disabled" }}{{ end }}</label>
+                <span class="help">{{ $.i18n.Tr $unit.DescKey }}</span>
+              </div>
+            {{ end }}
+          {{ end }}
+        </div>
+      {{ end }}
+      <div class="mt-4 flex items-center gap-2">
+        {{ if .PageIsOrgTeamsNew }}
+          <button class="btn-primary btn">{{ .i18n.Tr "org.create_team" }}</button>
+          <a class="btn" href="{{ .OrgLink }}/teams">{{ .i18n.Tr "cancel" }}</a>
+        {{ else }}
+          <button class="btn-primary btn">{{ .i18n.Tr "org.teams.update_settings" }}</button>
+          {{ if not (eq .Team.LowerName "owners") }}
+            <button svelte-simple-modal type="button" class="delete-button btn-red btn" data-title="{{ $.i18n.Tr "org.teams.delete_team_title" }}" data-desc="{{ $.i18n.Tr "org.teams.delete_team_desc" }}" data-href="{{ .OrgLink }}/teams/{{ .team_name | PathEscape }}/delete">{{ .i18n.Tr "org.teams.delete_team" }}</button>
+          {{ end }}
+        {{ end }}
+      </div>
+    </form>
+  </div>
+  {{ Asset "js/org-team-new.js" }}
+</div>
+{{ template "base/footer" . }}

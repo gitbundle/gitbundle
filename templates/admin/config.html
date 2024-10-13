@@ -1,0 +1,412 @@
+{{ template "admin/base/header" . }}
+<div class="mx-auto my-4 w-full max-w-[1280px] flex-1 space-y-4 px-4">
+  {{ template "base/alert" . }}
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.server_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.app_name" }}</dt>
+      <dd class="col-span-6">{{ AppName }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.app_ver" }}</dt>
+      <dd class="col-span-6">{{ AppVer }}{{ AppBuiltWith }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.custom_conf" }}</dt>
+      <dd class="col-span-6">{{ .CustomConf }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.app_url" }}</dt>
+      <dd class="col-span-6">{{ .AppUrl }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.domain" }}</dt>
+      <dd class="col-span-6">{{ .Domain }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.offline_mode" }}</dt>
+      <dd class="col-span-6">{{ if .OfflineMode }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.disable_router_log" }}</dt>
+      <dd class="col-span-6">{{ if .DisableRouterLog }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+
+      <div class="divider col-span-full my-2"></div>
+
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.run_user" }}</dt>
+      <dd class="col-span-6">{{ .RunUser }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.run_mode" }}</dt>
+      <dd class="col-span-6">{{ .RunMode }}</dd>
+
+      <div class="divider col-span-full my-2"></div>
+
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_version" }}</dt>
+      <dd class="col-span-6">{{ .GitVersion }}</dd>
+
+      <div class="divider col-span-full my-2"></div>
+
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.repo_root_path" }}</dt>
+      <dd class="col-span-6">{{ .RepoRootPath }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.static_file_root_path" }}</dt>
+      <dd class="col-span-6">{{ .StaticRootPath }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.custom_file_root_path" }}</dt>
+      <dd class="col-span-6">{{ .CustomRootPath }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.log_file_root_path" }}</dt>
+      <dd class="col-span-6">{{ .LogRootPath }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.script_type" }}</dt>
+      <dd class="col-span-6">{{ .ScriptType }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.reverse_auth_user" }}</dt>
+      <dd class="col-span-6">{{ .ReverseProxyAuthUser }}</dd>
+
+      {{ if .EnvVars }}
+        <div class="divider col-span-full my-2"></div>
+        {{ range .EnvVars }}
+          <dt class="col-span-4">{{ .Name }}</dt>
+          <dd class="col-span-6">{{ .Value }}</dd>
+        {{ end }}
+      {{ end }}
+
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.ssh_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_enabled" }}</dt>
+      <dd class="col-span-6">{{ if not .SSH.Disabled }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      {{ if not .SSH.Disabled }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_start_builtin_server" }}</dt>
+        <dd class="col-span-6">{{ if .SSH.StartBuiltinServer }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_domain" }}</dt>
+        <dd class="col-span-6">{{ .SSH.Domain }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_port" }}</dt>
+        <dd class="col-span-6">{{ .SSH.Port }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_listen_port" }}</dt>
+        <dd class="col-span-6">{{ .SSH.ListenPort }}</dd>
+
+        {{ if not .SSH.StartBuiltinServer }}
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_root_path" }}</dt>
+          <dd class="col-span-6">{{ .SSH.RootPath }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_key_test_path" }}</dt>
+          <dd class="col-span-6">{{ .SSH.KeyTestPath }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_keygen_path" }}</dt>
+          <dd class="col-span-6">{{ .SSH.KeygenPath }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_minimum_key_size_check" }}</dt>
+          <dd class="col-span-6">{{ if .SSH.MinimumKeySizeCheck }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+          {{ if .SSH.MinimumKeySizeCheck }}
+            <dt class="col-span-4">{{ .i18n.Tr "admin.config.ssh_minimum_key_sizes" }}</dt>
+            <dd class="col-span-6">{{ .SSH.MinimumKeySizes }}</dd>
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.lfs_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.lfs_enabled" }}</dt>
+      <dd class="col-span-6">{{ if .LFS.StartServer }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      {{ if .LFS.StartServer }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.lfs_content_path" }}</dt>
+        <dd class="col-span-6">{{ .LFS.Path }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.lfs_http_auth_expiry" }}</dt>
+        <dd class="col-span-6">{{ .LFS.HTTPAuthExpiry }}</dd>
+      {{ end }}
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.db_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_type" }}</dt>
+      <dd class="col-span-6">{{ .DbCfg.Type }}</dd>
+      {{ if not (eq .DbCfg.Type "sqlite3") }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_host" }}</dt>
+        <dd class="col-span-6">{{ if .DbCfg.Host }}{{ .DbCfg.Host }}{{ else }}-{{ end }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_name" }}</dt>
+        <dd class="col-span-6">{{ if .DbCfg.Name }}{{ .DbCfg.Name }}{{ else }}-{{ end }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_user" }}</dt>
+        <dd class="col-span-6">{{ if .DbCfg.User }}{{ .DbCfg.User }}{{ else }}-{{ end }}</dd>
+      {{ end }}
+      {{ if eq .DbCfg.Type "postgres" }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_schema" }}</dt>
+        <dd class="col-span-6">{{ if .DbCfg.Schema }}{{ .DbCfg.Schema }}{{ else }}-{{ end }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_ssl_mode" }}</dt>
+        <dd class="col-span-6">{{ if .DbCfg.SSLMode }}{{ .DbCfg.SSLMode }}{{ else }}-{{ end }}</dd>
+      {{ end }}
+      {{ if eq .DbCfg.Type "sqlite3" }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.db_path" }}</dt>
+        <dd class="col-span-6">{{ if .DbCfg.Path }}{{ .DbCfg.Path }}{{ else }}-{{ end }}</dd>
+      {{ end }}
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.service_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.register_email_confirm" }}</dt>
+      <dd class="col-span-6">{{ if .Service.RegisterEmailConfirm }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.disable_register" }}</dt>
+      <dd class="col-span-6">{{ if .Service.DisableRegistration }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.allow_only_internal_registration" }}</dt>
+      <dd class="col-span-6">{{ if .Service.AllowOnlyInternalRegistration }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.allow_only_external_registration" }}</dt>
+      <dd class="col-span-6">{{ if .Service.AllowOnlyExternalRegistration }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.show_registration_button" }}</dt>
+      <dd class="col-span-6">{{ if .Service.ShowRegistrationButton }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.enable_openid_signup" }}</dt>
+      <dd class="col-span-6">{{ if .Service.EnableOpenIDSignUp }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.enable_openid_signin" }}</dt>
+      <dd class="col-span-6">{{ if .Service.EnableOpenIDSignIn }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.require_sign_in_view" }}</dt>
+      <dd class="col-span-6">{{ if .Service.RequireSignInView }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.mail_notify" }}</dt>
+      <dd class="col-span-6">{{ if .Service.EnableNotifyMail }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.disable_key_size_check" }}</dt>
+      <dd class="col-span-6">{{ if .SSH.MinimumKeySizeCheck }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.enable_captcha" }}</dt>
+      <dd class="col-span-6">{{ if .Service.EnableCaptcha }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.default_keep_email_private" }}</dt>
+      <dd class="col-span-6">{{ if .Service.DefaultKeepEmailPrivate }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.default_allow_create_organization" }}</dt>
+      <dd class="col-span-6">{{ if .Service.DefaultAllowCreateOrganization }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.enable_timetracking" }}</dt>
+      <dd class="col-span-6">{{ if .Service.EnableTimetracking }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      {{ if .Service.EnableTimetracking }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.default_enable_timetracking" }}</dt>
+        <dd class="col-span-6">{{ if .Service.DefaultEnableTimetracking }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.default_allow_only_contributors_to_track_time" }}</dt>
+        <dd class="col-span-6">{{ if .Service.DefaultAllowOnlyContributorsToTrackTime }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      {{ end }}
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.default_visibility_organization" }}</dt>
+      <dd class="col-span-6">{{ .Service.DefaultOrgVisibility }}</dd>
+
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.no_reply_address" }}</dt>
+      <dd class="col-span-6">{{ if .Service.NoReplyAddress }}{{ .Service.NoReplyAddress }}{{ else }}-{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.default_enable_dependencies" }}</dt>
+      <dd class="col-span-6">{{ if .Service.DefaultEnableDependencies }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <div class="divider col-span-full my-2"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.active_code_lives" }}</dt>
+      <dd class="col-span-6">{{ .Service.ActiveCodeLives }} {{ .i18n.Tr "tool.raw_minutes" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.reset_password_code_lives" }}</dt>
+      <dd class="col-span-6">{{ .Service.ResetPwdCodeLives }} {{ .i18n.Tr "tool.raw_minutes" }}</dd>
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.webhook_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.queue_length" }}</dt>
+      <dd class="col-span-6">{{ .Webhook.QueueLength }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.deliver_timeout" }}</dt>
+      <dd class="col-span-6">{{ .Webhook.DeliverTimeout }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.skip_tls_verify" }}</dt>
+      <dd class="col-span-6">{{ if .Webhook.SkipTLSVerify }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.mailer_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_enabled" }}</dt>
+      <dd class="col-span-6">{{ if .MailerEnabled }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      {{ if .MailerEnabled }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_name" }}</dt>
+        <dd class="col-span-6">{{ .Mailer.Name }}</dd>
+        {{ if eq .Mailer.MailerType "smtp" }}
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_disable_helo" }}</dt>
+          <dd class="col-span-6">{{ if .Mailer.DisableHelo }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_host" }}</dt>
+          <dd class="col-span-6">{{ .Mailer.Host }}</dd>
+        {{ else if eq .Mailer.MailerType "sendmail" }}
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_use_sendmail" }}</dt>
+          <dd class="col-span-6">{{ svg "octicon-check" }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_sendmail_path" }}</dt>
+          <dd class="col-span-6">{{ .Mailer.SendmailPath }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_sendmail_args" }}</dt>
+          <dd class="col-span-6">{{ .Mailer.SendmailArgs }}</dd>
+          <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_sendmail_timeout" }}</dt>
+          <dd class="col-span-6">{{ .Mailer.SendmailTimeout }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+        {{ end }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.mailer_user" }}</dt>
+        <dd class="col-span-6">{{ if .Mailer.User }}{{ .Mailer.User }}{{ else }}(empty){{ end }}</dd>
+        <form class="ignore-dirty col-span-full mt-2 grid grid-cols-10 gap-4" action="{{ AppSubUrl }}/admin/config/test_mail" method="post">
+          <div class="col-span-4">
+            {{ .CsrfTokenHtml }}
+            <input class="input-bordered input w-full" type="email" name="email" placeholder="{{ .i18n.Tr "admin.config.test_email_placeholder" }}" size="29" required />
+          </div>
+          <div class="col-span-6">
+            <button class="btn-primary btn" id="test-mail-btn">{{ .i18n.Tr "admin.config.send_test_mail" }}</button>
+          </div>
+        </form>
+      {{ end }}
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.cache_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.cache_adapter" }}</dt>
+      <dd class="col-span-6">{{ .CacheAdapter }}</dd>
+      {{ if eq .CacheAdapter "memory" }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.cache_interval" }}</dt>
+        <dd class="col-span-6">{{ .CacheInterval }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      {{ end }}
+      {{ if .CacheConn }}
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.cache_conn" }}</dt>
+        <dd class="col-span-6"><code>{{ .CacheConn }}</code></dd>
+        <dt class="col-span-4">{{ .i18n.Tr "admin.config.cache_item_ttl" }}</dt>
+        <dd class="col-span-6"><code>{{ .CacheItemTTL }}</code></dd>
+      {{ end }}
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.session_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.session_provider" }}</dt>
+      <dd class="col-span-6">{{ .SessionConfig.Provider }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.provider_config" }}</dt>
+      <dd class="col-span-6"><code>{{ if .SessionConfig.ProviderConfig }}{{ .SessionConfig.ProviderConfig }}{{ else }}-{{ end }}</code></dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.cookie_name" }}</dt>
+      <dd class="col-span-6">{{ .SessionConfig.CookieName }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.gc_interval_time" }}</dt>
+      <dd class="col-span-6">{{ .SessionConfig.Gclifetime }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.session_life_time" }}</dt>
+      <dd class="col-span-6">{{ .SessionConfig.Maxlifetime }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.https_only" }}</dt>
+      <dd class="col-span-6">{{ if .SessionConfig.Secure }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.picture_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.disable_gravatar" }}</dt>
+      <dd class="col-span-6">{{ if .DisableGravatar }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <div class="divider col-span-full my-2"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.enable_federated_avatar" }}</dt>
+      <dd class="col-span-6">{{ if .EnableFederatedAvatar }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.git_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_disable_diff_highlight" }}</dt>
+      <dd class="col-span-6">{{ if .Git.DisableDiffHighlight }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_max_diff_lines" }}</dt>
+      <dd class="col-span-6">{{ .Git.MaxGitDiffLines }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_max_diff_line_characters" }}</dt>
+      <dd class="col-span-6">{{ .Git.MaxGitDiffLineCharacters }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_max_diff_files" }}</dt>
+      <dd class="col-span-6">{{ .Git.MaxGitDiffFiles }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_gc_args" }}</dt>
+      <dd class="col-span-6"><code>{{ .Git.GCArgs }}</code></dd>
+      <div class="divider col-span-full my-2"></div>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_migrate_timeout" }}</dt>
+      <dd class="col-span-6">{{ .Git.Timeout.Migrate }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_mirror_timeout" }}</dt>
+      <dd class="col-span-6">{{ .Git.Timeout.Mirror }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_clone_timeout" }}</dt>
+      <dd class="col-span-6">{{ .Git.Timeout.Clone }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_pull_timeout" }}</dt>
+      <dd class="col-span-6">{{ .Git.Timeout.Pull }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+      <dt class="col-span-4">{{ .i18n.Tr "admin.config.git_gc_timeout" }}</dt>
+      <dd class="col-span-6">{{ .Git.Timeout.GC }} {{ .i18n.Tr "tool.raw_seconds" }}</dd>
+    </dl>
+  </div>
+
+  <div class="rounded-lg border">
+    <h4 class="rounded-t-lg border-b bg-base-200 px-4 py-2">
+      {{ .i18n.Tr "admin.config.log_config" }}
+    </h4>
+
+    <dl class="grid grid-cols-10 px-4 py-2">
+      {{ range .Loggers.default.SubLogDescriptions }}
+        <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_mode" }}</dt>
+        <dd class="col-span-6">{{ .Name }} ({{ .Provider }})</dd>
+        <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_config" }}</dt>
+        <dd class="col-span-6"><pre>{{ .Config | JsonPrettyPrint }}</pre></dd>
+      {{ end }}
+      <div class="divider col-span-full my-2"></div>
+      <dt class="col-span-4">{{ $.i18n.Tr "admin.config.router_log_mode" }}</dt>
+      {{ if .DisableRouterLog }}
+        <dd class="col-span-6">{{ $.i18n.Tr "admin.config.disabled_logger" }}</dd>
+      {{ else }}
+        {{ if .Loggers.router.SubLogDescriptions }}
+          <dd class="col-span-6">{{ $.i18n.Tr "admin.config.own_named_logger" }}</dd>
+          {{ range .Loggers.router.SubLogDescriptions }}
+            <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_mode" }}</dt>
+            <dd class="col-span-6">{{ .Name }} ({{ .Provider }})</dd>
+            <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_config" }}</dt>
+            <dd class="col-span-6"><pre>{{ .Config | JsonPrettyPrint }}</pre></dd>
+          {{ end }}
+        {{ else }}
+          <dd class="col-span-6">{{ $.i18n.Tr "admin.config.routes_to_default_logger" }}</dd>
+        {{ end }}
+      {{ end }}
+      <div class="divider col-span-full my-2"></div>
+      <dt class="col-span-4">{{ $.i18n.Tr "admin.config.access_log_mode" }}</dt>
+      {{ if .EnableAccessLog }}
+        {{ if .Loggers.access.SubLogDescriptions }}
+          <dd class="col-span-6">{{ $.i18n.Tr "admin.config.own_named_logger" }}</dd>
+          {{ range .Loggers.access.SubLogDescriptions }}
+            <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_mode" }}</dt>
+            <dd class="col-span-6">{{ .Name }} ({{ .Provider }})</dd>
+            <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_config" }}</dt>
+            <dd class="col-span-6"><pre>{{ .Config | JsonPrettyPrint }}</pre></dd>
+          {{ end }}
+        {{ else }}
+          <dd class="col-span-6">{{ $.i18n.Tr "admin.config.routes_to_default_logger" }}</dd>
+        {{ end }}
+        <dt class="col-span-4">{{ $.i18n.Tr "admin.config.access_log_template" }}</dt>
+        <dd class="col-span-6"><code>{{ $.AccessLogTemplate }}</code></dd>
+      {{ else }}
+        <dd class="col-span-6">{{ $.i18n.Tr "admin.config.disabled_logger" }}</dd>
+      {{ end }}
+      <div class="divider col-span-full my-2"></div>
+      <dt class="col-span-4">{{ $.i18n.Tr "admin.config.xorm_log_mode" }}</dt>
+      {{ if .EnableXORMLog }}
+        {{ if .Loggers.xorm.SubLogDescriptions }}
+          <dd class="col-span-6">{{ $.i18n.Tr "admin.config.own_named_logger" }}</dd>
+          {{ range .Loggers.xorm.SubLogDescriptions }}
+            <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_mode" }}</dt>
+            <dd class="col-span-6">{{ .Name }} ({{ .Provider }})</dd>
+            <dt class="col-span-4">{{ $.i18n.Tr "admin.config.log_config" }}</dt>
+            <dd class="col-span-6"><pre>{{ .Config | JsonPrettyPrint }}</pre></dd>
+          {{ end }}
+        {{ else }}
+          <dd class="col-span-6">{{ $.i18n.Tr "admin.config.routes_to_default_logger" }}</dd>
+        {{ end }}
+        <dt class="col-span-4">{{ $.i18n.Tr "admin.config.xorm_log_sql" }}</dt>
+        <dd class="col-span-6">{{ if $.LogSQL }}{{ svg "octicon-check" }}{{ else }}{{ svg "octicon-x" }}{{ end }}</dd>
+      {{ else }}
+        <dd class="col-span-6">{{ $.i18n.Tr "admin.config.disabled_logger" }}</dd>
+      {{ end }}
+    </dl>
+  </div>
+</div>
+{{ template "admin/base/footer" . }}

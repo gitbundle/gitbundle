@@ -1,0 +1,30 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository file editor edit -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <!-- ui edit form -->
+    <form method="post" action="{{ .RepoLink }}/_cherrypick/{{ .SHA }}/{{ .BranchName  | PathEscapeSegments }}">
+      {{ .CsrfTokenHtml }}
+      <input type="hidden" name="last_commit" value="{{ .last_commit }}" />
+      <input type="hidden" name="page_has_posted" value="true" />
+      <input type="hidden" name="revert" value="{{ if eq .CherryPickType "revert" }}true{{ else }}false{{ end }}" />
+      <div class="cu-links-primary {{ if .Err_TreePath }}error{{ end }} mb-4 flex items-center gap-x-1">
+        {{ $shaurl := printf "%s/commit/%s" $.RepoLink (PathEscape .SHA) }}
+        {{ $shalink := printf "<a class=\"ui primary sha label\" href=\"%s\">%s</a>" (Escape $shaurl) (ShortSha .SHA) }}
+        {{ if eq .CherryPickType "revert" }}
+          {{ .i18n.Tr "repo.editor.revert" $shalink | Str2html }}
+        {{ else }}
+          {{ .i18n.Tr "repo.editor.cherry_pick" $shalink | Str2html }}
+        {{ end }}
+        <a href="{{ $.RepoLink }}">{{ .Repository.FullName }}</a>
+        <div class="divider-horizontal mx-1 w-1">:</div>
+        <a href="{{ $.BranchLink }}">{{ .BranchName }}</a>
+        <span>{{ .i18n.Tr "repo.editor.or" }} <a href="{{ $shaurl }}">{{ .i18n.Tr "repo.editor.cancel_lower" }}</a></span>
+      </div>
+      {{ template "repo/editor/commit_form" . }}
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

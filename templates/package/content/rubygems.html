@@ -1,0 +1,38 @@
+{{ if eq .PackageDescriptor.Package.Type "rubygems" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.rubygems.install" | Safe }}:</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>gem install {{ .PackageDescriptor.Package.Name }} --version &quot;{{ .PackageDescriptor.Version.Version }}&quot; --source &quot;{{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/rubygems&quot;</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-code" }} {{ .i18n.Tr "packages.rubygems.install2" }}:</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>source "{{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/rubygems" do
+	gem "{{ .PackageDescriptor.Package.Name }}", "{{ .PackageDescriptor.Version.Version }}"
+end</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.rubygems.documentation" | Safe }}</p>
+  </div>
+  {{ if .PackageDescriptor.Metadata.Description }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <p>{{ .PackageDescriptor.Metadata.Description }}</p>
+  {{ end }}
+  {{ if or .PackageDescriptor.Metadata.RequiredRubyVersion .PackageDescriptor.Metadata.RequiredRubygemsVersion }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.requirements" }}</h4>
+    <div>
+      {{ if .PackageDescriptor.Metadata.RequiredRubyVersion }}<p>{{ .i18n.Tr "packages.rubygems.required.ruby" }}: {{ range $i, $v := .PackageDescriptor.Metadata.RequiredRubyVersion }}{{ if gt $i 0 }},{{ end }}{{ $v.Restriction }}{{ $v.Version }}{{ end }}</p>{{ end }}
+      {{ if .PackageDescriptor.Metadata.RequiredRubygemsVersion }}<p>{{ .i18n.Tr "packages.rubygems.required.rubygems" }}: {{ range $i, $v := .PackageDescriptor.Metadata.RequiredRubygemsVersion }}{{ if gt $i 0 }},{{ end }}{{ $v.Restriction }}{{ $v.Version }}{{ end }}</p>{{ end }}
+    </div>
+  {{ end }}
+  {{ if or .PackageDescriptor.Metadata.RuntimeDependencies .PackageDescriptor.Metadata.DevelopmentDependencies }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.dependencies" }}</h4>
+    <div>
+      {{ template "package/content/rubygems_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.RuntimeDependencies "title" (.i18n.Tr "packages.rubygems.dependencies.runtime") }}
+      {{ template "package/content/rubygems_dependencies" dict "root" $ "dependencies" .PackageDescriptor.Metadata.DevelopmentDependencies "title" (.i18n.Tr "packages.rubygems.dependencies.development") }}
+    </div>
+  {{ end }}
+{{ end }}

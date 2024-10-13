@@ -1,0 +1,181 @@
+<form jq-comment-form class="grid grid-cols-16" no-id="new-issue" action="{{ .Link }}" method="post">
+  {{ .CsrfTokenHtml }}
+  {{ if .Flash }}
+    <div class="col-span-16">
+      {{ template "base/alert" . }}
+    </div>
+  {{ end }}
+  <div class="col-span-12">
+    <div class="flex h-fit gap-x-2">
+      <div class="avatar mr-1">
+        <a class="h-10 w-10 rounded-full" href="{{ .SignedUser.HomeLink }}">
+          {{ avatar .SignedUser }}
+        </a>
+      </div>
+      <div class="cu-left-triangle relative mr-2 flex flex-1 flex-col gap-y-4 rounded-lg border bg-base-200 p-4">
+        <div class="form-control w-full">
+          <input name="title" id="issue_title" class="input-bordered input w-full" placeholder="{{ .i18n.Tr "repo.milestones.title" }}" value="{{ if .TitleQuery }}{{ .TitleQuery }}{{ else if .IssueTemplateTitle }}{{ .IssueTemplateTitle }}{{ else }}{{ .title }}{{ end }}" tabindex="3" autofocus required maxlength="255" autocomplete="off" />
+          <label class="label">
+            {{ if .PageIsComparePull }}
+              <span class="cu-links-primary label-text-alt">
+                <div class="title_wip_desc" data-wip-prefixes="{{ Json .PullRequestWorkInProgressPrefixes }}">{{ .i18n.Tr "repo.pulls.title_wip_desc" (index .PullRequestWorkInProgressPrefixes 0| Escape) | Safe }}</div>
+              </span>
+            {{ end }}
+          </label>
+        </div>
+        {{ template "repo/issue/comment_tab" . }}
+        <div class="flex justify-end">
+          <button class="loading-button btn-primary btn" tabindex="6">
+            {{ if .PageIsComparePull }}
+              {{ .i18n.Tr "repo.pulls.create" }}
+            {{ else }}
+              {{ .i18n.Tr "repo.issues.create" }}
+            {{ end }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-span-4">
+    <div class="ml-2 space-y-4 divide-y">
+      <!-- TODO: new issue -->
+      {{ template "repo/issue/branch_selector_field" . }}
+      <div jq-select-label>
+        <input name="label_ids" type="hidden" value="{{ .label_ids }}" />
+        <div jq-dropdown class="{{ if .HasIssuesOrPullsWritePermission }}dropdown-end dropdown{{ else }}text-mako-600{{ end }} w-full">
+          <label tabindex="0" class="flex h-10 items-center" disabled>
+            <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.labels" }}</strong>
+            {{ if .HasIssuesOrPullsWritePermission }}
+              <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+            {{ end }}
+          </label>
+          {{ if .HasIssuesOrPullsWritePermission }}
+            <div jq-select-menu class="card dropdown-content card-compact" data-input-name="label_ids">
+              {{ template "repo/issue/dropdown/label_content" . }}
+            </div>
+          {{ end }}
+        </div>
+        {{ template "repo/issue/labels/labels_sidebar" dict "root" $ "ctx" . }}
+      </div>
+
+      <div jq-select-milestone>
+        <input name="milestone_id" type="hidden" value="{{ .milestone_id }}" />
+        <div jq-dropdown class="{{ if .HasIssuesOrPullsWritePermission }}dropdown-end dropdown{{ else }}text-mako-600{{ end }} w-full">
+          <label tabindex="0" class="flex h-10 items-center">
+            <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.milestone" }}</strong>
+            {{ if .HasIssuesOrPullsWritePermission }}
+              <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+            {{ end }}
+          </label>
+          {{ if .HasIssuesOrPullsWritePermission }}
+            <div jq-select-menu class="card dropdown-content card-compact" data-input-name="milestone_id">
+              {{ template "repo/issue/dropdown/milestone_content" . }}
+            </div>
+          {{ end }}
+        </div>
+        <div jq-milestones class="flex gap-x-1">
+          <strong jq-no-select class="{{ if .Milestone }}hidden{{ end }} text-primary-content">{{ .i18n.Tr "repo.issues.new.no_milestone" }}</strong>
+          <div jq-selected class="cu-links-primary-content">
+            {{ if .Milestone }}
+              <a class="flex items-center gap-x-1" href="{{ .RepoLink }}/issues?milestone={{ .Milestone.ID }}">
+                {{ svg "octicon-milestone" 18 }}
+                {{ .Milestone.Name }}
+              </a>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+
+      {{ if .IsProjectsEnabled }}
+        <div jq-select-project>
+          <input name="project_id" type="hidden" value="{{ .project_id }}" />
+          <div jq-dropdown class="{{ if .HasIssuesOrPullsWritePermission }}dropdown dropdown-end{{ else }}text-mako-600{{ end }} w-full">
+            <label tabindex="0" class="flex h-10 items-center">
+              <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.projects" }}</strong>
+              {{ if .HasIssuesOrPullsWritePermission }}
+                <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+              {{ end }}
+            </label>
+            {{ if .HasIssuesOrPullsWritePermission }}
+              <div jq-select-menu class="card dropdown-content card-compact" data-input-name="project_id">
+                {{ template "repo/issue/dropdown/project_content" . }}
+              </div>
+            {{ end }}
+          </div>
+          <div jq-projects class="flex gap-x-1">
+            <span jq-no-select class="{{ if .Project }}hidden{{ end }} text-primary-content">{{ .i18n.Tr "repo.issues.new.no_projects" }}</span>
+            <div jq-selected class="cu-links-primary-content">
+              {{ if .Project }}
+                <a class="flex items-center gap-x-1" href="{{ .RepoLink }}/projects/{{ .Project.ID }}">
+                  {{ svg "octicon-project" 18 }}
+                  {{ .Project.Title }}
+                </a>
+              {{ end }}
+            </div>
+          </div>
+        </div>
+      {{ end }}
+
+
+      <div jq-select-assignee>
+        <input name="assignee_ids" type="hidden" value="{{ .assignee_ids }}" />
+        <div jq-dropdown class="{{ if .HasIssuesOrPullsWritePermission }}dropdown dropdown-end{{ else }}text-mako-600{{ end }} w-full">
+          <label tabindex="0" class="flex h-10 items-center">
+            <strong class="flex-1">{{ .i18n.Tr "repo.issues.new.assignees" }}</strong>
+            {{ if .HasIssuesOrPullsWritePermission }}
+              <span class="btn-xs btn-circle btn">{{ svg "octicon-gear" }}</span>
+            {{ end }}
+          </label>
+          {{ if .HasIssuesOrPullsWritePermission }}
+            <div jq-select-menu class="card dropdown-content card-compact" data-input-name="assignee_ids">
+              <div class="card-body">
+                <h3 class="card-title transform-none text-base">{{ .i18n.Tr "repo.issues.new.add_assignees_title" }}</h3>
+                <div class="relative">
+                  <i class="absolute right-0 top-0 m-2">{{ svg "octicon-search" 16 }}</i>
+                  <input jq-input-search type="text" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.issues.filter_assignees" }}" />
+                </div>
+                <div jq-no-select-item class="cursor-pointer text-primary hover:underline">{{ .i18n.Tr "repo.issues.new.clear_assignees" }}</div>
+                <ul class="cu-menu p-2">
+                  {{ range .Assignees }}
+                    <li jq-select-item data-id="{{ .ID }}" data-id-selector="assignee-{{ .ID }}">
+                      <div class="flex w-full items-center">
+                        <span jq-octicon-check class="invisible">{{ svg "octicon-check" }}</span>
+                        <span class="avatar items-center gap-x-1">
+                          <span class="w-5 rounded-full">
+                            {{ avatar . 28 }}
+                          </span>
+                          {{ .GetDisplayName }}
+                        </span>
+                      </div>
+                    </li>
+                  {{ end }}
+                </ul>
+              </div>
+            </div>
+          {{ end }}
+        </div>
+        <div jq-assignees class="cu-links-primary-content flex flex-col gap-2">
+          <strong jq-no-select class="{{ if .HasSelectedLabel }}hidden{{ end }} text-primary-content">{{ .i18n.Tr "repo.issues.new.no_assignees" }}</strong>
+          {{ range .Assignees }}
+            <a jq-assignee-{{ .ID }} class="avatar hidden items-center gap-x-1" href="{{ $.RepoLink }}/issues?assignee={{ .ID }}">
+              <span class="w-5 rounded-full">
+                {{ avatar . 28 }}
+              </span>
+              {{ .GetDisplayName }}
+            </a>
+          {{ end }}
+        </div>
+      </div>
+      {{ if and .PageIsComparePull (not (eq .HeadRepo.FullName .BaseCompareRepo.FullName)) .CanWriteToHeadRepo }}
+        <label class="tooltip flex items-center gap-x-1 py-3" data-tip="{{ .i18n.Tr "repo.pulls.allow_edits_from_maintainers_desc" }}">
+          <input name="allow_maintainer_edit" type="checkbox" class="checkbox h-4 w-4 rounded" />
+          <strong>{{ .i18n.Tr "repo.pulls.allow_edits_from_maintainers" }}</strong>
+        </label>
+      {{ end }}
+    </div>
+    {{/* NOTE: this field seems no use */}}
+    <input type="hidden" name="redirect_after_creation" value="{{ .redirect_after_creation }}" />
+  </div>
+</form>
+{{ Asset "js/repo-issue-new_form.js" }}

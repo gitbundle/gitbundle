@@ -1,0 +1,44 @@
+<div class="card-body">
+  <h3 class="card-title transform-none text-base">{{ .i18n.Tr "repo.issues.new.add_project_title" }}</h3>
+  {{ if or .OpenProjects .ClosedProjects }}
+    <div class="relative">
+      <i class="absolute top-0 right-0 m-2">{{ svg "octicon-search" 16 }}</i>
+      <input jq-input-search type="text" class="input-bordered input input-sm w-full" placeholder="{{ .i18n.Tr "repo.issues.filter_projects" }}" />
+    </div>
+  {{ end }}
+  <div jq-no-select-item class="cursor-pointer text-primary hover:underline">{{ .i18n.Tr "repo.issues.new.clear_projects" }}</div>
+  {{ if or .OpenProjects .ClosedProjects }}
+    <ul class="cu-menu p-2">
+      {{ if .OpenProjects }}
+        <div class="text-xs text-secondary-content">
+          {{ .i18n.Tr "repo.issues.new.open_projects" }}
+        </div>
+        <div class="divider my-1"></div>
+        {{ range .OpenProjects }}
+          <li jq-select-item data-id="{{ .ID }}">
+            <a data-href="{{ $.RepoLink }}/projects/{{ .ID }}">
+              {{ svg "octicon-project" 18 }}
+              {{ .Title }}
+            </a>
+          </li>
+        {{ end }}
+      {{ end }}
+      {{ if .ClosedProjects }}
+        <div class="divider my-1"></div>
+        <div class="text-xs text-mako-400">
+          {{ .i18n.Tr "repo.issues.new.closed_projects" }}
+        </div>
+        {{ range .ClosedProjects }}
+          <li jq-select-item class="text-mako-400" data-id="{{ .ID }}">
+            <a data-href="{{ $.RepoLink }}/projects/{{ .ID }}">
+              {{ svg "octicon-project" 18 }}
+              {{ .Title }}
+            </a>
+          </li>
+        {{ end }}
+      {{ end }}
+    </ul>
+  {{ else }}
+    <strong class="text-sm text-secondary-content">{{ .i18n.Tr "repo.issues.new.no_items" }}</strong>
+  {{ end }}
+</div>

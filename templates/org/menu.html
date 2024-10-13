@@ -1,0 +1,32 @@
+<div class="tabs">
+  <a class="{{ if .PageIsViewRepositories }}tab-active{{ end }} tab-lifted tab" href="{{ $.Org.HomeLink }}">
+    {{ svg "octicon-repo" }}&nbsp;{{ .i18n.Tr "user.repositories" }}
+  </a>
+  {{ if .IsPackageEnabled }}
+    <a class="tab-lifted tab" href="{{ $.Org.HomeLink }}/-/packages">
+      {{ svg "octicon-package" }}&nbsp;{{ .i18n.Tr "packages.title" }}
+    </a>
+  {{ end }}
+  {{ if .IsOrganizationMember }}
+    <a class="{{ if $.PageIsOrgMembers }}tab-active{{ end }} tab-lifted tab" href="{{ $.OrgLink }}/members">
+      {{ svg "octicon-organization" }}&nbsp;{{ $.i18n.Tr "org.people" }}
+      {{ if .NumMembers }}
+        <div class="badge-primary badge">{{ .NumMembers }}</div>
+      {{ end }}
+    </a>
+    <a class="{{ if $.PageIsOrgTeams }}tab-active{{ end }} tab-lifted tab" href="{{ $.OrgLink }}/teams">
+      {{ svg "octicon-people" }}&nbsp;{{ $.i18n.Tr "org.teams" }}
+      {{ if .NumTeams }}
+        <div class="badge">{{ .NumTeams }}</div>
+      {{ end }}
+    </a>
+  {{ end }}
+
+  {{ if .IsOrganizationOwner }}
+    <div class="flex flex-1 justify-end">
+      <a class="{{ if .PageIsOrgSettings }}tab-active{{ end }} tab-lifted tab" href="{{ .OrgLink }}/settings">
+        {{ svg "octicon-gear" }}&nbsp;{{ .i18n.Tr "repo.settings" }}
+      </a>
+    </div>
+  {{ end }}
+</div>

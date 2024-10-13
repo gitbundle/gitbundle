@@ -1,0 +1,205 @@
+// Copyright 2023 The GitBundle Inc. All rights reserved.
+// Copyright 2016 The Gitea Authors. All rights reserved.
+// Copyright 2014 The Gogs Authors. All rights reserved.
+// Use of this source code is governed by a CC BY-NC 4.0
+// license that can be found in the LICENSE file.
+
+package org
+
+import (
+	"net/http"
+
+	api "github.com/gitbundle/api/pkg/structs"
+	"github.com/gitbundle/server/pkg/context"
+	"github.com/gitbundle/server/pkg/convert"
+	"github.com/gitbundle/server/pkg/routers/api/v1/utils"
+	"github.com/gitbundle/server/pkg/web"
+	"github.com/gitbundle/server/pkg/webhook"
+)
+
+// ListHooks list an organziation's webhooks
+func ListHooks(ctx *context.APIContext) {
+	// swagger:operation GET /orgs/{org}/hooks organization orgListHooks
+	// ---
+	// summary: List an organization's webhooks
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: org
+	//   in: path
+	//   description: name of the organization
+	//   type: string
+	//   required: true
+	// - name: page
+	//   in: query
+	//   description: page number of results to return (1-based)
+	//   type: integer
+	// - name: limit
+	//   in: query
+	//   description: page size of results
+	//   type: integer
+	// responses:
+	//   "200":
+	//     "$ref": "#/responses/HookList"
+
+	opts := &webhook.ListWebhookOptions{
+		ListOptions: utils.GetListOptions(ctx),
+		OrgID:       ctx.Org.Organization.ID,
+	}
+
+	count, err := webhook.CountWebhooksByOpts(opts)
+	if err != nil {
+		ctx.InternalServerError(err)
+		return
+	}
+
+	orgHooks, err := webhook.ListWebhooksByOpts(ctx, opts)
+	if err != nil {
+		ctx.InternalServerError(err)
+		return
+	}
+
+	hooks := make([]*api.Hook, len(orgHooks))
+	for i, hook := range orgHooks {
+		hooks[i] = convert.ToHook(ctx.Org.Organization.AsUser().HomeLink(), hook)
+	}
+
+	ctx.SetTotalCountHeader(count)
+	ctx.JSON(http.StatusOK, hooks)
+}
+
+// GetHook get an organization's hook by id
+func GetHook(ctx *context.APIContext) {
+	// swagger:operation GET /orgs/{org}/hooks/{id} organization orgGetHook
+	// ---
+	// summary: Get a hook
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: org
+	//   in: path
+	//   description: name of the organization
+	//   type: string
+	//   required: true
+	// - name: id
+	//   in: path
+	//   description: id of the hook to get
+	//   type: integer
+	//   format: int64
+	//   required: true
+	// responses:
+	//   "200":
+	//     "$ref": "#/responses/Hook"
+
+	org := ctx.Org.Organization
+	hookID := ctx.ParamsInt64(":id")
+	hook, err := utils.GetOrgHook(ctx, org.ID, hookID)
+	if err != nil {
+		return
+	}
+	ctx.JSON(http.StatusOK, convert.ToHook(org.AsUser().HomeLink(), hook))
+}
+
+// CreateHook create a hook for an organization
+func CreateHook(ctx *context.APIContext) {
+	// swagger:operation POST /orgs/{org}/hooks/ organization orgCreateHook
+	// ---
+	// summary: Create a hook
+	// consumes:
+	// - application/json
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: org
+	//   in: path
+	//   description: name of the organization
+	//   type: string
+	//   required: true
+	// - name: body
+	//   in: body
+	//   required: true
+	//   schema:
+	//     "$ref": "#/definitions/CreateHookOption"
+	// responses:
+	//   "201":
+	//     "$ref": "#/responses/Hook"
+
+	form := web.GetForm(ctx).(*api.CreateHookOption)
+	// TODO in body params
+	if !utils.CheckCreateHookOption(ctx, form) {
+		return
+	}
+	utils.AddOrgHook(ctx, form)
+}
+
+// EditHook modify a hook of a repository
+func EditHook(ctx *context.APIContext) {
+	// swagger:operation PATCH /orgs/{org}/hooks/{id} organization orgEditHook
+	// ---
+	// summary: Update a hook
+	// consumes:
+	// - application/json
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: org
+	//   in: path
+	//   description: name of the organization
+	//   type: string
+	//   required: true
+	// - name: id
+	//   in: path
+	//   description: id of the hook to update
+	//   type: integer
+	//   format: int64
+	//   required: true
+	// - name: body
+	//   in: body
+	//   schema:
+	//     "$ref": "#/definitions/EditHookOption"
+	// responses:
+	//   "200":
+	//     "$ref": "#/responses/Hook"
+
+	form := web.GetForm(ctx).(*api.EditHookOption)
+
+	// TODO in body params
+	hookID := ctx.ParamsInt64(":id")
+	utils.EditOrgHook(ctx, form, hookID)
+}
+
+// DeleteHook delete a hook of an organization
+func DeleteHook(ctx *context.APIContext) {
+	// swagger:operation DELETE /orgs/{org}/hooks/{id} organization orgDeleteHook
+	// ---
+	// summary: Delete a hook
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: org
+	//   in: path
+	//   description: name of the organization
+	//   type: string
+	//   required: true
+	// - name: id
+	//   in: path
+	//   description: id of the hook to delete
+	//   type: integer
+	//   format: int64
+	//   required: true
+	// responses:
+	//   "204":
+	//     "$ref": "#/responses/empty"
+
+	org := ctx.Org.Organization
+	hookID := ctx.ParamsInt64(":id")
+	if err := webhook.DeleteWebhookByOrgID(org.ID, hookID); err != nil {
+		if webhook.IsErrWebhookNotExist(err) {
+			ctx.NotFound()
+		} else {
+			ctx.Error(http.StatusInternalServerError, "DeleteWebhookByOrgID", err)
+		}
+		return
+	}
+	ctx.Status(http.StatusNoContent)
+}

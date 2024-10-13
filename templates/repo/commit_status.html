@@ -1,0 +1,15 @@
+{{ if eq .State "pending" }}
+  {{ svg "fa-circle-solid" 14 "text-yellow-600 w-3.5 h-3.5" }}
+{{ end }}
+{{ if eq .State "success" }}
+  {{ svg "fa-check-solid" 14 "text-green-600 w-3.5 h-3.5" }}
+{{ end }}
+{{ if eq .State "error" }}
+  {{ svg "fa-exclamation-solid" 14 "text-red-600 w-3.5 h-3.5" }}
+{{ end }}
+{{ if eq .State "failure" }}
+  {{ svg "fa-xmark-solid" 14 "text-red-600 w-3.5 h-3.5" }}
+{{ end }}
+{{ if eq .State "warning" }}
+  {{ svg "fa-triangle-exclamation-solid" 14 "text-yellow-600 w-3.5 h-3.5" }}
+{{ end }}

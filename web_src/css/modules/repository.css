@@ -1,0 +1,223 @@
+.diff-file-box {
+  /* @apply text-base-content; */
+}
+
+.diff-file-box[data-folded='true'] .diff-file-body {
+  /* display: none; */
+  @apply hidden;
+}
+
+.diff-file-box[data-folded='true'] .diff-file-header {
+  /* border-radius: var(--border-radius) !important; */
+  @apply rounded-lg;
+}
+
+.diff-file-box .file-body.file-code .lines-num {
+  @apply w-[1%] min-w-[50px] text-right text-base-content;
+}
+
+.diff-file-box .code-diff td {
+  @apply p-0 pr-2;
+}
+
+.diff-file-box .code-diff .lines-num {
+  /* @apply px-1 py-0; */
+  @apply indent-2;
+}
+
+/*  .diff-file-box .code-diff .tag-code .lines-num,
+ .diff-file-box .code-diff .tag-code td {
+  @apply p-0;
+} */
+
+/*  .diff-file-box .code-diff tbody tr{
+  & td:first-child, td:last-child{
+    @apply border-x border-base-content/10;
+  }
+} */
+
+.diff-file-box .code-diff tbody tr td.halfwidth {
+  /* halfwidth is used in split view - and in that case, 1% of each */
+  @apply w-[49%];
+}
+
+.diff-file-box .code-diff tbody tr td.center {
+  @apply text-center;
+}
+
+.diff-file-box .code-diff tbody tr [data-line-num]::before {
+  @apply text-right content-[attr(data-line-num)];
+}
+
+.diff-file-box .code-diff tbody tr .lines-type-marker {
+  @apply w-[10px] min-w-[10px];
+}
+
+.diff-file-box .code-diff tbody tr [data-type-marker]::before {
+  /* display: inline-block; */
+  @apply inline-flex text-right content-[attr(data-type-marker)];
+}
+
+.diff-file-box .code-diff-split .tag-code .lines-code code.code-inner {
+  @apply pl-2;
+}
+
+.tab-size-16 {
+  tab-size: 16;
+  -moz-tab-size: 16;
+}
+
+.tag-code {
+  /* height: 28px; */
+  @apply h-7;
+}
+
+.tag-code a.blob-excerpt {
+  @apply flex justify-center;
+}
+
+.tag-code,
+.tag-code td,
+.tag-code .blob-excerpt {
+  /* background-color: var(--color-box-body-highlight); */
+  @apply bg-blue-950;
+}
+
+.removed-code {
+  /* background: var(--color-diff-removed-word-bg); */
+  @apply bg-red-800;
+}
+
+.added-code {
+  /* background: var(--color-diff-added-word-bg); */
+  @apply bg-green-800;
+}
+
+.code-diff-split .same-code .lines-num-new,
+.code-diff-split .del-code .lines-num-new {
+  /* @apply border-mako-400; */
+}
+
+.code-diff-unified .del-code .lines-num-old,
+.code-diff-unified .del-code .lines-num-new,
+.code-diff-split .del-code .lines-num-old {
+  @apply bg-red-900 text-base-content;
+}
+
+.code-diff-unified .del-code,
+.code-diff-unified .del-code td,
+/* .code-diff-split .del-code .lines-num-old, */
+.code-diff-split .del-code .lines-escape-old,
+.code-diff-split .del-code .lines-type-marker-old,
+.code-diff-split .del-code .lines-code-old {
+  /* background: var(--color-diff-removed-row-bg);
+  border-color: var(--color-diff-removed-row-border); */
+  @apply border-red-900 bg-red-950;
+}
+
+.code-diff-unified .add-code .lines-num-old,
+.code-diff-unified .add-code .lines-num-new,
+.code-diff-split .add-code .lines-num-new,
+.code-diff-split .del-code .add-code.lines-num-new {
+  @apply bg-green-900 text-base-content;
+}
+
+.code-diff-unified .add-code,
+.code-diff-unified .add-code td,
+/* .code-diff-split .add-code .lines-num-new, */
+.code-diff-split .add-code .lines-type-marker-new,
+.code-diff-split .add-code .lines-escape-new,
+.code-diff-split .add-code .lines-code-new,
+/* .code-diff-split .del-code .add-code.lines-num-new, */
+.code-diff-split .del-code .add-code.lines-type-marker-new,
+.code-diff-split .del-code .add-code.lines-escape-new,
+.code-diff-split .del-code .add-code.lines-code-new {
+  /* background: var(--color-diff-added-row-bg);
+  border-color: var(--color-diff-added-row-border); */
+  @apply border-green-900 bg-green-950;
+}
+
+.code-diff-split .del-code .lines-num-new,
+.code-diff-split .del-code .lines-type-marker-new,
+.code-diff-split .del-code .lines-code-new,
+.code-diff-split .del-code .lines-escape-new,
+.code-diff-split .add-code .lines-num-old,
+.code-diff-split .add-code .lines-escape-old,
+.code-diff-split .add-code .lines-type-marker-old,
+.code-diff-split .add-code .lines-code-old {
+  /* background: var(--color-diff-inactive); */
+  @apply bg-base-200;
+}
+
+/* .code-diff-split tbody tr td.add-comment-right, */
+.code-diff-split tbody tr td:nth-child(5) {
+  /* border-left: 1px solid var(--color-secondary); */
+  @apply border-l border-l-mako-800;
+}
+
+.code-diff-unified tbody tr td.lines-escape,
+.code-diff-split tbody tr td.lines-escape {
+  @apply w-0;
+}
+
+/* .code-diff-split tbody tr td.lines-escape {
+  @apply w-0;
+} */
+
+.unicode-escaped .escaped-code-point[data-escaped]::before {
+  /* visibility: visible;
+  content: attr(data-escaped);
+  font-family: var(--fonts-monospace);
+  color: var(--color-red); */
+  @apply visible font-mono text-red-600 content-[attr(data-escaped)];
+}
+
+.unicode-escaped .escaped-code-point .char {
+  /* display: none; */
+  @apply hidden;
+}
+
+.unicode-escaped .ambiguous-code-point {
+  /* border: 1px var(--color-yellow) solid; */
+  @apply border border-solid border-yellow-600;
+}
+
+/* NOTE: set specific color for `add-code-comment` line */
+.chroma.lines-code {
+  @apply bg-slate-800;
+}
+
+.cu-color-picker {
+  /* width: auto; */
+  @apply flex w-auto;
+
+  .color-picker {
+    /* height: 35px; */
+    /* width: auto; */
+    /* padding-left: 30px; */
+
+    @apply !input-bordered !input !pl-8;
+  }
+
+  .minicolors-swatch.minicolors-sprite {
+    /* top: 10px;
+    left: 10px;
+    width: 15px;
+    height: 15px; */
+
+    @apply left-2 top-4 h-4 w-4;
+  }
+
+  .minicolors {
+    /* flex: 1; */
+
+    @apply flex-1;
+  }
+}
+
+.cu-card-ghost {
+  @apply border border-dashed border-base-content/10 bg-none;
+  * {
+    @apply opacity-0;
+  }
+}

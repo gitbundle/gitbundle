@@ -1,0 +1,517 @@
+<div jq-repo-issue-view_content-pull>
+	{{ if or .PullReviewers .OriginalReviews }}
+	<div class="cu-timeline-item ml-[52px]">
+		<div class="flex w-full flex-col border rounded-lg overflow-hidden divide-y">
+			<h4 class="w-full p-4 bg-base-200">{{ $.i18n.Tr "repo.issues.review.reviewers" }}</h4>
+			{{ range .PullReviewers }}
+				{{ $createdStr:= TimeSinceUnix .Review.UpdatedUnix $.i18n.Lang }}
+				<div class="flex items-center p-4 bg-base-100">
+					<div class="flex flex-1 items-center gap-x-2">
+						{{ if .User }}
+						<a class="avatar" href="{{ .User.HomeLink }}">
+							{{ avatar .User 32 "!w-8 !h-8" }}
+						</a>
+						{{ end }}
+						<span class="flex items-center gap-x-1">
+						{{ if .User }}
+							<a href="{{ .User.HomeLink }}">{{ .User.GetDisplayName }}</a>
+						{{ else if .Team }}
+							<span class="text-primary-content">{{ $.Issue.Repo.OwnerName }}/{{ .Team.Name }}</span>
+						{{ end }}
+						{{ if eq .Review.Type 1 }}
+							{{ $.i18n.Tr "repo.issues.review.approve" $createdStr | Safe }}
+						{{ else if eq .Review.Type 2 }}
+							{{ $.i18n.Tr "repo.issues.review.comment" $createdStr | Safe }}
+						{{ else if eq .Review.Type 3 }}
+							{{ $.i18n.Tr "repo.issues.review.reject" $createdStr | Safe }}
+						{{ else if eq .Review.Type 4 }}
+							{{ $.i18n.Tr "repo.issues.review.wait" $createdStr | Safe }}
+						{{ else }}
+							{{ $.i18n.Tr "repo.issues.review.comment" $createdStr | Safe }}
+						{{ end }}
+						</span>
+					</div>
+					<div class="flex items-center gap-x-1">
+						{{ if .Review.Stale }}
+							<span class="tooltip tooltip-left" data-tip="{{ $.i18n.Tr "repo.issues.is_stale" }}">
+								{{ svg "octicon-hourglass" 16 }}
+							</span>
+						{{ end }}
+						{{ if (and $.Permission.IsAdmin (or (eq .Review.Type 1) (eq .Review.Type 3)) (not $.Issue.IsClosed)) }}
+						<label for="dismiss-review-modal-{{ .Review.ID }}" class="tooltip tooltip-left btn-xs btn" data-tip="{{ $.i18n.Tr "repo.issues.dismiss_review" }}">{{ svg "octicon-x" 16 }}</label>
+						<input type="checkbox" id="dismiss-review-modal-{{ .Review.ID }}" class="modal-toggle" />
+						<label for="dismiss-review-modal-{{ .Review.ID }}" class="modal cursor-pointer">
+							<div class="modal-box relative">
+								<h3 class="text-lg font-bold">{{ $.i18n.Tr "repo.issues.dismiss_review" }}</h3>
+								<div class="py-4">
+									<div class="mb-4 gap-2 break-words rounded-lg border !border-yellow-600/40 p-2 text-center text-yellow-600">
+									{{ $.i18n.Tr "repo.issues.dismiss_review_warning" }}
+									</div>
+									<form class="ui form dismiss-review-form" id="dismiss-review-{{ .Review.ID }}" action="{{ $.RepoLink }}/issues/dismiss_review" method="post">
+										{{ $.CsrfTokenHtml }}
+										<input type="hidden" name="review_id" value="{{ .Review.ID }}" />
+										<div class="form-control">
+											<label class="label">
+											<span class="label-text">{{ $.i18n.Tr "action.review_dismissed_reason" }}</span>
+											</label>
+											<input type="text" name="message" class="input-bordered input w-full" />
+										</div>
+										<div class="modal-action">
+											<label for="dismiss-review-modal-{{ .Review.ID }}" class="btn">{{ $.i18n.Tr "settings.cancel" }}</label>
+											<button class="btn-red btn" type="submit">{{ $.i18n.Tr "ok" }}</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</label>
+						{{ end }}
+						<span class="{{ if eq .Review.Type 1 }}text-green-600{{- else if eq .Review.Type 2 }}text-gray-600{{- else if eq .Review.Type 3 }}text-red-600{{- else if eq .Review.Type 4 }}text-yellow-600{{ end }} flex items-center gap-x-1">
+						{{ if .CanChange }}
+							<span jq-re-request-review {{ if .Checked }}jq-checked{{ end }} class="tooltip tooltip-left cursor-pointer" data-issue-id="{{ $.Issue.ID }}" data-tip="{{ if .Checked }}{{ $.i18n.Tr "repo.issues.remove_request_review" }}{{ else }}{{ $.i18n.Tr "repo.issues.re_request_review" }}{{ end }}" data-id="{{ .ItemID }}" data-update-url="{{ $.RepoLink }}/issues/request_review"> {{ if .Checked }}{{ svg "octicon-trash" }}{{ else }}{{ svg "octicon-sync" }}{{ end }} </span>
+						{{ end }}
+						{{ svg (printf "octicon-%s" .Review.Type.Icon) }}
+						</span>
+					</div>
+				</div>
+			{{ end }}
+			{{ range .OriginalReviews }}
+				{{ $createdStr:= TimeSinceUnix .UpdatedUnix $.i18n.Lang }}
+				<div class="flex items-center p-4 bg-base-100">
+					<div class="flex flex-1 items-center gap-x-2">
+						<a href="{{ $.Repository.OriginalURL }}" class="tooltip tooltip-right" data-tip="{{ $.i18n.Tr "repo.migrated_from_fake" ($.Repository.GetOriginalURLHostname|Escape) | Safe }}">
+						<span class="flex items-center gap-x-2">
+							{{ svg (MigrationIcon $.Repository.GetOriginalURLHostname) }}
+							{{ .OriginalAuthor }}
+						</span>
+						</a>
+					</div>
+					<div class="flex items-center gap-x-1">
+						<span class="{{ if eq .Review.Type 1 }}text-green-600{{- else if eq .Review.Type 2 }}text-gray-600{{- else if eq .Review.Type 3 }}text-red-600{{- else if eq .Review.Type 4 }}text-yellow-600{{ end }} flex items-center gap-x-1">
+						{{ svg (printf "octicon-%s" .Type.Icon) }}
+						</span>
+					</div>
+				</div>
+			{{ end }}
+		</div>
+	</div>
+	{{ end }}
+	<div class="cu-timeline-item comment">
+		<a class="timeline-avatar {{if .Issue.PullRequest.HasMerged}}text-purple-600
+		{{- else if .Issue.IsClosed}}text-gray-600
+		{{- else if .IsPullWorkInProgress}}text-gray-400
+		{{- else if .IsFilesConflicted}}text-gray-600
+		{{- else if .IsPullRequestBroken}}text-red-600
+		{{- else if .IsBlockedByApprovals}}text-red-600
+		{{- else if .IsBlockedByRejection}}text-red-600
+		{{- else if .IsBlockedByOfficialReviewRequests}}text-red-600
+		{{- else if .IsBlockedByOutdatedBranch}}text-red-600
+		{{- else if .IsBlockedByChangedProtectedFiles}}text-red-600
+		{{- else if and .EnableStatusCheck (or .RequiredStatusCheckState.IsFailure .RequiredStatusCheckState.IsError)}}text-red-600
+		{{- else if and .EnableStatusCheck (or (not $.LatestCommitStatus) .RequiredStatusCheckState.IsPending .RequiredStatusCheckState.IsWarning)}}text-yellow-600
+		{{- else if and .AllowMerge .RequireSigned (not .WillSign)}}text-red-600
+		{{- else if .Issue.PullRequest.IsChecking}}text-yellow-600
+		{{- else if .Issue.PullRequest.IsEmpty}}text-gray-600
+		{{- else if .Issue.PullRequest.CanAutoMerge}}text-green-600
+		{{- else}}text-red-600{{end}}">{{svg "octicon-git-merge" 32 "!w-8 !h-8"}}</a>
+	<!-- TODO: border with `accent` color @low -->
+		<div class="content flex flex-col border rounded-lg ml-2 w-full bg-base-100">
+			{{template "repo/pulls/status" .}}
+			{{$canAutoMerge := false}}
+			<div class="merge-section flex flex-col 1divide-y py-4 space-y-2 {{if not $.LatestCommitStatus}}cu-left-triangle after:border-r-base-100{{else}}border-t{{end}}">
+				{{if .Issue.PullRequest.HasMerged}}
+			<div class="px-4">
+			{{if .Issue.PullRequest.MergedCommitID}}
+				{{$link := printf "%s/commit/%s" $.Repository.HTMLURL (.Issue.PullRequest.MergedCommitID|PathEscape)}}
+				{{if eq $.Issue.PullRequest.Status 3}}
+				{{$.i18n.Tr "repo.pulls.manually_merged_as" ($link|Escape) (ShortSha .Issue.PullRequest.MergedCommitID) | Safe}}
+				{{else}}
+				{{$.i18n.Tr "repo.pulls.merged_as" ($link|Escape) (ShortSha .Issue.PullRequest.MergedCommitID) | Safe}}
+				{{end}}
+			{{else}}
+				{{$.i18n.Tr "repo.pulls.has_merged"}}
+			{{end}}
+			</div>
+			{{if .IsPullBranchDeletable}}
+			<div class="divider m-0 p-0 h-[1px]"></div>
+			<div class="px-4">
+				<span svelte-simple-modal class="btn btn-red" data-href="{{.DeleteBranchLink}}" data-name="{{ .HeadTarget }}" data-action-approve-color="red">{{$.i18n.Tr "repo.branch.delete" .HeadTarget}}</span>
+			</div>
+			{{end}}
+				{{else if .Issue.IsClosed}}
+					<div class="px-4">
+						{{if .IsPullRequestBroken}}
+							{{$.i18n.Tr "repo.pulls.cant_reopen_deleted_branch"}}
+						{{else}}
+							{{$.i18n.Tr "repo.pulls.reopen_to_merge"}}
+						{{end}}
+					</div>
+			{{if and .IsPullBranchDeletable ( not .IsPullRequestBroken )}}
+			<div class="divider m-0 p-0 h-[1px]"></div>
+			<div class="px-4">
+				<span svelte-simple-modal class="btn btn-red" data-href="{{.DeleteBranchLink}}" data-name="{{ .HeadTarget }}" data-action-approve-color="red">{{$.i18n.Tr "repo.branch.delete" .HeadTarget}}</span>
+			</div>
+			{{end}}
+				{{else if .IsPullFilesConflicted}}
+					<div class="px-4 space-y-2">
+						<div class="flex items-center gap-x-2">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.files_conflicted"}}
+						</div>
+						<div class="flex flex-col">
+							{{range .ConflictedFiles}}
+								<div>{{.}}</div>
+							{{end}}
+						</div>
+					</div>
+				{{else if .IsPullRequestBroken}}
+					<div class="px-4 gap-x-2 flex items-center">
+						{{svg "octicon-x"}}
+						{{$.i18n.Tr "repo.pulls.data_broken"}}
+					</div>
+				{{else if .IsPullWorkInProgress}}
+					<div class="flex px-4">
+						<div class="flex flex-1 items-center gap-x-2">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.cannot_merge_work_in_progress" }}
+						</div>
+						{{if or .HasIssuesOrPullsWritePermission .IsIssuePoster}}
+							<span jq-toggle-wip class="btn gap-x-1" data-title="{{.Issue.Title}}" data-wip-prefix="{{(.WorkInProgressPrefix|Escape)}}" data-update-url="{{.Issue.Link}}/title">
+								{{$.i18n.Tr "repo.pulls.remove_prefix" (.WorkInProgressPrefix|Escape) | Safe}}
+							</span>
+						{{end}}
+					</div>
+				{{else if .Issue.PullRequest.IsChecking}}
+					<div class="px-4 gap-x-2 flex items-center">
+						{{svg "octicon-sync"}}
+						{{$.i18n.Tr "repo.pulls.is_checking"}}
+					</div>
+				{{else if .Issue.PullRequest.IsAncestor}}
+					<div class="px-4 gap-x-2 flex items-center">
+						{{svg "octicon-alert" 16}}
+						{{$.i18n.Tr "repo.pulls.is_ancestor"}}
+					</div>
+				{{else if or .Issue.PullRequest.CanAutoMerge .Issue.PullRequest.IsEmpty}}
+			<!-- TODO: should combine message here?? @low -->
+			<div class="px-4 flex flex-col space-y-2">
+			{{if .IsBlockedByApprovals}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.blocked_by_approvals" .GrantedApprovals .Issue.PullRequest.ProtectedBranch.RequiredApprovals}}
+				</div>
+			{{else if .IsBlockedByRejection}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.blocked_by_rejection"}}
+				</div>
+			{{else if .IsBlockedByOfficialReviewRequests}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.blocked_by_official_review_requests"}}
+				</div>
+			{{else if .IsBlockedByOutdatedBranch}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.blocked_by_outdated_branch"}}
+				</div>
+			{{else if .IsBlockedByChangedProtectedFiles}}
+				<div class="flex items-center gap-x-2">
+				{{svg "octicon-x" 16}}
+				{{$.i18n.TrN $.ChangedProtectedFilesNum "repo.pulls.blocked_by_changed_protected_files_1" "repo.pulls.blocked_by_changed_protected_files_n" | Safe }}
+				</div>
+				<div class="flex flex-col">
+				{{range .ChangedProtectedFiles}}
+					<div data-value="-">- {{.}}</div>
+				{{end}}
+				</div>
+			{{else if and .EnableStatusCheck (or .RequiredStatusCheckState.IsError .RequiredStatusCheckState.IsFailure)}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.required_status_check_failed"}}
+				</div>
+			{{else if and .EnableStatusCheck (not .RequiredStatusCheckState.IsSuccess)}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.required_status_check_missing"}}
+				</div>
+			{{else if and .AllowMerge .RequireSigned (not .WillSign)}}
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-x"}}
+				{{$.i18n.Tr "repo.pulls.require_signed_wont_sign"}}
+				</div>
+				<div class="gap-x-2 flex items-center">
+				{{svg "octicon-unlock"}}
+				{{$.i18n.Tr (printf "repo.signing.wont_sign.%s" .WontSignReason) }}
+				</div>
+			{{end}}
+
+			{{$notAllOverridableChecksOk := or .IsBlockedByApprovals .IsBlockedByRejection .IsBlockedByOfficialReviewRequests .IsBlockedByOutdatedBranch .IsBlockedByChangedProtectedFiles (and .EnableStatusCheck (not .RequiredStatusCheckState.IsSuccess))}}
+
+			{{/* admin can merge without checks, writer can merge when checkes succeed */}}
+			{{$canMergeNow := and (or $.IsRepoAdmin (not $notAllOverridableChecksOk)) (or (not .AllowMerge) (not .RequireSigned) .WillSign)}}
+			{{/* admin and writer both can make an auto merge schedule */}}
+
+			{{if $canMergeNow}}
+				{{if $notAllOverridableChecksOk}}
+				<div class="gap-x-2 flex items-center">
+					{{svg "octicon-dot-fill"}}
+					{{$.i18n.Tr "repo.pulls.required_status_check_administrator"}}
+				</div>
+				{{else}}
+				<div class="gap-x-2 flex items-center">
+					{{svg "octicon-check"}}
+					{{$.i18n.Tr "repo.pulls.can_auto_merge_desc"}}
+				</div>
+				{{end}}
+				{{if .WillSign}}
+				<div class="gap-x-2 flex items-center">
+					{{svg "octicon-lock" 16 "text-green-600"}}
+					{{$.i18n.Tr "repo.signing.will_sign" .SigningKey}}
+				</div>
+				{{else if .IsSigned}}
+				<div class="gap-x-2 flex items-center">
+					{{svg "octicon-unlock" 16}}
+					{{$.i18n.Tr (printf "repo.signing.wont_sign.%s" .WontSignReason) }}
+				</div>
+				{{end}}
+			{{end}}
+			</div>
+					{{if and (gt .Issue.PullRequest.CommitsBehind 0) (not  .Issue.IsClosed) (not .Issue.PullRequest.IsChecking) (not .IsPullFilesConflicted) (not .IsPullRequestBroken) (not $canAutoMerge)}}
+			<!-- item item-section  -->
+			<div class="divider m-0 p-0 h-[1px]"></div>
+						<div class="flex items-center px-4 gap-x-2">
+							<div class="flex flex-1 items-center gap-x-2">
+								{{svg "octicon-alert"}}
+								{{$.i18n.Tr "repo.pulls.outdated_with_base_branch"}}
+							</div>
+							<div class="flex items-center gap-2">
+								{{if and .UpdateAllowed .UpdateByRebaseAllowed }}
+									<div jq-update-buttons class="dropdown dropdown-end">
+										<div class="btn-group">
+											<span jq-button class="btn btn-outline" data-do="{{.Link}}/update" data-redirect="{{.Link}}">{{$.i18n.Tr "repo.pulls.update_branch"}}</span>
+											<label tabindex="0" class="btn btn-outline">{{svg "octicon-triangle-down" 14 "dropdown icon"}}</label>
+										</div>
+										<ul tabindex="0" class="dropdown-content menu p-2">
+											<li><span jq-menu-item class="active" data-do="{{.Link}}/update">{{$.i18n.Tr "repo.pulls.update_branch"}}</span></li>
+											<li><span jq-menu-item data-do="{{.Link}}/update?style=rebase">{{$.i18n.Tr "repo.pulls.update_branch_rebase"}}</span></li>
+										</ul>
+					</div>
+								{{end}}
+								{{if and .UpdateAllowed (not .UpdateByRebaseAllowed)}}
+									<!-- TODO: seems not used currently `update-branch-form`, need further step verify @high -->
+									<form action="{{.Link}}/update" method="post">
+										{{.CsrfTokenHtml}}
+										<button class="btn btn-primary" data-do="update">
+											{{$.i18n.Tr "repo.pulls.update_branch"}}
+										</button>
+									</form>
+								{{end}}
+							</div>
+						</div>
+					{{end}}
+					{{if .Issue.PullRequest.IsEmpty}}
+			<div class="divider m-0 p-0 h-[1px]"></div>
+						<div class="px-4 gap-x-2 flex items-center">
+							{{svg "octicon-alert" 16}}
+							{{$.i18n.Tr "repo.pulls.is_empty"}}
+						</div>
+					{{end}}
+
+					{{if .AllowMerge}} {{/* user is allowed to merge */}}
+						{{$prUnit := .Repository.MustGetUnit $.UnitTypePullRequests}}
+						{{$approvers := .Issue.PullRequest.GetApprovers}}
+						{{if or $prUnit.PullRequestsConfig.AllowMerge $prUnit.PullRequestsConfig.AllowRebase $prUnit.PullRequestsConfig.AllowRebaseMerge $prUnit.PullRequestsConfig.AllowSquash}}
+							{{$hasPendingPullRequestMergeTip := ""}}
+							{{if .HasPendingPullRequestMerge}}
+								{{$createdPRMergeStr := TimeSinceUnix .PendingPullRequestMerge.CreatedUnix $.i18n.Lang}}
+								{{$hasPendingPullRequestMergeTip = $.i18n.Tr "repo.pulls.auto_merge_has_pending_schedule" .PendingPullRequestMerge.Doer.Name $createdPRMergeStr}}
+							{{end}}
+				<div class="divider m-0 p-0 h-[1px]"></div>
+				<div class="px-4 gap-x-2 space-y-2">
+								<script>
+									<!-- /* eslint-disable */ -->
+									(() => {
+										const defaultMergeTitle = {{.DefaultMergeMessage}};
+										const defaultSquashMergeTitle = {{.DefaultSquashMergeMessage}};
+										const defaultMergeMessage = 'Reviewed-on: ' + {{$.Issue.HTMLURL}} + '\n' + {{$approvers}};
+										const mergeForm = {
+											'baseLink': {{.Link}},
+											'textCancel': {{$.i18n.Tr "cancel"}},
+											'textDeleteBranch': {{$.i18n.Tr "repo.branch.delete" .HeadTarget}},
+											'textAutoMergeButtonWhenSucceed': {{$.i18n.Tr "repo.pulls.auto_merge_button_when_succeed"}},
+											'textAutoMergeWhenSucceed': {{$.i18n.Tr "repo.pulls.auto_merge_when_succeed"}},
+											'textAutoMergeCancelSchedule': {{$.i18n.Tr "repo.pulls.auto_merge_cancel_schedule"}},
+
+											'canMergeNow': {{$canMergeNow}},
+											'allOverridableChecksOk': {{not $notAllOverridableChecksOk}},
+											'emptyCommit': {{.Issue.PullRequest.IsEmpty}},
+											'pullHeadCommitID': {{.PullHeadCommitID}},
+											'isPullBranchDeletable': {{.IsPullBranchDeletable}},
+											'defaultMergeStyle': {{.MergeStyle}},
+											'defaultDeleteBranchAfterMerge': {{$prUnit.PullRequestsConfig.DefaultDeleteBranchAfterMerge}},
+											'mergeMessageFieldPlaceHolder': {{$.i18n.Tr "repo.editor.commit_message_desc"}},
+
+											'hasPendingPullRequestMerge': {{.HasPendingPullRequestMerge}},
+											'hasPendingPullRequestMergeTip': {{$hasPendingPullRequestMergeTip}},
+										};
+
+										const generalHideAutoMerge = mergeForm.canMergeNow && mergeForm.allOverridableChecksOk; // if this PR can be merged now, then hide the auto merge
+										mergeForm['mergeStyles'] = [
+											{
+												'name': 'merge',
+												'allowed': {{$prUnit.PullRequestsConfig.AllowMerge}},
+												'textDoMerge': {{$.i18n.Tr "repo.pulls.merge_pull_request"}},
+												'mergeTitleFieldText': defaultMergeTitle,
+												'mergeMessageFieldText': defaultMergeMessage,
+												'hideAutoMerge': generalHideAutoMerge,
+											},
+											{
+												'name': 'rebase',
+												'allowed': {{$prUnit.PullRequestsConfig.AllowRebase}},
+												'textDoMerge': {{$.i18n.Tr "repo.pulls.rebase_merge_pull_request"}},
+												'hideMergeMessageTexts': true,
+												'hideAutoMerge': generalHideAutoMerge,
+											},
+											{
+												'name': 'rebase-merge',
+												'allowed': {{$prUnit.PullRequestsConfig.AllowRebaseMerge}},
+												'textDoMerge': {{$.i18n.Tr "repo.pulls.rebase_merge_commit_pull_request"}},
+												'mergeTitleFieldText': defaultMergeTitle,
+												'mergeMessageFieldText': defaultMergeMessage,
+												'hideAutoMerge': generalHideAutoMerge,
+											},
+											{
+												'name': 'squash',
+												'allowed': {{$prUnit.PullRequestsConfig.AllowSquash}},
+												'textDoMerge': {{$.i18n.Tr "repo.pulls.squash_merge_pull_request"}},
+												'mergeTitleFieldText': defaultSquashMergeTitle,
+												'mergeMessageFieldText': {{.GetCommitMessages}} + defaultMergeMessage,
+												'hideAutoMerge': generalHideAutoMerge,
+											},
+											{
+												'name': 'manually-merged',
+												'allowed': {{and $prUnit.PullRequestsConfig.AllowManualMerge $.IsRepoAdmin}},
+												'textDoMerge': {{$.i18n.Tr "repo.pulls.merge_manually"}},
+												'hideMergeMessageTexts': true,
+												'hideAutoMerge': true,
+											}
+										];
+										window.config.pageData.pullRequestMergeForm = mergeForm;
+									})();
+								</script>
+								<div svelte-pull-request-merge-form></div>
+								{{if .ShowMergeInstructions}}
+									{{template "repo/issue/view_content/pull_merge_instruction" (dict "i18n" .i18n "Issue" .Issue)}}
+								{{end}}
+							</div>
+						{{else}}
+							{{/* no merge style was set in repo setting: not or ($prUnit.PullRequestsConfig.AllowMerge ...) */}}
+				<div class="divider m-0 p-0 h-[1px]"></div>
+				<div class="px-4 flex flex-col space-y-2">
+				<div class="gap-x-2 flex items-center text-red-600">
+					{{svg "octicon-x"}}
+					{{$.i18n.Tr "repo.pulls.no_merge_desc"}}
+				</div>
+				<div class="gap-x-2 flex items-center">
+					{{svg "octicon-info"}}
+					{{$.i18n.Tr "repo.pulls.no_merge_helper"}}
+				</div>
+				</div>
+						{{end}} {{/* end if the repo was set to use any merge style */}}
+					{{else}}
+						{{/* user is not allowed to merge */}}
+			<div class="divider m-0 p-0 h-[1px]"></div>
+						<div class="px-4 gap-x-2 flex items-center">
+							{{svg "octicon-info"}}
+							{{$.i18n.Tr "repo.pulls.no_merge_access"}}
+						</div>
+					{{end}} {{/* end if user is allowed to merge or not */}}
+				{{else}}
+			<div class="px-4 space-y-2 flex flex-col">
+					{{/* Merge conflict without specific file. Suggest manual merge, only if all reviews and status checks OK. */}}
+					{{if .IsBlockedByApprovals}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.blocked_by_approvals" .GrantedApprovals .Issue.PullRequest.ProtectedBranch.RequiredApprovals}}
+						</div>
+					{{else if .IsBlockedByRejection}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.blocked_by_rejection"}}
+						</div>
+					{{else if .IsBlockedByOfficialReviewRequests}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.blocked_by_official_review_requests"}}
+						</div>
+					{{else if .IsBlockedByOutdatedBranch}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.blocked_by_outdated_branch"}}
+						</div>
+					{{else if .IsBlockedByChangedProtectedFiles}}
+						<div class="text-red-600">
+							<div class="flex items-center gap-x-2">
+								{{svg "octicon-x" 16}}
+								{{$.i18n.TrN $.ChangedProtectedFilesNum "repo.pulls.blocked_by_changed_protected_files_1" "repo.pulls.blocked_by_changed_protected_files_n" | Safe }}
+							</div>
+							<div class="flex flex-col">
+								{{range .ChangedProtectedFiles}}
+									<div data-value="-">- {{.}}</div>
+								{{end}}
+							</div>
+						</div>
+					{{else if and .EnableStatusCheck (not .RequiredStatusCheckState.IsSuccess)}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.required_status_check_failed"}}
+						</div>
+					{{else if and .RequireSigned (not .WillSign)}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.require_signed_wont_sign"}}
+						</div>
+					{{else}}
+						<div class="gap-x-2 flex items-center text-red-600">
+							{{svg "octicon-x"}}
+							{{$.i18n.Tr "repo.pulls.cannot_auto_merge_desc"}}
+						</div>
+						<div class="gap-x-2 flex items-center">
+							{{svg "octicon-info"}}
+							{{$.i18n.Tr "repo.pulls.cannot_auto_merge_helper"}}
+						</div>
+					{{end}}
+			</div>
+				{{end}}
+
+				{{if $.StillCanManualMerge}}
+					<!-- TODO: currently we do not found this case, need further step verify @high -->
+			<div class="divider m-0 p-0 h-[1px]"></div>
+					<div class="px-4 flex flex-col">
+			<!-- manually-merged-fields -->
+			<form action="{{.Link}}/merge" method="post" class="mt-4 hidden">
+				{{.CsrfTokenHtml}}
+				<input type="text" name="merge_commit_id" class="input input-bordered w-full" placeholder="{{$.i18n.Tr "repo.pulls.merge_commit_id"}}">
+				<div class="flex items-center mt-4 gap-x-2">
+				<button class="btn btn-red" type="submit" name="do" value="manually-merged">
+					{{$.i18n.Tr "repo.pulls.merge_manually"}}
+				</button>
+				<!-- merge-cancel -->
+				<button class="btn" type="cancel">
+					{{$.i18n.Tr "cancel"}}
+				</button>
+				</div>
+			</form>
+
+			<div class="gap-x-2 flex items-center mt-4">
+				<!-- merge-button -->
+				<div class="btn btn-red" data-do="manually-merged">
+				{{$.i18n.Tr "repo.pulls.merge_manually"}}
+				</div>
+			</div>
+					</div>
+				{{end}}
+			</div>
+		</div>
+	</div>
+</div>
+{{Asset "js/repo-issue-view_content-pull.js"}}

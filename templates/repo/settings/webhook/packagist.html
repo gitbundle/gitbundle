@@ -1,0 +1,19 @@
+{{ if eq .HookType "packagist" }}
+  <p class="cu-links-primary">{{ .i18n.Tr "repo.settings.add_web_hook_desc" "https://packagist.org" (.i18n.Tr "repo.settings.web_hook_name_packagist") | Str2html }}</p>
+  <form action="{{ .BaseLink }}/packagist/{{ or .Webhook.ID "new" }}" method="post">
+    {{ .CsrfTokenHtml }}
+    <div class="{{ if .Err_Username }}error{{ end }} form-control required">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.packagist_username" }}</span></label>
+      <input class="input-bordered input" id="username" name="username" value="{{ .PackagistHook.Username }}" placeholder="e.g. GitBundle" autofocus required />
+    </div>
+    <div class="{{ if .Err_APIToken }}error{{ end }} form-control required">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.packagist_api_token" }}</span></label>
+      <input class="input-bordered input" id="api_token" name="api_token" value="{{ .PackagistHook.APIToken }}" placeholder="e.g. X5F_tZ-Wj3c1vqaU2Rky" required />
+    </div>
+    <div class="{{ if .Err_PackageURL }}error{{ end }} form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.packagist_package_url" }}</span></label>
+      <input class="input-bordered input" id="package_url" name="package_url" value="{{ .PackagistHook.PackageURL }}" placeholder="e.g. https://packagist.org/packages/laravel/framework" required />
+    </div>
+    {{ template "repo/settings/webhook/settings" . }}
+  </form>
+{{ end }}

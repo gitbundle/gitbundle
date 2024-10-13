@@ -1,0 +1,21 @@
+{{ if or .EnableOpenIDSignIn .EnableSSPI }}
+  <div class="flex items-center justify-center rounded-t-lg bg-base-300 pt-6">
+    <div class="tabs">
+      <a class="{{ if .PageIsLogin }}tab-active{{ end }} tab-bordered tab" rel="nofollow" href="{{ AppSubUrl }}/user/login">
+        {{ .i18n.Tr "auth.login_userpass" }}
+      </a>
+      {{ if .EnableOpenIDSignIn }}
+        <a class="{{ if .PageIsLoginOpenID }}tab-active{{ end }} tab-bordered tab" rel="nofollow" href="{{ AppSubUrl }}/user/login/openid">
+          {{ svg "fa-openid" }}
+          &nbsp;OpenID
+        </a>
+      {{ end }}
+      {{ if .EnableSSPI }}
+        <a class="{{ if .PageIsSspi }}tab-active{{ end }} tab-bordered tab" rel="nofollow" href="{{ AppSubUrl }}/user/login?auth_with_sspi=1">
+          {{ svg "fa-windows" }}
+          &nbsp;SSPI
+        </a>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

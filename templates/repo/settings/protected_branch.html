@@ -1,0 +1,259 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository settings branches -->
+<div jq-repository-settings-protected-branches class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.branch_protection" (.Branch.BranchName|Escape) | Str2html }}
+        </h4>
+        <div class="divider my-2"></div>
+        <div class="branch-protection">
+          <form action="{{ .Link }}" method="post">
+            {{ .CsrfTokenHtml }}
+            <div class="form-control">
+              <label class="flex items-center gap-1"><input jq-enable-protection class="checkbox checkbox-sm" name="protected" type="checkbox" data-target="#protection_box" {{ if .Branch.IsProtected }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_this_branch" }}</label>
+              <p class="help">{{ .i18n.Tr "repo.settings.protect_this_branch_desc" }}</p>
+            </div>
+            <div id="protection_box" class="{{ if not .Branch.IsProtected }}disabled{{ end }} space-y-2 p-4">
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input jq-disable-whitelist class="radio radio-sm" name="enable_push" type="radio" value="none" data-target="#whitelist_box" {{ if not .Branch.CanPush }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_disable_push" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_disable_push_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="radio radio-sm" name="enable_push" type="radio" value="all" class="disable-whitelist" data-target="#whitelist_box" {{ if and (.Branch.CanPush) (not .Branch.EnableWhitelist) }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_enable_push" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_enable_push_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input jq-enable-whitelist class="radio radio-sm" name="enable_push" type="radio" value="whitelist" data-target="#whitelist_box" {{ if and (.Branch.CanPush) (.Branch.EnableWhitelist) }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_whitelist_committers" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_whitelist_committers_desc" }}</p>
+              </div>
+              <div id="whitelist_box" class="{{ if not .Branch.EnableWhitelist }}disabled{{ end }} space-y-2 pl-4">
+                <div class="form-control">
+                  <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_whitelist_users" }}</span></label>
+                  <div svelte-repo-search-users>
+                    <script>
+                      (() => {
+                        const items = []
+                        {{ range .Users }}
+                        items.push({value: {{ .ID }}, label: {{ .GetDisplayName }}, avatar: {{ avatar . }}, avatar_img: true})
+                        {{ end }}
+                        window.config.pageData.repoSearchUsers = {
+                          items,
+                          multiple: true,
+                          defaultValue: {{ .whitelist_users }},
+                          placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_users" }},
+                          fieldName: "whitelist_users",
+                        }
+                      })()
+                    </script>
+                  </div>
+                </div>
+                {{ if .Owner.IsOrganization }}
+                  <div class="form-control">
+                    <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_whitelist_teams" }}</span></label>
+                    <div svelte-repo-search-teams>
+                      <script>
+                        ;(() => {
+                          const items = []
+                          {{ range .Teams }}
+                          items.push({value: {{.ID}}, label: {{.Name}}, avatar: {{ svg "octicon-people" }}, avatar_img: false})
+                          {{ end }}
+                          window.config.pageData.repoSearchTeams = {
+                            items,
+                            multiple: true,
+                            defaultValue: {{ .whitelist_teams }},
+                            placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_teams" }},
+                            fieldName: "whitelist_teams",
+                          }
+                        })()
+                      </script>
+                    </div>
+                  </div>
+                {{ end }}
+                <br />
+                <div class="form-control">
+                  <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" type="checkbox" name="whitelist_deploy_keys" {{ if .Branch.WhitelistDeployKeys }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_whitelist_deploy_keys" }}</label>
+                </div>
+              </div>
+
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input jq-enable-whitelist class="checkbox checkbox-sm" name="enable_merge_whitelist" type="checkbox" data-target="#merge_whitelist_box" {{ if .Branch.EnableMergeWhitelist }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_merge_whitelist_committers" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_merge_whitelist_committers_desc" }}</p>
+              </div>
+              <div id="merge_whitelist_box" class="{{ if not .Branch.EnableMergeWhitelist }}disabled{{ end }} space-y-2">
+                <div class="form-control">
+                  <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_merge_whitelist_users" }}</span></label>
+                  <div svelte-repo-search-merge_whitelist_users>
+                    <script>
+                      (() => {
+                        const items = []
+                        {{ range .Users }}
+                        items.push({value: {{.ID}}, label: {{ .GetDisplayName }}, avatar: {{ avatar . }}, avatar_img: true})
+                        {{ end }}
+                        window.config.pageData.repoSearchMergeWhitelistUsers = {
+                          items,
+                          multiple: true,
+                          defaultValue: {{ .merge_whitelist_users }},
+                          placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_users" }},
+                          fieldName: "merge_whitelist_users",
+                        }
+                      })()
+                    </script>
+                  </div>
+                </div>
+                {{ if .Owner.IsOrganization }}
+                  <div class="form-control">
+                    <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_merge_whitelist_teams" }}</span></label>
+                    <div svelte-repo-search-merge_whitelist_teams>
+                      <script>
+                        (() => {
+                          const items = []
+                          {{ range .Teams }}
+                          items.push({value: {{.ID}}, label: {{ .Name }}, avatar: {{ svg "octicon-people" }}, avatar_img: false})
+                          {{end}}
+                          window.config.pageData.repoSearchMergeWhitelistTeams = {
+                            items,
+                            multiple: true,
+                            defaultValue: {{ .merge_whitelist_teams }},
+                            placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_teams" }},
+                            fieldName: "merge_whitelist_teams"
+                          }
+                        })()
+                      </script>
+                    </div>
+                  </div>
+                {{ end }}
+              </div>
+
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input jq-enable-statuscheck class="checkbox checkbox-sm" name="enable_status_check" type="checkbox" data-target="#statuscheck_contexts_box" {{ if .Branch.EnableStatusCheck }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_check_status_contexts" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_check_status_contexts_desc" }}</p>
+              </div>
+
+              <div id="statuscheck_contexts_box" class="{{ if not .Branch.EnableStatusCheck }}disabled{{ end }} pl-4">
+                <table class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>
+                        {{ .i18n.Tr "repo.settings.protect_check_status_contexts_list" }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{ range $.branch_status_check_contexts }}
+                      <tr>
+                        <td>
+                          <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-1">
+                              <input jq-enable-whitelist class="checkbox checkbox-sm" name="status_check_contexts" value="{{ . }}" type="checkbox" {{ if $.is_context_required }}{{ if call $.is_context_required . }}checked{{ end }}{{ end }} />
+                              {{ . }}
+                            </label>
+                            {{ if $.is_context_required }}{{ if call $.is_context_required . }}<div class="ui right label">Required</div>{{ end }}{{ end }}
+                          </div>
+                        </td>
+                      </tr>
+                    {{ end }}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="form-control">
+                <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_required_approvals" }}</span></label>
+                <input class="input-bordered input" name="required_approvals" id="required-approvals" type="number" value="{{ .Branch.RequiredApprovals }}" />
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_required_approvals_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input jq-enable-whitelist class="checkbox checkbox-sm" name="enable_approvals_whitelist" type="checkbox" data-target="#approvals_whitelist_box" {{ if .Branch.EnableApprovalsWhitelist }}checked{{ end }} />{{ .i18n.Tr "repo.settings.protect_approvals_whitelist_enabled" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_approvals_whitelist_enabled_desc" }}</p>
+              </div>
+              <div id="approvals_whitelist_box" class="{{ if not .Branch.EnableApprovalsWhitelist }}disabled{{ end }} space-y-2 pl-4">
+                <div class="form-control">
+                  <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_approvals_whitelist_users" }}</span></label>
+                  <div svelte-repo-search-approvals_whitelist_users>
+                    <script>
+                      (() => {
+                        const items = []
+                        {{ range .Users }}
+                        items.push({value: {{.ID}}, label: {{ .GetDisplayName }}, avatar: {{ avatar . }}, avatar_img: true})
+                        {{ end }}
+                        window.config.pageData.repoSearchApprovalsWhitelistUsers = {
+                          items,
+                          multiple: true,
+                          defaultValue: {{ .approvals_whitelist_users }},
+                          placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_users" }},
+                          fieldName: "approvals_whitelist_users",
+                        }
+                      })()
+                    </script>
+                  </div>
+                </div>
+                {{ if .Owner.IsOrganization }}
+                  <div class="form-control">
+                    <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_approvals_whitelist_teams" }}</span></label>
+                    <div svelte-repo-search-approvals_whitelist_teams>
+                      <script>
+                        (() => {
+                          const items = []
+                          {{ range .Teams }}
+                          items.push({value: {{.ID}}, label: {{.Name}}, avatar: {{ svg "octicon-people" }}, avatar_img: false})
+                          {{ end }}
+                          window.config.pageData.repoSearchApprovalsWhitelistTeams = {
+                            items,
+                            multiple: true,
+                            defaultValue: {{ .approvals_whitelist_teams }},
+                            placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_teams" }},
+                            fieldName: "approvals_whitelist_teams",
+                          }
+                        })()
+                      </script>
+                    </div>
+                  </div>
+                {{ end }}
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="block_on_rejected_reviews" type="checkbox" {{ if .Branch.BlockOnRejectedReviews }}checked{{ end }} />{{ .i18n.Tr "repo.settings.block_rejected_reviews" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.block_rejected_reviews_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="block_on_official_review_requests" type="checkbox" {{ if .Branch.BlockOnOfficialReviewRequests }}checked{{ end }} />{{ .i18n.Tr "repo.settings.block_on_official_review_requests" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.block_on_official_review_requests_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="dismiss_stale_approvals" type="checkbox" {{ if .Branch.DismissStaleApprovals }}checked{{ end }} />{{ .i18n.Tr "repo.settings.dismiss_stale_approvals" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.dismiss_stale_approvals_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="require_signed_commits" type="checkbox" {{ if .Branch.RequireSignedCommits }}checked{{ end }} />{{ .i18n.Tr "repo.settings.require_signed_commits" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.require_signed_commits_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="block_on_outdated_branch" type="checkbox" {{ if .Branch.BlockOnOutdatedBranch }}checked{{ end }} />{{ .i18n.Tr "repo.settings.block_outdated_branch" }}</label>
+                <p class="help">{{ .i18n.Tr "repo.settings.block_outdated_branch_desc" }}</p>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_protected_file_patterns" }}</span></label>
+                <input class="input-bordered input" name="protected_file_patterns" id="protected_file_patterns" type="text" value="{{ .Branch.ProtectedFilePatterns }}" />
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_protected_file_patterns_desc" | Safe }}</p>
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.protect_unprotected_file_patterns" }}</span></label>
+                <input class="input-bordered input" name="unprotected_file_patterns" id="unprotected_file_patterns" type="text" value="{{ .Branch.UnprotectedFilePatterns }}" />
+                <p class="help">{{ .i18n.Tr "repo.settings.protect_unprotected_file_patterns_desc" | Safe }}</p>
+              </div>
+            </div>
+
+            <div class="flex">
+              <button class="btn-primary btn">{{ $.i18n.Tr "repo.settings.update_settings" }}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-settings-protected_branch.js" }}
+</div>
+{{ template "base/footer" . }}

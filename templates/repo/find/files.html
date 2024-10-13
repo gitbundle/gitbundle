@@ -1,0 +1,19 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<div class="main-container">
+  <div class="mx-auto w-full max-w-7xl space-y-4">
+    <div class="flex items-center text-lg">
+      <a class="link-hover link-primary link" href="{{ $.RepoLink }}">{{ .RepoName }}</a>
+      <span class="mx-2">/</span>
+      <div class="flex-1">
+        <input class="input-bordered input w-full" id="repo-file-find-input" type="text" autofocus data-url-data-link="{{ .DataLink }}" data-url-tree-link="{{ .TreeLink }}" />
+      </div>
+    </div>
+    <div id="repo-find-file-lists" class="flex flex-col divide-y rounded-lg border"></div>
+    <div id="repo-find-file-no-result" class="mx-auto mt-5 hidden text-center">
+      <h3>{{ .i18n.Tr "repo.find_file.no_matching" }}</h3>
+    </div>
+  </div>
+</div>
+{{ Asset "js/repo-find-files.js" }}
+{{ template "base/footer" . }}

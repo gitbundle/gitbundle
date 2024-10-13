@@ -1,0 +1,15 @@
+{{ template "base/head" . }}
+{{ if .IsRepo }}{{ template "repo/header" . }}{{ end }}
+<!-- ui one column stackable center aligned page grid oauth2-authorize-application-box ac js -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-300">
+    <h1 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.authorization_failed" }}
+    </h1>
+    <div class="hero space-y-2">
+      <h3>{{ .Error.ErrorDescription }}</h3>
+      <p>{{ .i18n.Tr "auth.authorization_failed_desc" }}</p>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

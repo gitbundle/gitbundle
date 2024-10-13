@@ -1,0 +1,54 @@
+{{ template "base/head" . }}
+<!--  user signup -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    {{ template "user/auth/signup_openid_navbar" . }}
+    <!-- <h4 class="hero text-xl font-bold">
+      {{ .i18n.Tr "auth.openid_register_title" }}
+    </h4> -->
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <p class="text-center">
+      {{ .i18n.Tr "auth.openid_register_desc" }}
+    </p>
+    <form class="mx-auto flex w-3/5 flex-col space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <div class="required {{ if .Err_UserName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "username" }}</span></label>
+        <input class="input-bordered input" id="user_name" type="text" name="user_name" value="{{ .user_name }}" autofocus required />
+      </div>
+      <div class="required {{ if .Err_Email }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "email" }}</span></label>
+        <input class="input-bordered input" id="email" name="email" type="email" value="{{ .email }}" required />
+      </div>
+      {{ if and .EnableCaptcha (eq .CaptchaType "image") }}
+        <div class="form-control">
+          {{ .Captcha.CreateHTML }}
+        </div>
+        <div class="required {{ if .Err_Captcha }}error{{ end }} form-control">
+          <label class="label"><span class="label-text">{{ .i18n.Tr "captcha" }}</span></label>
+          <input class="input-bordered input" id="captcha" name="captcha" value="{{ .captcha }}" autocomplete="off" />
+        </div>
+      {{ end }}
+      {{ if and .EnableCaptcha (eq .CaptchaType "recaptcha") }}
+        <div class="required form-control">
+          <div class="g-recaptcha" data-sitekey="{{ .RecaptchaSitekey }}"></div>
+        </div>
+      {{ end }}
+      {{ if and .EnableCaptcha (eq .CaptchaType "hcaptcha") }}
+        <div class="required form-control">
+          <div class="h-captcha" data-sitekey="{{ .HcaptchaSitekey }}"></div>
+        </div>
+      {{ end }}
+      <div class="form-control">
+        <label class="label"><span class="label-text">OpenID URI</span></label>
+        <input class="input-bordered input" id="openid" value="{{ .OpenID }}" readonly />
+      </div>
+      <div class="form-control">
+        <button class="btn-primary btn">{{ .i18n.Tr "auth.create_new_account" }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

@@ -1,0 +1,23 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository wiki pages -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-7xl">
+    <h2 class="flex justify-between rounded-t-lg border border-b-0 bg-base-200 px-4 py-2 font-bold">
+      {{ .i18n.Tr "repo.wiki.pages" }}
+      {{ if and .CanWriteWiki (not .IsRepositoryMirror) }}
+        <a class="btn-primary btn" href="{{ .RepoLink }}/wiki?action=_new">{{ .i18n.Tr "repo.wiki.new_page_button" }}</a>
+      {{ end }}
+    </h2>
+    <div class="divide-y rounded-b-lg border">
+      {{ range .Pages }}
+        <div class="flex items-center gap-2 px-4 py-2 hover:bg-base-content/10 hover:last:rounded-b-lg">
+          {{ svg "octicon-file" }}
+          <a class="link-hover link-primary link" href="{{ $.RepoLink }}/wiki/{{ .SubURL }}">{{ .Name }}</a>
+          <div class="text-gray-500">{{ $timeSince := TimeSinceUnix .UpdatedUnix $.i18n.Lang }}{{ $.i18n.Tr "repo.wiki.last_updated" $timeSince | Safe }}</div>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

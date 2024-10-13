@@ -1,0 +1,16 @@
+{{ if .ctx.IsSigned }}
+  <div {{ if not .IsFromReactions }}jq-reaction-dropdown{{ end }} class="{{ if not .IsFromReactions }}dropdown-end{{ end }} dropdown" data-action-url="{{ $.ActionURL }}">
+    <label tabindex="0" class="cursor-pointer">
+      {{ svg "octicon-smiley" }}
+    </label>
+    <ul tabindex="0" class="dropdown-content menu menu-horizontal w-[14.5rem] p-2">
+      <li class="menu-title mb-1 w-full">{{ .ctx.i18n.Tr "repo.pick_reaction" }}</li>
+      {{ range $value := AllowedReactions }}
+        <li jq-item class="!px-1 !leading-4" data-content="{{ $value }}">
+          <div>{{ ReactionToEmoji $value }}</div>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ Asset "js/repo-issue-view_content-add_reaction.js" }}
+{{ end }}

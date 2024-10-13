@@ -1,0 +1,61 @@
+<div class="flex items-center justify-between gap-2">
+  <form class="ignore-dirty flex flex-1">
+    {{ if not .PageIsExploreRepositories }}
+      <input type="hidden" name="sort" value="{{ $.SortType }}" />
+      <input type="hidden" name="language" value="{{ $.Language }}" />
+      <div class="input-group">
+        <input class="input-bordered input w-full" name="q" value="{{ .Keyword }}" placeholder="{{ .i18n.Tr "explore.search" }}..." autofocus />
+        <button class="btn-primary btn">{{ .i18n.Tr "explore.search" }}</button>
+      </div>
+    {{ else if .Keyword }}
+      <h3 class="cu-links-primary">
+        {{ .i18n.Tr "explore.code_search_results" (.Keyword|Escape) | Str2html }}
+      </h3>
+    {{ end }}
+  </form>
+  <!-- Sort -->
+  <div class="dropdown-end dropdown">
+    <label tabindex="0" class="btn-normal btn-outline btn flex items-center gap-1">
+      <span> {{ .i18n.Tr "repo.issues.filter_sort" }}</span>
+      <span> by: </span>
+      <span>{{ $.SortType }}</span>
+      {{ svg "octicon-triangle-down" 14 }}
+    </label>
+    <ul class="dropdown-content menu p-2">
+      <li>
+        <a class="{{ if eq .SortType "newest" }}active{{ end }}" href="{{ $.Link }}?sort=newest&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.latest" }}</a>
+      </li>
+      <li>
+        <a class="{{ if eq .SortType "oldest" }}active{{ end }}" href="{{ $.Link }}?sort=oldest&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.oldest" }}</a>
+      </li>
+      <li>
+        <a class="{{ if eq .SortType "alphabetically" }}active{{ end }}" href="{{ $.Link }}?sort=alphabetically&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.label.filter_sort.alphabetically" }}</a>
+      </li>
+      <li>
+        <a class="{{ if eq .SortType "reversealphabetically" }}active{{ end }}" href="{{ $.Link }}?sort=reversealphabetically&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.label.filter_sort.reverse_alphabetically" }}</a>
+      </li>
+      <li>
+        <a class="{{ if eq .SortType "recentupdate" }}active{{ end }}" href="{{ $.Link }}?sort=recentupdate&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.recentupdate" }}</a>
+      </li>
+      <li>
+        <a class="{{ if eq .SortType "leastupdate" }}active{{ end }}" href="{{ $.Link }}?sort=leastupdate&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.leastupdate" }}</a>
+      </li>
+      {{ if not .DisableStars }}
+        <li>
+          <a class="{{ if eq .SortType "moststars" }}active{{ end }}" href="{{ $.Link }}?sort=moststars&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.moststars" }}</a>
+        </li>
+        <li>
+          <a class="{{ if eq .SortType "feweststars" }}active{{ end }}" href="{{ $.Link }}?sort=feweststars&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.feweststars" }}</a>
+        </li>
+      {{ end }}
+      <li>
+        <a class="{{ if eq .SortType "mostforks" }}active{{ end }}" href="{{ $.Link }}?sort=mostforks&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.mostforks" }}</a>
+      </li>
+      <li>
+        <a class="{{ if eq .SortType "fewestforks" }}active{{ end }}" href="{{ $.Link }}?sort=fewestforks&q={{ $.Keyword }}&language={{ $.Language }}">{{ .i18n.Tr "repo.issues.filter_sort.fewestforks" }}</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="divider my-2"></div>

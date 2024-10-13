@@ -1,0 +1,43 @@
+{{ template "base/head" . }}
+<!--  user settings profile -->
+<div jq-user-settings-profile class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "user/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="text-xl font-bold">
+          {{ .i18n.Tr "settings.avatar" }}
+        </h4>
+        <div class="divider my-2"></div>
+        <form class="mt-2 space-y-2" action="{{ .Link }}" method="post" enctype="multipart/form-data">
+          {{ .CsrfTokenHtml }}
+          {{ if not DisableGravatar }}
+            <div class="form-control">
+              <label class="flex items-center gap-1"><input class="radio radio-sm" name="source" value="lookup" type="radio" {{ if not .SignedUser.UseCustomAvatar }}checked{{ end }} />{{ .i18n.Tr "settings.lookup_avatar_by_mail" }}</label>
+            </div>
+            <div class="{{ if .Err_Gravatar }}error{{ end }} form-control">
+              <label for="gravatar">Avatar {{ .i18n.Tr "email" }}</label>
+              <input class="input-bordered input" id="gravatar" name="gravatar" value="{{ .SignedUser.AvatarEmail }}" />
+            </div>
+          {{ end }}
+          <div class="form-control">
+            <label class="flex items-center gap-1"><input class="radio radio-sm" name="source" value="local" type="radio" {{ if .SignedUser.UseCustomAvatar }}checked{{ end }} />{{ .i18n.Tr "settings.enable_custom_avatar" }}</label>
+          </div>
+
+          <div class="form-control">
+            <label class="label"><span class="label-text">{{ .i18n.Tr "settings.choose_new_avatar" }}</span></label>
+            <input class="file-input-bordered file-input" name="avatar" type="file" />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button class="btn-primary btn">{{ $.i18n.Tr "settings.update_avatar" }}</button>
+            <a svelte-async-button class="btn-red btn" data-href="{{ .Link }}/avatar/delete" data-redirect="{{ .Link }}">{{ $.i18n.Tr "settings.delete_current_avatar" }}</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/user-settings-profile.js" }}
+</div>
+{{ template "base/footer" . }}

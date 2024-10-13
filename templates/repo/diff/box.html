@@ -1,0 +1,210 @@
+<div jq-repo-diff-box class="diff-container space-y-4">
+  {{ if .DiffNotAvailable }}
+    <div class="sticky top-0 z-20 flex rounded-lg border bg-base-200 px-4 py-2">
+      <div class="ml-auto flex items-center gap-x-1">
+        {{ template "repo/diff/whitespace_dropdown" . }}
+        {{ template "repo/diff/options_dropdown" . }}
+        {{ if and .PageIsPullFiles $.SignedUserID (not .IsArchived) }}
+          {{ template "repo/diff/new_review" . }}
+        {{ end }}
+      </div>
+    </div>
+    <h4 class="rounded-lg border bg-base-200/60 py-20 text-center">{{ .i18n.Tr "repo.diff.data_not_available" }}</h4>
+  {{ else }}
+    <div class="sticky top-0 z-20 flex rounded-lg border bg-base-200 px-4 py-2">
+      <div class="flex flex-1 items-center gap-x-1">
+        {{ svg "octicon-diff" 16 "text-primary-content" }}{{ .i18n.Tr "repo.diff.stats_desc" .Diff.NumFiles .Diff.TotalAddition .Diff.TotalDeletion | Str2html }}
+      </div>
+      <div class="flex items-center gap-x-1">
+        {{ if and .PageIsPullFiles $.SignedUserID (not .IsArchived) }}
+          <progress id="viewed-files-summary" class="cu-progress !w-16" value="{{ .Diff.NumViewedFiles }}" max="{{ .Diff.NumFiles }}"></progress>
+          <label for="viewed-files-summary" id="viewed-files-summary-label" data-text-changed-template="{{ .i18n.Tr "repo.pulls.viewed_files_label" }}">
+            {{ .i18n.Tr "repo.pulls.viewed_files_label" .Diff.NumViewedFiles .Diff.NumFiles }}
+          </label>
+        {{ end }}
+        {{ template "repo/diff/whitespace_dropdown" . }}
+        {{ template "repo/diff/options_dropdown" . }}
+        {{ if and .PageIsPullFiles $.SignedUserID (not .IsArchived) }}
+          {{ template "repo/diff/new_review" . }}
+        {{ end }}
+      </div>
+    </div>
+    <ol class="diff-stats hidden divide-y px-2" id="diff-files">
+      {{ range .Diff.Files }}
+        <li class="flex justify-between py-2">
+          <div class="cu-links-primary flex items-center gap-x-1">
+            <!-- todo finish all file status, now modify, add, delete and rename -->
+            <span class="status {{ DiffTypeToStr .GetType }} tooltip tooltip-right" data-tip="{{ DiffTypeToStr .GetType }}">&nbsp;</span>
+            <a href="#diff-{{ .NameHash }}">{{ .Name }}</a>
+          </div>
+          <div class="flex items-center gap-x-1 font-bold">
+            {{ if .IsBin }}
+              <span>
+                {{ $.i18n.Tr "repo.diff.bin" }}
+              </span>
+            {{ else }}
+              {{ template "repo/diff/stats" dict "file" . "root" $ }}
+            {{ end }}
+          </div>
+        </li>
+      {{ end }}
+      {{ if .Diff.IsIncomplete }}
+        <li id="diff-too-many-files-stats" class="py-2">
+          <span class="text-xs">
+            {{ $.i18n.Tr "repo.diff.too_many_files" }}
+            <a class="btn-xs btn" id="diff-show-more-files-stats" data-href="{{ $.Link }}?skip-to={{ .Diff.End }}&file-only=true">{{ .i18n.Tr "repo.diff.show_more" }}</a>
+          </span>
+        </li>
+      {{ end }}
+    </ol>
+    <div id="diff-file-boxes" class="space-y-4">
+      {{ range $i, $file := .Diff.Files }}
+        {{ $blobBase := call $.GetBlobByPathForCommit $.BaseCommit $file.OldName }}
+        {{ $blobHead := call $.GetBlobByPathForCommit $.HeadCommit $file.Name }}
+        {{ $isImage := or (call $.IsBlobAnImage $blobBase) (call $.IsBlobAnImage $blobHead) }}
+        {{ $isCsv := (call $.IsCsvFile $file) }}
+        {{ $showFileViewToggle := or $isImage (and (not $file.IsIncomplete) $isCsv) }}
+        <div class="file-content diff-file-box {{ TabSizeClass $.Editorconfig $file.Name }} mt-3" id="diff-{{ $file.NameHash }}" data-old-filename="{{ $file.OldName }}" data-new-filename="{{ $file.Name }}" {{ if $file.ShouldBeHidden }}data-folded="true"{{ end }}>
+          <h5 class="diff-file-header no-backdrop-blur-sm sticky top-14 z-10 flex items-center rounded-t-lg border bg-base-200 px-4 py-2">
+            <div class="flex flex-1 items-center gap-x-1">
+              <span for="file-content-{{ $file.NameHash }}" role="button" class="fold-file select-none hover:text-primary">
+                {{ if $file.ShouldBeHidden }}
+                  {{ svg "octicon-chevron-right" 18 }}
+                {{ else }}
+                  {{ svg "octicon-chevron-down" 18 }}
+                {{ end }}
+              </span>
+              <div class="flex items-center gap-x-1">
+                {{ if $file.IsBin }}
+                  <span>
+                    {{ $.i18n.Tr "repo.diff.bin" }}
+                  </span>
+                {{ else }}
+                  {{ template "repo/diff/stats" dict "file" . "root" $ }}
+                {{ end }}
+              </div>
+              <span class="cu-links-hover">
+                <a class="link-hover hover:text-primary" href="#diff-{{ $file.NameHash }}">{{ if $file.IsRenamed }}{{ $file.OldName }} &rarr;{{ end }}{{ $file.Name }}</a>{{ if .IsLFSFile }}({{ $.i18n.Tr "repo.stored_lfs" }}){{ end }}
+              </span>
+              {{ if $file.IsGenerated }}
+                <span class="badge-outline badge badge-sm">{{ $.i18n.Tr "repo.diff.generated" }}</span>
+              {{ end }}
+              {{ if $file.IsVendored }}
+                <span class="badge-outline badge badge-sm">{{ $.i18n.Tr "repo.diff.vendored" }}</span>
+              {{ end }}
+            </div>
+            <div class="flex items-center gap-x-1">
+              {{ if $showFileViewToggle }}
+                <div class="btn-group">
+                  <span jq-file-view-toggle class="tooltip tooltip-bottom btn-sm btn" data-toggle-selector="#diff-source-{{ $i }}" data-tip="{{ $.i18n.Tr "repo.file_view_source" }}">{{ svg "octicon-code" }}</span>
+                  <span jq-file-view-toggle class="tooltip tooltip-bottom btn-active btn-sm btn" data-toggle-selector="#diff-rendered-{{ $i }}" data-tip="{{ $.i18n.Tr "repo.file_view_rendered" }}">{{ svg "octicon-file" }}</span>
+                </div>
+              {{ end }}
+              {{ if $file.IsProtected }}
+                <span class="badge-outline badge badge-sm">{{ $.i18n.Tr "repo.diff.protected" }}</span>
+              {{ end }}
+              {{ if not (or $file.IsIncomplete $file.IsBin $file.IsSubmodule) }}
+                <a class="unescape-button btn-sm btn">{{ $.i18n.Tr "repo.unescape_control_characters" }}</a>
+                <a class="escape-button btn-sm btn hidden">{{ $.i18n.Tr "repo.escape_control_characters" }}</a>
+              {{ end }}
+              {{ if and (not $file.IsSubmodule) (not $.PageIsWiki) }}
+                {{ if $file.IsDeleted }}
+                  <a class="btn-sm btn" rel="nofollow" href="{{ $.BeforeSourcePath }}/{{ PathEscapeSegments .Name }}">{{ $.i18n.Tr "repo.diff.view_file" }}</a>
+                {{ else }}
+                  <a class="btn-sm btn" rel="nofollow" href="{{ $.SourcePath }}/{{ PathEscapeSegments .Name }}">{{ $.i18n.Tr "repo.diff.view_file" }}</a>
+                {{ end }}
+              {{ end }}
+              {{ if and $.IsSigned $.PageIsPullFiles (not $.IsArchived) }}
+                {{ if $file.HasChangedSinceLastReview }}
+                  <span class="changed-since-last-review badge-info badge badge-sm">{{ $.i18n.Tr "repo.pulls.has_changed_since_last_review" }}</span>
+                {{ end }}
+                <div data-link="{{ $.Issue.Link }}/viewed-files" data-headcommit="{{ $.PullHeadCommitID }}" class="viewed-file-form {{ if $file.IsViewed }}bg-info{{ end }} flex items-center gap-x-1">
+                  <input type="checkbox" class="{{ if $file.IsViewed }}checkbox-info{{ end }} checkbox h-5 w-5" name="{{ $file.GetDiffFileName }}" id="viewed-file-checkbox-{{ $i }}" autocomplete="off" {{ if $file.IsViewed }}checked{{ end }} />
+                  <label for="viewed-file-checkbox-{{ $i }}">{{ $.i18n.Tr "repo.pulls.has_viewed_file" }}</label>
+                </div>
+              {{ end }}
+            </div>
+          </h5>
+          <!-- BUG: bottom rounded-border not cover the background-color -->
+          <div class="diff-file-body no-backdrop-blur-sm 1overflow-hidden 1rounded-b-lg border border-t-0 bg-base-100 px-0" {{ if $file.IsViewed }}data-folded="true"{{ end }}>
+            <div id="diff-source-{{ $i }}" class="file-code file-body unicode-escaped code-diff {{ if $.IsSplitStyle }}code-diff-split{{ else }}code-diff-unified{{ end }} {{ if $showFileViewToggle }}hidden{{ end }}">
+              {{ if or $file.IsIncomplete $file.IsBin }}
+                <div class="px-2 py-1">
+                  {{ if $file.IsIncomplete }}
+                    {{ if $file.IsIncompleteLineTooLong }}
+                      {{ $.i18n.Tr "repo.diff.file_suppressed_line_too_long" }}
+                    {{ else }}
+                      <!-- TODO: this is not checked for real case currently @low -->
+                      {{ $.i18n.Tr "repo.diff.file_suppressed" }}
+                      <a class="diff-show-more-button btn-sm btn" data-href="{{ $.Link }}?file-only=true&files={{ $file.Name }}&files={{ $file.OldName }}">{{ $.i18n.Tr "repo.diff.load" }}</a>
+                    {{ end }}
+                  {{ else }}
+                    {{ $.i18n.Tr "repo.diff.bin_not_shown" }}
+                  {{ end }}
+                </div>
+              {{ else }}
+                <table class="chroma" data-new-comment-url="{{ $.Issue.HTMLURL }}/files/reviews/new_comment" data-path="{{ $file.Name }}">
+                  {{ if $.IsSplitStyle }}
+                    {{ template "repo/diff/section_split" dict "file" . "root" $ }}
+                  {{ else }}
+                    {{ template "repo/diff/section_unified" dict "file" . "root" $ }}
+                  {{ end }}
+                </table>
+              {{ end }}
+            </div>
+            {{ if $showFileViewToggle }}
+              <div id="diff-rendered-{{ $i }}" class="file-code file-body {{ if $.IsSplitStyle }}code-diff-split{{ else }}code-diff-unified{{ end }}">
+                <table class="chroma w-full">
+                  {{ if $isImage }}
+                    {{ template "repo/diff/image_diff" dict "file" . "root" $ "blobBase" $blobBase "blobHead" $blobHead }}
+                  {{ else }}
+                    {{ template "repo/diff/csv_diff" dict "file" . "root" $ }}
+                  {{ end }}
+                </table>
+              </div>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
+      {{ if .Diff.IsIncomplete }}
+        <div class="diff-file-box diff-box file-content" id="diff-incomplete">
+          <h5>
+            {{ $.i18n.Tr "repo.diff.too_many_files" }}
+            <a class="btn-sm btn" id="diff-show-more-files" data-href="{{ $.Link }}?skip-to={{ .Diff.End }}&file-only=true">{{ .i18n.Tr "repo.diff.show_more" }}</a>
+          </h5>
+        </div>
+      {{ end }}
+    </div>
+
+    {{ if not $.Repository.IsArchived }}
+      {{/* TODO: this comment form seems not used currently @low */}}
+      {{/*<div class="hidden" id="edit-content-form">
+        <div jq-comment-form class="space-y-4">
+          <div jq-tabs class="tabs" data-write="write" data-preview="preview">
+            <a class="tab-lifted tab tab-active" data-write="write">{{ $.i18n.Tr "write" }}</a>
+            <a class="tab-lifted tab" data-preview="preview" data-url="{{ $.Repository.HTMLURL }}/markdown" data-context="{{ $.RepoLink }}">{{ $.i18n.Tr "preview" }}</a>
+          </div>
+          <div jq-contents>
+            <div data-tab="write">
+              <textarea class="review-textarea js-quick-submit textarea-bordered textarea w-full" tabindex="1" name="content"></textarea>
+            </div>
+            <div data-tab="preview" class="markup hidden">
+              <div class="text-center">
+                {{ template "base/loading" }}
+                {{ $.i18n.Tr "loading" }}
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end items-center gap-x-2">
+            <div jq-cancel class="btn btn-sm" tabindex="3">{{ .i18n.Tr "repo.issues.cancel" }}</div>
+            <div jq-save class="btn btn-sm btn-primary" tabindex="2">{{ .i18n.Tr "repo.issues.save" }}</div>
+          </div>
+        </div>
+      </div>*/}}
+    {{ end }}
+
+    {{/* TODO: this modal here seems not used currently @low */}}
+    {{template "repo/issue/view_content/reference_issue_dialog" .}}
+  {{ end }}
+  {{ Asset "js/repo-diff-box.js" }}
+</div>

@@ -1,0 +1,32 @@
+{{ template "base/head" . }}
+<!-- repository new migrate -->
+<div jq-repo-new-migrate class="main-container">
+  <div class="mx-auto h-fit w-full max-w-2xl">
+    {{ template "base/alert" . }}
+    <form action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <h1 class="text-2xl mb-4">
+        {{ .i18n.Tr "repo.migrate.migrate" .service.Title }}
+        <input id="service_type" type="hidden" name="service" value="{{ .service }}" />
+      </h1>
+      <div class="required {{ if .Err_CloneAddr }}error{{ end }} form-control w-full">
+        <label class="label">
+          <span class="label-text font-bold">
+            {{ .i18n.Tr "repo.migrate.clone_address" }}
+          </span>
+        </label>
+        <input id="clone_addr" class="input-bordered input w-full" name="clone_addr" value="{{ .clone_addr }}" autofocus required />
+        <label class="label">
+          <span class="help label-text-alt">
+            {{ .i18n.Tr "repo.migrate.clone_address_desc" }}
+          </span>
+        </label>
+      </div>
+
+{{if false}}
+    </form>
+  </div>
+  {{ Asset "js/repo-migrate.js" }}
+</div>
+{{ template "base/footer" . }}
+{{end}}

@@ -1,0 +1,63 @@
+<div class="flex flex-col gap-1 px-4 py-2">
+  <div class="flex items-center gap-2">
+    <div>
+      {{ if eq .Process.Type "request" }}
+        {{ svg "octicon-globe" 16 }}
+      {{ else if eq .Process.Type "system" }}
+        {{ svg "octicon-cpu" 16 }}
+      {{ else if eq .Process.Type "normal" }}
+        {{ svg "octicon-terminal" 16 }}
+      {{ else }}
+        {{ svg "octicon-code" 16 }}
+      {{ end }}
+    </div>
+    <div class="flex flex-col gap-1">
+      <div class="font-bold">{{ .Process.Description }}</div>
+      <div class="text-gray-500">{{ if ne .Process.Type "none" }}<span title="{{ DateFmtLong .Process.Start }}">{{ TimeSince .Process.Start .root.i18n.Lang }}</span>{{ end }}</div>
+    </div>
+    {{ if or (eq .Process.Type "request") (eq .Process.Type "normal") }}
+      <a svelte-simple-modal class="link-hover link-primary link" href="#" data-href="{{ .root.Link }}/cancel/{{ .Process.PID }}" data-title="{{ .root.i18n.Tr "admin.monitor.process.cancel" }}" data-desc="{{ .root.i18n.Tr "admin.monitor.process.cancel_notices" .Process.Description }}<br/>{{ .root.i18n.Tr "admin.monitor.process.cancel_desc" }}" data-form-key[0]="id" data-form-val[0]="{{ .Process.PID }}">{{ svg "octicon-trash" 16 "text-red" }}</a>
+    {{ end }}
+  </div>
+  {{ if .Process.Stacks }}
+    <div class="ml-1 flex flex-col">
+      {{ range .Process.Stacks }}
+        <details>
+          <summary class="cursor-pointer">
+            <div class="ml-2 inline-flex gap-1 align-middle">
+              <div class="inline-flex items-center gap-1">
+                <span>{{ svg "octicon-code" 16 }}</span>{{ .Description }}{{ if gt .Count 1 }}* {{ .Count }}{{ end }}
+              </div>
+              <div class="inline-flex items-center gap-1 text-gray-500">
+                {{ range .Labels }}
+                  <div class="badge-ghost badge">
+                    {{ .Name }}
+                    <div class="ml-2">{{ .Value }}</div>
+                  </div>
+                {{ end }}
+              </div>
+            </div>
+          </summary>
+          <div class="flex flex-col gap-1">
+            {{ range .Entry }}
+              <div class="flex items-center gap-2">
+                <span>{{ svg "octicon-dot-fill" 16 }}</span>
+                <div class="flex flex-col">
+                  <div class="font-bold"><code>{{ .Function }}</code></div>
+                  <div class="text-gray-500"><code>{{ .File }}:{{ .Line }}</code></div>
+                </div>
+              </div>
+            {{ end }}
+          </div>
+        </details>
+      {{ end }}
+    </div>
+  {{ end }}
+
+  {{ if .Process.Children }}
+    {{ range .Process.Children }}
+      {{ template "admin/stacktrace-row" dict "Process" . "root" $.root }}
+    {{ end }}
+  {{ end }}
+
+</div>

@@ -1,0 +1,82 @@
+<div id="rev-container">
+  <ul id="rev-list">
+    {{ range $commitI, $commit := .Graph.Commits }}
+      <li class="flex w-full items-center gap-x-1 pl-2 hover:bg-base-content/10" {{ if $commit.Rev }}id="commit-{{ $commit.Rev }}"{{ end }} data-flow="{{ $commit.Flow }}">
+        {{ if $commit.OnlyRelation }}
+          <span></span>
+        {{ else }}
+          <span class="sha" id="{{ $commit.ShortRev }}">
+            {{ $class := "normal" }}
+            {{ if $commit.Commit.Signature }}
+              {{ if $commit.Verification.Verified }}
+                {{ if eq $commit.Verification.TrustStatus "trusted" }}
+                  {{ $class = "green" }}
+                {{ else if eq $commit.Verification.TrustStatus "untrusted" }}
+                  {{ $class = "yellow" }}
+                {{ else }}
+                  {{ $class = "orange" }}
+                {{ end }}
+              {{ else if $commit.Verification.Warning }}
+                {{ $class = "red" }}
+              {{ end }}
+            {{ end }}
+            <a class="btn-outline-{{ $class }} btn-outline btn-xs btn !divide-x-2" href="{{ $.RepoLink }}/commit/{{ $commit.Rev|PathEscape }}" rel="nofollow">
+              <span class="shortsha">{{ ShortSha $commit.Commit.ID.String }}</span>
+              {{- if $commit.Commit.Signature -}}
+                <span class="ml-1 pl-1">{{ template "repo/shabox_badge" dict "root" $ "verification" $commit.Verification }}</span>
+              {{- end -}}
+            </a>
+          </span>
+          <span class="overflow-hidden text-ellipsis">
+            {{ RenderCommitMessage $.Context $commit.Subject $.RepoLink $.Repository.ComposeMetas }}
+          </span>
+          <span class="flex items-center gap-x-1">
+            {{ range $commit.Refs }}
+              {{ $refGroup := .RefGroup }}
+              {{ if eq $refGroup "pull" }}
+                {{ if or (not $.HidePRRefs) (containGeneric $.SelectedBranches .Name) }}
+                  <!-- it's intended to use issues not pulls, if it's a pull you will get redirected -->
+                  <a class="btn-outline btn-xs btn" href="{{ $.RepoLink }}/{{ if $.Repository.UnitEnabled $.UnitTypePullRequests }}pulls{{ else }}issues{{ end }}/{{ .ShortName|PathEscape }}">
+                    {{ svg "octicon-git-pull-request" 12 "!w-3 !h-3 mr-1" }}#{{ .ShortName }}
+                  </a>
+                {{ end }}
+              {{ else if eq $refGroup "tags" }}
+                <a class="btn-outline btn-xs btn" href="{{ $.RepoLink }}/src/tag/{{ .ShortName|PathEscape }}">
+                  {{ svg "octicon-tag" 12 "!w-3 !h-3 mr-1" }}{{ .ShortName }}
+                </a>
+              {{ else if eq $refGroup "remotes" }}
+                <a class="btn-outline btn-xs btn" href="{{ $.RepoLink }}/src/commit/{{ $commit.Rev|PathEscape }}">
+                  {{ svg "octicon-cross-reference" 12 "!w-3 !h-3 mr-1" }}{{ .ShortName }}
+                </a>
+              {{ else if eq $refGroup "heads" }}
+                <a class="btn-outline btn-xs btn" href="{{ $.RepoLink }}/src/branch/{{ .ShortName|PathEscape }}">
+                  {{ svg "octicon-git-branch" 12 "!w-3 !h-3 mr-1" }}{{ .ShortName }}
+                </a>
+              {{ else }}
+                <!-- Unknown ref type {{ .Name }} -->
+              {{ end }}
+            {{ end }}
+          </span>
+          <span class="avatar flex items-center gap-x-1">
+            {{ $userName := $commit.Commit.Author.Name }}
+            {{ if $commit.User }}
+              {{ if $commit.User.FullName }}
+                {{ $userName = $commit.User.FullName }}
+              {{ end }}
+              <span class="w-4 rounded-full">
+                {{ avatar $commit.User }}
+              </span>
+              <a class="link-hover link-primary link" href="{{ $commit.User.HomeLink }}">{{ $userName }}</a>
+            {{ else }}
+              <span class="w-4 rounded-full">
+                {{ avatarByEmail $commit.Commit.Author.Email $userName }}
+              </span>
+              {{ $userName }}
+            {{ end }}
+          </span>
+          <span class="text-xs text-mako-500">{{ $commit.Date }}</span>
+        {{ end }}
+      </li>
+    {{ end }}
+  </ul>
+</div>

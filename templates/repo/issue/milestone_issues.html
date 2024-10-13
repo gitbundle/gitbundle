@@ -1,0 +1,215 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<div jq-repo-issue-list class="main-container repository">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">{{ .Milestone.Name }}</h1>
+      {{ if not .Repository.IsArchived }}
+        <div class="flex items-center gap-2">
+          {{ if or .CanWriteIssues .CanWritePulls }}
+            <a class="btn-sm btn" href="{{ .RepoLink }}/milestones/{{ .MilestoneID }}/edit">{{ .i18n.Tr "repo.milestones.edit" }}</a>
+          {{ end }}
+          <a class="btn-primary btn-sm btn" href="{{ .RepoLink }}/issues/new{{ if .NewIssueChooseTemplate }}/choose{{ end }}?milestone={{ .MilestoneID }}">{{ .i18n.Tr "repo.issues.new" }}</a>
+        </div>
+      {{ end }}
+    </div>
+    <div class="markup">
+      {{ .Milestone.RenderedContent|Str2html }}
+    </div>
+    <div class="flex items-center gap-1">
+      {{ $closedDate:= TimeSinceUnix .Milestone.ClosedDateUnix $.i18n.Lang }}
+      {{ if .IsClosed }}
+        {{ svg "octicon-clock" }}
+        {{ $.i18n.Tr "repo.milestones.closed" $closedDate|Str2html }}
+      {{ else }}
+        {{ if .Milestone.DeadlineString }}
+          <span class="{{ if .Milestone.IsOverdue }}text-red-600{{ end }} flex items-center gap-1">{{ svg "octicon-calendar" }}{{ .Milestone.DeadlineString }}</span>
+        {{ else }}
+          {{ $.i18n.Tr "repo.milestones.no_due_date" }}
+        {{ end }}
+      {{ end }}
+      &nbsp;
+      <b>{{ .i18n.Tr "repo.milestones.completeness" .Milestone.Completeness }}</b>
+    </div>
+    <div class="rounded-lg border">
+      <div jq-issue-filters class="grid grid-cols-16 rounded-t-lg border-b bg-base-200 p-4">
+        <div class="col-span-6 flex items-center gap-x-2">
+          {{ template "repo/issue/openclose" . }}
+        </div>
+        <div class="col-span-10 flex items-center justify-end gap-x-2">
+          <!-- Label -->
+          <div jq-label-filter class="{{ if .Labels }}dropdown-end dropdown{{ else }}text-mako-600{{ end }}">
+            <label tabindex="0" class="flex cursor-pointer items-center">
+              {{ .i18n.Tr "repo.issues.filter_label" }}
+              {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+            </label>
+            {{ if .Labels }}
+              <ul tabindex="0" class="cu-menu dropdown-content p-2">
+                <li class="menu-title border-b">
+                  <span class="!text-secondary-content">{{ .i18n.Tr "repo.issues.filter_label_exclude" | Safe }}</span>
+                </li>
+                <li>
+                  <a href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort={{ $.SortType }}&state={{ $.State }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_label_no_select" }}</a>
+                </li>
+                {{ range .Labels }}
+                  <li>
+                    <a jq-label-filter-item href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .QueryString }}&assignee={{ $.AssigneeID }}" data-label-id="{{ .ID }}">{{ if .IsExcluded }}{{ svg "octicon-circle-slash" }}{{ else if contain $.SelLabelIDs .ID }}{{ svg "octicon-check" }}{{ end }}<span class="h-3 w-3 rounded" style="background-color: {{ .Color }}"></span> {{ .Name | RenderEmoji }}</a>
+                  </li>
+                {{ end }}
+              </ul>
+            {{ end }}
+          </div>
+
+          <!-- Assignee -->
+          <div class="{{ if .Assignees }}dropdown dropdown-end{{ else }}text-mako-600{{ end }}">
+            <label tabindex="0" class="flex cursor-pointer items-center">
+              {{ .i18n.Tr "repo.issues.filter_assignee" }}
+              {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+            </label>
+            {{ if .Assignees }}
+              <ul class="cu-menu dropdown-content p-2">
+                <li>
+                  <a href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .SelectLabels }}">{{ .i18n.Tr "repo.issues.filter_assginee_no_select" }}</a>
+                </li>
+                {{ range .Assignees }}
+                  <li>
+                    <a class="{{ if eq $.AssigneeID .ID }}active{{ end }} avatar" href="{{ $.Link }}?type={{ $.ViewType }}&sort={{ $.SortType }}&state={{ $.State }}&labels={{ $.SelectLabels }}&assignee={{ .ID }}">
+                      <div class="w-5 rounded-full">
+                        {{ avatar . }}
+                      </div>
+                      {{ .GetDisplayName }}
+                    </a>
+                  </li>
+                {{ end }}
+              </ul>
+            {{ end }}
+          </div>
+
+          {{ if .IsSigned }}
+            <!-- Type -->
+            <div class="dropdown-end dropdown">
+              <label tabindex="0" class="flex cursor-pointer items-center">
+                {{ .i18n.Tr "repo.issues.filter_type" }}
+                {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+              </label>
+              <ul class="cu-menu dropdown-content p-2">
+                <li>
+                  <a class="{{ if eq .ViewType "all" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type=all&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_type.all_issues" }}</a>
+                </li>
+                <li>
+                  <a class="{{ if eq .ViewType "assigned" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type=assigned&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_type.assigned_to_you" }}</a>
+                </li>
+                <li>
+                  <a class="{{ if eq .ViewType "created_by" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type=created_by&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_type.created_by_you" }}</a>
+                </li>
+                <li>
+                  <a class="{{ if eq .ViewType "mentioned" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type=mentioned&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_type.mentioning_you" }}</a>
+                </li>
+                <li>
+                  <a class="{{ if eq .ViewType "review_requested" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type=review_requested&sort={{ $.SortType }}&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_type.review_requested" }}</a>
+                </li>
+              </ul>
+            </div>
+          {{ end }}
+
+
+          <!-- Sort -->
+          <div class="dropdown-end dropdown">
+            <label tabindex="0" class="flex cursor-pointer items-center">
+              {{ .i18n.Tr "repo.issues.filter_sort" }}
+              {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+            </label>
+            <ul class="cu-menu dropdown-content p-2">
+              <li>
+                <a class="{{ if or (eq .SortType "latest") (not .SortType) }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort=latest&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_sort.latest" }}</a>
+              </li>
+              <li>
+                <a class="{{ if eq .SortType "oldest" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort=oldest&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_sort.oldest" }}</a>
+              </li>
+              <li>
+                <a class="{{ if eq .SortType "recentupdate" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort=recentupdate&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_sort.recentupdate" }}</a>
+              </li>
+              <li>
+                <a class="{{ if eq .SortType "leastupdate" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort=leastupdate&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_sort.leastupdate" }}</a>
+              </li>
+              <li>
+                <a class="{{ if eq .SortType "mostcomment" }}active{{ end }} item" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort=mostcomment&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_sort.mostcomment" }}</a>
+              </li>
+              <li>
+                <a class="{{ if eq .SortType "leastcomment" }}active{{ end }}" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort=leastcomment&state={{ $.State }}&labels={{ .SelectLabels }}&assignee={{ $.AssigneeID }}">{{ .i18n.Tr "repo.issues.filter_sort.leastcomment" }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div jq-issue-actions class="grid hidden grid-cols-16 rounded-t-lg border-b bg-base-200 p-4">
+        <div class="col-span-6 flex items-center gap-x-2">
+          {{ template "repo/issue/openclose" . }}
+        </div>
+
+        {{/* Ten wide does not cope well and makes the columns stack.
+          This seems to be related to jQuery's hide/show: in fact, switching
+          issue-actions and issue-filters and having this ten wide will show
+          this one correctly, but not the other one.
+        */}}
+        <div class="col-span-10 flex items-center justify-end gap-x-2">
+          <!-- Action Button -->
+          {{ if .IsShowClosed }}
+            <div jq-issue-action class="btn-sm btn border" data-action="open" data-url="{{ $.RepoLink }}/issues/status" style="margin-left: auto">{{ .i18n.Tr "repo.issues.action_open" }}</div>
+          {{ else }}
+            <div jq-issue-action class="btn-outline-red btn-sm btn" data-action="close" data-url="{{ $.RepoLink }}/issues/status" style="margin-left: auto">{{ .i18n.Tr "repo.issues.action_close" }}</div>
+          {{ end }}
+          <!-- Labels -->
+          <div class="{{ if .Labels }}dropdown dropdown-end{{ else }}text-mako-600{{ end }}">
+            <label tabindex="0" class="flex cursor-pointer items-center">
+              {{ .i18n.Tr "repo.issues.action_label" }}
+              {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+            </label>
+            {{ if .Labels }}
+              <ul class="cu-menu dropdown-content p-2">
+                {{ range .Labels }}
+                  <li>
+                    <div jq-issue-action data-action="toggle" data-element-id="{{ .ID }}" data-url="{{ $.RepoLink }}/issues/labels">
+                      {{ if contain $.SelLabelIDs .ID }}{{ svg "octicon-check" }}{{ end }}<span class="h-3 w-3 rounded" style="background-color: {{ .Color }}"></span> {{ .Name | RenderEmoji }}
+                    </div>
+                  </li>
+                {{ end }}
+              </ul>
+            {{ end }}
+          </div>
+
+          <!-- Assignees -->
+          <div class="{{ if .Assignees }}dropdown dropdown-end{{ else }}text-mako-600{{ end }}">
+            <label tabindex="0" class="flex cursor-pointer items-center">
+              {{ .i18n.Tr "repo.issues.action_assignee" }}
+              {{ svg "octicon-triangle-down" 14 "dropdown icon" }}
+            </label>
+            {{ if .Assignees }}
+              <ul class="cu-menu dropdown-content p-2">
+                <li>
+                  <div jq-issue-action data-element-id="0" data-url="{{ $.Link }}/assignee">
+                    {{ .i18n.Tr "repo.issues.action_assignee_no_select" }}
+                  </div>
+                </li>
+                {{ range .Assignees }}
+                  <li>
+                    <div jq-issue-action class="avatar" data-element-id="{{ .ID }}" data-url="{{ $.RepoLink }}/issues/assignee">
+                      <div class="w-5 rounded-full">
+                        {{ avatar . }}
+                      </div>
+                      {{ .GetDisplayName }}
+                    </div>
+                  </li>
+                {{ end }}
+              </ul>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+      {{ template "shared/issuelist" mergeinto . "listType" "milestone" }}
+    </div>
+    {{ template "base/paginate" . }}
+    {{ Asset "js/repo-issue-list.js" }}
+  </div>
+</div>
+{{ template "base/footer" . }}

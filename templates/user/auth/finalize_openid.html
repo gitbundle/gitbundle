@@ -1,0 +1,38 @@
+{{ template "base/head" . }}
+<!--  user signin -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    {{ template "user/auth/finalize_openid_navbar" . }}
+    <h4 class="bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "auth.login_userpass" }}
+    </h4>
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <form class="ignore-dirty mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <div class="required {{ if .Err_UserName }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "home.uname_holder" }}</span></label>
+        <input class="input-bordered input" id="user_name" type="text" name="user_name" value="{{ .user_name }}" autofocus required />
+      </div>
+      <div class="required {{ if .Err_Password }}error{{ end }} form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "password" }}</span></label>
+        <input class="input-bordered input" id="password" name="password" type="password" value="{{ .password }}" autocomplete="off" required />
+      </div>
+      <div class="form-control ">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="remember" type="checkbox" />{{ .i18n.Tr "auth.remember_me" }}</label>
+      </div>
+
+      <div class="form-control ">
+        <button class="btn-primary btn">{{ .i18n.Tr "sign_in" }}</button>
+        <a href="{{ AppSubUrl }}/user/forget_password">{{ .i18n.Tr "auth.forget_password" }}</a>
+      </div>
+      {{ if .ShowRegistrationButton }}
+        <div class="form-control ">
+          <a class="btn-outline-primary btn-outline btn" href="{{ AppSubUrl }}/user/sign_up">{{ .i18n.Tr "auth.sign_up_now" | Str2html }}</a>
+        </div>
+      {{ end }}
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

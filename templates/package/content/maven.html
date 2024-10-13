@@ -1,0 +1,69 @@
+{{ if eq .PackageDescriptor.Package.Type "maven" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-code" }} {{ .i18n.Tr "packages.maven.registry" | Safe }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>&lt;repositories&gt;
+	&lt;repository&gt;
+		&lt;id&gt;gitea&lt;/id&gt;
+		&lt;url&gt;{{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/maven&lt;/url&gt;
+	&lt;/repository&gt;
+&lt;/repositories&gt;
+
+&lt;distributionManagement&gt;
+	&lt;repository&gt;
+		&lt;id&gt;gitea&lt;/id&gt;
+		&lt;url&gt;{{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/maven&lt;/url&gt;
+	&lt;/repository&gt;
+
+	&lt;snapshotRepository&gt;
+		&lt;id&gt;gitea&lt;/id&gt;
+		&lt;url&gt;{{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/maven&lt;/url&gt;
+	&lt;/snapshotRepository&gt;
+&lt;/distributionManagement&gt;</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-code" }} {{ .i18n.Tr "packages.maven.install" | Safe }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>&lt;dependency&gt;
+	&lt;groupId&gt;{{ .PackageDescriptor.Metadata.GroupID }}&lt;/groupId&gt;
+	&lt;artifactId&gt;{{ .PackageDescriptor.Metadata.ArtifactID }}&lt;/artifactId&gt;
+	&lt;version&gt;{{ .PackageDescriptor.Version.Version }}&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.maven.install2" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>mvn install</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.maven.download" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>mvn dependency:get -DremoteRepositories={{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/maven -Dartifact={{ .PackageDescriptor.Metadata.GroupID }}:{{ .PackageDescriptor.Metadata.ArtifactID }}:{{ .PackageDescriptor.Version.Version }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.maven.documentation" | Safe }}</p>
+  </div>
+
+  {{ if .PackageDescriptor.Metadata.Description }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <p>{{ .PackageDescriptor.Metadata.Description }}</p>
+  {{ end }}
+
+  {{ if .PackageDescriptor.Metadata.Dependencies }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.dependencies" }}</h4>
+    <div class="flex flex-col gap-2">
+      {{ range .PackageDescriptor.Metadata.Dependencies }}
+        <div class="flex items-center gap-2">
+          {{ svg "octicon-package-dependencies" 16 }}
+          <div>{{ .GroupID }}:{{ .ArtifactID }}</div>
+          <div>{{ .Version }}</div>
+        </div>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ end }}

@@ -1,0 +1,70 @@
+<div class="dropdown">
+  <label tabindex="0" class="btn-outline btn-sm btn">
+    {{ .i18n.Tr "repo.diff.whitespace_button" }}
+    {{ svg "octicon-triangle-down" 14 }}
+  </label>
+  <ul tabindex="0" class="dropdown-content menu p-2">
+    <li>
+      <a class="py-2" href="?style={{ if .IsSplitStyle }}split{{ else }}unified{{ end }}&whitespace=show-all">
+        <!-- <i class="circle {{ if eq .WhitespaceBehavior "show-all" }}
+          dot
+        {{ else }}
+          outline
+        {{ end }} icon"></i> -->
+        {{ if eq .WhitespaceBehavior "show-all" }}
+          {{ svg "fa-circle-dot-solid" 14 "!w-3 !h-3" }}
+        {{ else }}
+          {{ svg "fa-circle-regular" 14 "!w-3 !h-3" }}
+        {{ end }}
+        {{ .i18n.Tr "repo.diff.whitespace_show_everything" }}
+      </a>
+    </li>
+    <li>
+      <a class="py-2" href="?style={{ if .IsSplitStyle }}split{{ else }}unified{{ end }}&whitespace=ignore-all">
+        <!-- <i class="circle {{ if eq .WhitespaceBehavior "ignore-all" }}
+          dot
+        {{ else }}
+          outline
+        {{ end }} icon"></i> -->
+        {{ if eq .WhitespaceBehavior "ignore-all" }}
+          {{ svg "fa-circle-dot-solid" 14 "!w-3 !h-3" }}
+        {{ else }}
+          {{ svg "fa-circle-regular" 14 "!w-3 !h-3" }}
+        {{ end }}
+        {{ .i18n.Tr "repo.diff.whitespace_ignore_all_whitespace" }}
+      </a>
+    </li>
+    <li>
+      <a class="py-2" href="?style={{ if .IsSplitStyle }}split{{ else }}unified{{ end }}&whitespace=ignore-change">
+        <!-- <i class="circle {{ if eq .WhitespaceBehavior "ignore-change" }}
+          dot
+        {{ else }}
+          outline
+        {{ end }} icon"></i> -->
+        {{ if eq .WhitespaceBehavior "ignore-change" }}
+          {{ svg "fa-circle-dot-solid" 14 "!w-3 !h-3" }}
+        {{ else }}
+          {{ svg "fa-circle-regular" 14 "!w-3 !h-3" }}
+        {{ end }}
+        {{ .i18n.Tr "repo.diff.whitespace_ignore_amount_changes" }}
+      </a>
+    </li>
+    <li>
+      <a class="py-2" href="?style={{ if .IsSplitStyle }}split{{ else }}unified{{ end }}&whitespace=ignore-eol">
+        <!-- <i class="circle {{ if eq .WhitespaceBehavior "ignore-eol" }}
+          dot
+        {{ else }}
+          outline
+        {{ end }} icon"></i> -->
+        {{ if eq .WhitespaceBehavior "ignore-eol" }}
+          {{ svg "fa-circle-dot-solid" 14 "!w-3 !h-3" }}
+        {{ else }}
+          {{ svg "fa-circle-regular" 14 "!w-3 !h-3" }}
+        {{ end }}
+        {{ .i18n.Tr "repo.diff.whitespace_ignore_at_eol" }}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<a class="btn-outline btn-sm btn" href="?style={{ if .IsSplitStyle }}unified{{ else }}split{{ end }}&whitespace={{ $.WhitespaceBehavior }}">{{ if .IsSplitStyle }}{{ .i18n.Tr "repo.diff.show_unified_view" }}{{ else }}{{ .i18n.Tr "repo.diff.show_split_view" }}{{ end }}</a>

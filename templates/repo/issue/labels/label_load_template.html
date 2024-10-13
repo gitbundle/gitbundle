@@ -1,0 +1,24 @@
+<div class="grid grid-cols-16">
+  <div class="col-span-3"></div>
+  <div class="col-span-10 my-4 w-full rounded-lg border p-4">
+    <p class="font-bold">{{ .i18n.Tr "repo.issues.label_templates.info" }}</p>
+    <br />
+    <form action="{{ .Link }}/initialize" method="post">
+      {{ .CsrfTokenHtml }}
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">{{ .i18n.Tr "repo.issues.label_templates.helper" }}</span>
+        </label>
+        <select class="select-bordered select w-full" name="template_name">
+          {{ range $template, $labels := .LabelTemplates }}
+            <option value="{{ $template }}"><b>{{ $template }}</b><br /><em>({{ $labels }})</em></option>
+          {{ end }}
+        </select>
+      </div>
+      <div class="mt-4 flex justify-center">
+        <button type="submit" class="btn-primary btn">{{ .i18n.Tr "repo.issues.label_templates.use" }}</button>
+      </div>
+    </form>
+  </div>
+  <div class="col-span-3"></div>
+</div>

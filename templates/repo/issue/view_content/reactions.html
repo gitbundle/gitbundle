@@ -1,0 +1,14 @@
+<div jq-reactions data-action-url="{{ .ActionURL }}">
+  <div class="flex flex-wrap items-center gap-1 border-t px-4 py-2">
+    {{ range $key, $value := .Reactions }}
+      <span jq-item class="{{ if $value.HasUser $.ctx.SignedUserID }}btn-primary{{ end }} {{ if not $.ctx.IsSigned }}btn-disabled{{ end }} tooltip btn-xs btn gap-x-1 rounded-full bg-primary/10" data-tip="{{ $value.GetFirstUsers }}{{ if gt ($value.GetMoreUserCount) 0 }}{{ $.ctx.i18n.Tr "repo.reactions_more" $value.GetMoreUserCount }}{{ end }}" data-content="{{ $key }}">
+        <span>{{ ReactionToEmoji $key }}</span>
+        <span class="text-primary">{{ len $value }}</span>
+      </span>
+    {{ end }}
+    {{ if AllowedReactions }}
+      {{ template "repo/issue/view_content/add_reaction" Dict "ctx" $.ctx "ActionURL" .ActionURL "IsFromReactions" true }}
+    {{ end }}
+  </div>
+</div>
+{{ Asset "js/repo-issue-view_content-reactions.js" }}

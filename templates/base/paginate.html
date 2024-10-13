@@ -1,0 +1,34 @@
+{{ $paginationLink := .Page.GetParams }}
+{{ with .Page.Paginater }}
+  {{ if gt .TotalPages 1 }}
+    <div class="mx-auto mt-4 flex w-fit items-center gap-2">
+      <a class="{{ if .IsFirst }}disabled{{ end }} btn-ghost btn-sm btn" {{ if not .IsFirst }}href="{{ $.Link }}{{ if $paginationLink }}?{{ $paginationLink }}{{ end }}"{{ end }}>
+        <span class="tooltip" data-tip="{{ $.i18n.Tr "admin.first_page" }}">
+          {{ svg "gitea-double-chevron-left" 16 }}
+        </span>
+      </a>
+      <a class="{{ if not .HasPrevious }}disabled{{ end }} btn-ghost btn-sm btn" {{ if .HasPrevious }}href="{{ $.Link }}?page={{ .Previous }}{{ if $paginationLink }}&{{ $paginationLink }}{{ end }}"{{ end }}>
+        <span class="tooltip" data-tip="{{ $.i18n.Tr "repo.issues.previous" }}">
+          {{ svg "octicon-chevron-left" 16 }}
+        </span>
+      </a>
+      {{ range .Pages }}
+        {{ if eq .Num -1 }}
+          <a class="disabled btn-sm btn">...</a>
+        {{ else }}
+          <a class="{{ if .IsCurrent }}btn-primary{{ else }}btn-ghost{{ end }} btn-sm btn" {{ if not .IsCurrent }}href="{{ $.Link }}?page={{ .Num }}{{ if $paginationLink }}&{{ $paginationLink }}{{ end }}"{{ end }}>{{ .Num }}</a>
+        {{ end }}
+      {{ end }}
+      <a class="{{ if not .HasNext }}disabled{{ end }} btn-ghost btn-sm btn" {{ if .HasNext }}href="{{ $.Link }}?page={{ .Next }}{{ if $paginationLink }}&{{ $paginationLink }}{{ end }}"{{ end }}>
+        <span class="tooltip" data-tip="{{ $.i18n.Tr "repo.issues.next" }}">
+          {{ svg "octicon-chevron-right" 16 }}
+        </span>
+      </a>
+      <a class="{{ if .IsLast }}disabled{{ end }} btn-ghost btn-sm btn" {{ if not .IsLast }}href="{{ $.Link }}?page={{ .TotalPages }}{{ if $paginationLink }}&{{ $paginationLink }}{{ end }}"{{ end }}>
+        <span class="tooltip" data-tip="{{ $.i18n.Tr "admin.last_page" }}">
+          {{ svg "gitea-double-chevron-right" 16 }}
+        </span>
+      </a>
+    </div>
+  {{ end }}
+{{ end }}

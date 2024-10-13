@@ -1,0 +1,93 @@
+<div class="oauth2 {{ if not (eq .type 6) }}hidden{{ end }} form-control space-y-2">
+  <div class="required form-control flex-row items-center gap-2">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_provider" }}</span></label>
+    <select name="oauth2_provider" id="oauth2_provider" class="select-bordered select">
+      {{ range .OAuth2Providers }}
+        <option value="{{ .Name }}" {{ if eq $.oauth2_provider .Name }}selected{{ end }}>{{ .DisplayName }}</option>
+      {{ end }}
+    </select>
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_clientID" }}</span></label>
+    <input class="input-bordered input" id="oauth2_key" name="oauth2_key" value="{{ .oauth2_key }}" />
+  </div>
+  <div class="required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_clientSecret" }}</span></label>
+    <input class="input-bordered input" id="oauth2_secret" name="oauth2_secret" value="{{ .oauth2_secret }}" />
+  </div>
+  <div class="optional form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_icon_url" }}</span></label>
+    <input class="input-bordered input" id="oauth2_icon_url" name="oauth2_icon_url" value="{{ .oauth2_icon_url }}" />
+  </div>
+  <div class="open_id_connect_auto_discovery_url required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.openIdConnectAutoDiscoveryURL" }}</span></label>
+    <input class="input-bordered input" id="open_id_connect_auto_discovery_url" name="open_id_connect_auto_discovery_url" value="{{ .open_id_connect_auto_discovery_url }}" />
+  </div>
+  <div class="optional form-control">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="skip_local_two_fa" name="skip_local_two_fa" type="checkbox" {{ if .skip_local_two_fa }}checked{{ end }} /><strong>{{ .i18n.Tr "admin.auths.skip_local_two_fa" }}</strong></label>
+    <p class="help">{{ .i18n.Tr "admin.auths.skip_local_two_fa_helper" }}</p>
+  </div>
+
+  <div class="oauth2_use_custom_url form-control inline">
+    <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" id="oauth2_use_custom_url" name="oauth2_use_custom_url" type="checkbox" /><strong>{{ .i18n.Tr "admin.auths.oauth2_use_custom_url" }}</strong></label>
+  </div>
+  <div class="oauth2_use_custom_url_form-control oauth2_auth_url required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_authURL" }}</span></label>
+    <input class="input-bordered input" id="oauth2_auth_url" name="oauth2_auth_url" value="{{ .oauth2_auth_url }}" />
+  </div>
+  <div class="oauth2_use_custom_url_form-control oauth2_token_url required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_tokenURL" }}</span></label>
+    <input class="input-bordered input" id="oauth2_token_url" name="oauth2_token_url" value="{{ .oauth2_token_url }}" />
+  </div>
+  <div class="oauth2_use_custom_url_form-control oauth2_profile_url required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_profileURL" }}</span></label>
+    <input class="input-bordered input" id="oauth2_profile_url" name="oauth2_profile_url" value="{{ .oauth2_profile_url }}" />
+  </div>
+  <div class="oauth2_use_custom_url_form-control oauth2_email_url required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_emailURL" }}</span></label>
+    <input class="input-bordered input" id="oauth2_email_url" name="oauth2_email_url" value="{{ .oauth2_email_url }}" />
+  </div>
+  <div class="oauth2_use_custom_url_form-control oauth2_tenant required form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_tenant" }}</span></label>
+    <input class="input-bordered input" id="oauth2_tenant" name="oauth2_tenant" value="{{ .oauth2_tenant }}" />
+  </div>
+
+  {{ range .OAuth2Providers }}
+    {{ if .CustomURLSettings }}
+      <input id="{{ .Name }}_customURLSettings" type="hidden" data-required="{{ .CustomURLSettings.Required }}" data-available="true" />
+      <input id="{{ .Name }}_token_url" value="{{ .CustomURLSettings.TokenURL.Value }}" data-available="{{ .CustomURLSettings.TokenURL.Available }}" data-required="{{ .CustomURLSettings.TokenURL.Required }}" type="hidden" />
+      <input id="{{ .Name }}_auth_url" value="{{ .CustomURLSettings.AuthURL.Value }}" data-available="{{ .CustomURLSettings.AuthURL.Available }}" data-required="{{ .CustomURLSettings.AuthURL.Required }}" type="hidden" />
+      <input id="{{ .Name }}_profile_url" value="{{ .CustomURLSettings.ProfileURL.Value }}" data-available="{{ .CustomURLSettings.ProfileURL.Available }}" data-required="{{ .CustomURLSettings.ProfileURL.Required }}" type="hidden" />
+      <input id="{{ .Name }}_email_url" value="{{ .CustomURLSettings.EmailURL.Value }}" data-available="{{ .CustomURLSettings.EmailURL.Available }}" data-required="{{ .CustomURLSettings.EmailURL.Required }}" type="hidden" />
+      <input id="{{ .Name }}_tenant" value="{{ .CustomURLSettings.Tenant.Value }}" data-available="{{ .CustomURLSettings.Tenant.Available }}" data-required="{{ .CustomURLSettings.Tenant.Required }}" type="hidden" />
+    {{ end }}
+  {{ end }}
+
+
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_scopes" }}</span></label>
+    <input class="input-bordered input" id="oauth2_scopes" name="oauth2_scopes" values="{{ .oauth2_scopes }}" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_required_claim_name" }}</span></label>
+    <input class="input-bordered input" id="oauth2_required_claim_name" name="oauth2_required_claim_name" values="{{ .oauth2_required_claim_name }}" />
+    <p class="help">{{ .i18n.Tr "admin.auths.oauth2_required_claim_name_helper" }}</p>
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_required_claim_value" }}</span></label>
+    <input class="input-bordered input" id="oauth2_required_claim_value" name="oauth2_required_claim_value" values="{{ .oauth2_required_claim_value }}" />
+    <p class="help">{{ .i18n.Tr "admin.auths.oauth2_required_claim_value_helper" }}</p>
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_group_claim_name" }}</span></label>
+    <input class="input-bordered input" id="oauth2_group_claim_name" name="oauth2_group_claim_name" value="{{ .oauth2_group_claim_name }}" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_admin_group" }}</span></label>
+    <input class="input-bordered input" id="oauth2_admin_group" name="oauth2_admin_group" value="{{ .oauth2_group_claim_name }}" />
+  </div>
+  <div class="form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "admin.auths.oauth2_restricted_group" }}</span></label>
+    <input class="input-bordered input" id="oauth2_restricted_group" name="oauth2_restricted_group" value="{{ .oauth2_group_claim_name }}" />
+  </div>
+</div>

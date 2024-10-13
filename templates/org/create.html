@@ -1,0 +1,44 @@
+{{ template "base/head" . }}
+<!--  organization new org -->
+<div class="main-container">
+  <div class="mx-auto h-fit w-full max-w-2xl">
+    {{ template "base/alert" . }}
+    <form action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <h1 class="mb-4 text-2xl">{{ .i18n.Tr "new_org" }}</h1>
+      <div class="required {{ if .Err_OrgName }}error{{ end }} form-control w-full">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "org.org_name_holder" }}</span></label>
+        <input class="input-bordered input w-full" id="org_name" name="org_name" value="{{ .org_name }}" autofocus required />
+        <div class="label">
+          <span class="help label-text-alt">{{ .i18n.Tr "org.org_name_helper" }}</span>
+        </div>
+      </div>
+
+      <div class="required {{ if .Err_OrgVisibility }}error{{ end }} form-control w-full flex-row items-start gap-2">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "org.settings.visibility" }}</span></label>
+        <div class="mt-2 flex flex-col gap-2">
+          <label class="flex items-center gap-1"><input class="enable-system-radio radio radio-sm" tabindex="0" name="visibility" type="radio" value="0" {{ if .DefaultOrgVisibilityMode.IsPublic }}checked{{ end }} />{{ .i18n.Tr "org.settings.visibility.public" }}</label>
+
+          <label class="flex items-center gap-1"><input class="enable-system-radio radio radio-sm" tabindex="0" name="visibility" type="radio" value="1" {{ if .DefaultOrgVisibilityMode.IsLimited }}checked{{ end }} />{{ .i18n.Tr "org.settings.visibility.limited" }}</label>
+
+          <label class="flex items-center gap-1"><input class="enable-system-radio radio radio-sm" tabindex="0" name="visibility" type="radio" value="2" {{ if .DefaultOrgVisibilityMode.IsPrivate }}checked{{ end }} />{{ .i18n.Tr "org.settings.visibility.private" }}</label>
+        </div>
+      </div>
+
+      <div class="form-control w-full flex-row gap-2" id="permission_box">
+        <label class="label"><span class="label-text font-bold">{{ .i18n.Tr "org.settings.permission" }}</span></label>
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" type="checkbox" name="repo_admin_change_team_access" checked />{{ .i18n.Tr "org.settings.repoadminchangeteam" }}</label>
+      </div>
+
+      <div class="form-control flex flex-row justify-end">
+        <div class="grid max-w-xs grid-cols-2 gap-2">
+          <a class="btn" href="{{ AppSubUrl }}/">{{ .i18n.Tr "cancel" }}</a>
+          <button class="btn-primary btn">
+            {{ .i18n.Tr "org.create_org" }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

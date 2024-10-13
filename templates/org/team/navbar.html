@@ -1,0 +1,4 @@
+<div class="tabs">
+  <a class="{{ if .PageIsOrgTeamMembers }}tab-active{{ end }} tab-lifted tab" href="{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}">{{ svg "octicon-person" }} <strong class="badge">{{ .Team.NumMembers }}</strong>{{ $.i18n.Tr "org.lower_members" }}</a>
+  <a class="{{ if .PageIsOrgTeamRepos }}tab-active{{ end }} tab-lifted tab" href="{{ .OrgLink }}/teams/{{ .Team.LowerName | PathEscape }}/repositories">{{ svg "octicon-repo" }} <strong class="badge">{{ .Team.NumRepos }}</strong>{{ $.i18n.Tr "org.lower_repositories" }}</a>
+</div>

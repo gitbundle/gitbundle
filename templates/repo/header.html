@@ -1,0 +1,378 @@
+<div class="flex flex-col" id="global-repo-header">
+  {{ with .Repository }}
+    <div class="navbar px-4">
+      <div class="flex-1 flex-col">
+        <div class="flex items-center self-start text-xl">
+          {{ $avatar := (repoAvatar . 32 "mr-3 w-8 h-8") }}
+          {{ if $avatar }}
+            {{ $avatar }}
+          {{ else }}
+            {{ template "repo/icon" . }}
+          {{ end }}
+          <a class="link-hover link-primary link" href="{{ .Owner.HomeLink }}">{{ .Owner.Name }}</a>
+          <div class="mx-1">/</div>
+          <a class="link-hover link-primary link" href="{{ $.RepoLink }}">{{ .Name }}</a>
+          <a href="{{ $.RepoLink }}.rss" class="tooltip tooltip-bottom mx-2" data-tip="{{ $.i18n.Tr "rss_feed" }}">{{ svg "octicon-rss" 18 }}</a>
+          <div class="font-normal opacity-60">
+            {{ if .IsTemplate }}
+              {{ if .IsPrivate }}
+                <span class="badge-outline-red badge-outline badge !badge-sm">{{ $.i18n.Tr "repo.desc.private_template" }}</span>
+              {{ else }}
+                {{ if .Owner.Visibility.IsPrivate }}
+                  <span class="badge-outline-red badge-outline badge !badge-sm">{{ $.i18n.Tr "repo.desc.internal_template" }}</span>
+                {{ end }}
+              {{ end }}
+            {{ else }}
+              {{ if .IsPrivate }}
+                <span class="badge-outline-red badge-outline badge !badge-sm">{{ $.i18n.Tr "repo.desc.private" }}</span>
+              {{ else }}
+                {{ if .Owner.Visibility.IsPrivate }}
+                  <span class="badge-outline-red badge-outline badge !badge-sm">{{ $.i18n.Tr "repo.desc.internal" }}</span>
+                {{ end }}
+              {{ end }}
+            {{ end }}
+            {{ if .IsArchived }}
+              <span class="badge-outline-yellow badge-outline badge !badge-sm">{{ $.i18n.Tr "repo.desc.archived" }}</span>
+            {{ end }}
+          </div>
+        </div>
+
+        <div class="flex self-start text-sm">
+          {{ if $.IsPullMirror }}
+            {{ $address := MirrorRemoteAddress $.Context . $.Mirror.GetRemoteName }}
+            <div>
+              {{ $.i18n.Tr "repo.mirror_from" }}
+              <a class="link-hover link-primary link" target="_blank" rel="noopener noreferrer" href="{{ $address.Address }}">{{ $address.Address }}</a>
+            </div>
+          {{ end }}
+          {{ if .IsFork }}
+            <div>
+              {{ $.i18n.Tr "repo.forked_from" }}
+              <a class="link-hover link-primary link" href="{{ .BaseRepo.Link }}">{{ .BaseRepo.FullName }}</a>
+            </div>
+          {{ end }}
+          {{ if .IsGenerated }}
+            <div>
+              {{ $.i18n.Tr "repo.generated_from" }}
+              <a class="link-hover link-primary link" href="{{ .TemplateRepo.Link }}">{{ .TemplateRepo.FullName }}</a>
+            </div>
+          {{ end }}
+        </div>
+      </div>
+      <div class="flex-none">
+        {{ if not (or .IsBeingCreated .IsBroken) }}
+          <div class="flex flex-row items-center gap-2">
+            {{ if $.RepoTransfer }}
+              <form class="flex items-center" method="post" action="{{ $.RepoLink }}/action/accept_transfer?redirect_to={{ $.RepoLink }}">
+                {{ $.CsrfTokenHtml }}
+                <div
+                  class="tooltip tooltip-bottom"
+                  data-tip="{{- if $.CanUserAcceptTransfer -}}
+                    {{- $.i18n.Tr "repo.transfer.accept_desc" $.RepoTransfer.Recipient.DisplayName -}}
+                  {{- else -}}
+                    {{- $.i18n.Tr "repo.transfer.no_permission_to_accept" -}}
+                  {{- end -}}"
+                >
+                  <button
+                    type="submit"
+                    class="{{- if $.CanUserAcceptTransfer -}}
+                      text-green-800
+                    {{- end -}} {{- if not $.CanUserAcceptTransfer -}}
+                      btn-disabled
+                    {{- end -}} btn-outline !btn-sm btn gap-1"
+                  >
+                    {{ $.i18n.Tr "repo.transfer.accept" }}
+                  </button>
+                </div>
+              </form>
+              <form class="flex items-center" method="post" action="{{ $.RepoLink }}/action/reject_transfer?redirect_to={{ $.RepoLink }}">
+                {{ $.CsrfTokenHtml }}
+                <div
+                  class="tooltip tooltip-bottom"
+                  data-tip="{{ if $.CanUserAcceptTransfer }}
+                    {{ $.i18n.Tr "repo.transfer.reject_desc" $.RepoTransfer.Recipient.DisplayName }}
+                  {{ else }}
+                    {{ $.i18n.Tr "repo.transfer.no_permission_to_reject" }}
+                  {{ end }}"
+                >
+                  <button
+                    type="submit"
+                    class="{{ if $.CanUserAcceptTransfer }}
+                      text-red-800
+                    {{ end }} {{ if not $.CanUserAcceptTransfer }}
+                      btn-disabled
+                    {{ end }} btn-outline !btn-sm btn gap-1"
+                  >
+                    {{ $.i18n.Tr "repo.transfer.reject" }}
+                  </button>
+                </div>
+              </form>
+            {{ end }}
+            <form
+              class="flex items-center"
+              method="post"
+              action="{{- $.RepoLink -}}/action/{{- if $.IsWatchingRepo -}}
+                un
+              {{- end -}}watch?redirect_to={{ $.Link }}"
+            >
+              {{ $.CsrfTokenHtml }}
+              <div
+                class="{{ if not $.IsSigned }}
+                  tooltip tooltip-bottom
+                {{ end }} btn-group btn-group-horizontal"
+                tabindex="0"
+                {{ if not $.IsSigned }}
+                  data-tip="{{ $.i18n.Tr "repo.watch_guest_user" }}"
+                {{ end }}
+              >
+                <button
+                  type="submit"
+                  class="{{ if not $.IsSigned }}
+                    btn-disabled
+                  {{ end }} btn-outline !btn-sm btn"
+                >
+                  {{ if $.IsWatchingRepo }}
+                    {{ svg "octicon-eye-closed" 16 }}<span class="pl-2">{{ $.i18n.Tr "repo.unwatch" }}</span>
+                  {{ else }}
+                    {{ svg "octicon-eye" }}<span class="pl-2">{{ $.i18n.Tr "repo.watch" }}</span>
+                  {{ end }}
+                </button>
+                <a
+                  class="{{ if not $.IsSigned }}
+                    btn-disabled
+                  {{ end }} btn-outline !btn-sm btn"
+                  href="{{ .Link }}/watchers"
+                >
+                  {{ CountFmt .NumWatches }}
+                </a>
+              </div>
+            </form>
+            {{ if not $.DisableStars }}
+              <form
+                class="flex items-center"
+                method="post"
+                action="{{- $.RepoLink -}}/action/{{- if $.IsStaringRepo -}}
+                  un
+                {{- end -}}star?redirect_to={{ $.Link }}"
+              >
+                {{ $.CsrfTokenHtml }}
+                <div
+                  class="{{ if not $.IsSigned }}
+                    tooltip tooltip-bottom
+                  {{ end }} btn-group btn-group-horizontal"
+                  tabindex="0"
+                  {{ if not $.IsSigned }}
+                    data-tip="{{ $.i18n.Tr "repo.star_guest_user" }}"
+                  {{ end }}
+                >
+                  <button
+                    type="submit"
+                    class="{{ if not $.IsSigned }}
+                      btn-disabled
+                    {{ end }} btn-outline !btn-sm btn"
+                  >
+                    {{ if $.IsStaringRepo }}
+                      {{ svg "octicon-star-fill" }}<span class="pl-2">{{ $.i18n.Tr "repo.unstar" }}</span>
+                    {{ else }}
+                      {{ svg "octicon-star" }}<span class="pl-2">{{ $.i18n.Tr "repo.star" }}</span>
+                    {{ end }}
+                  </button>
+                  <a
+                    class="{{ if not $.IsSigned }}
+                      btn-disabled
+                    {{ end }} btn-outline !btn-sm btn"
+                    href="{{ .Link }}/stars"
+                  >
+                    {{ CountFmt .NumStars }}
+                  </a>
+                </div>
+              </form>
+            {{ end }}
+            {{ if and (not .IsEmpty) ($.Permission.CanRead $.UnitTypeCode) }}
+              <div
+                class="{{ if or (not $.IsSigned) (and (not $.CanSignedUserFork) (eq (len $.UserAndOrgForks) 0)) }}
+                  tooltip tooltip-bottom
+                {{ end }} btn-group btn-group-horizontal"
+                {{ if not $.IsSigned }}
+                  data-tip="{{ $.i18n.Tr "repo.fork_guest_user" }}"
+                {{ else if and (not $.CanSignedUserFork) (eq (len $.UserAndOrgForks) 0) }}
+                  data-tip="{{ $.i18n.Tr "repo.fork_from_self" }}"
+                {{ end }}
+                tabindex="0"
+              >
+                <a
+                  class="{{ if not $.IsSigned }}
+                    btn-disabled
+                  {{ end }} btn-outline !btn-sm btn"
+                  {{ if not $.CanSignedUserFork }}
+                    {{ if eq (len $.UserAndOrgForks) 1 }}
+                      href="{{ AppSubUrl }}/{{ (index $.UserAndOrgForks 0).FullName }}"
+                    {{/* else is not required here, because the button shouldn't link to any site if you can't create a fork */}}
+                    {{ end }}
+                  {{ else if eq (len $.UserAndOrgForks) 0 }}
+                    href="{{ AppSubUrl }}/repo/fork/{{ .ID }}"
+                  {{ end }}
+                >
+                  {{ $forkRepoModalId := "" }}
+                  {{ if not $.CanSignedUserFork }}
+                    {{ if gt (len $.UserAndOrgForks) 1 }}
+                      {{ $forkRepoModalId = "fork-repo-modal" }}
+                    {{/* else is not required here, because the button shouldn't link to any site if you can't create a fork */}}
+                    {{ end }}
+                  {{ else if eq (len $.UserAndOrgForks) 0 }}
+                  {{ else }}
+                    {{ $forkRepoModalId = "fork-repo-modal" }}
+                  {{ end }}
+                  <label
+                    for="{{- if $.ShowForkModal -}}
+                      {{- $forkRepoModalId -}}
+                    {{- end -}}"
+                    class="flex"
+                  >
+                    {{ svg "octicon-repo-forked" }}<span class="pl-2">{{ $.i18n.Tr "repo.fork" }}</span>
+                  </label>
+                </a>
+                <input type="checkbox" id="{{ if $.ShowForkModal }}{{ $forkRepoModalId }}{{ end }}" class="modal-toggle" />
+                <label for="{{ if $.ShowForkModal }}{{ $forkRepoModalId }}{{ end }}" class="modal cursor-pointer">
+                  <div class="modal-box relative flex flex-col">
+                    <h3 class="flex items-center justify-between text-lg font-bold">
+                      {{ $.i18n.Tr "repo.already_forked" .Name }}{{ svg "octicon-x" 16 "close inside" }}
+                    </h3>
+                    <p class="pt-4">
+                      {{ range $.UserAndOrgForks }}
+                        <a class="link-hover link-primary link flex items-center justify-start" href="{{ .Link }}"> {{ svg "octicon-repo-forked" 16 }}<span>{{ .FullName }}</span> </a>
+                      {{ end }}
+                    </p>
+                    {{ if $.CanSignedUserFork }}
+                      <div class="divider"></div>
+                      <a class="link-hover link-primary link" href="{{ AppSubUrl }}/repo/fork/{{ .ID }}">
+                        {{ $.i18n.Tr "repo.fork_to_different_account" }}
+                      </a>
+                    {{ end }}
+                  </div>
+                </label>
+                <a
+                  class="{{ if not $.IsSigned }}
+                    btn-disabled
+                  {{ end }} btn-outline !btn-sm btn"
+                  href="{{ .Link }}/forks"
+                >
+                  {{ CountFmt .NumForks }}
+                </a>
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  {{ end }}
+  <div class="scrollbar tabs w-full flex-nowrap overflow-x-scroll px-0">
+    {{ if not (or .Repository.IsBeingCreated .Repository.IsBroken) }}
+      {{ if .Permission.CanRead $.UnitTypeCode }}
+        <a
+          class="{{ if .PageIsViewCode }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1"
+          href="{{ .RepoLink }}{{ if (ne .BranchName .Repository.DefaultBranch) }}
+            /src/{{ .BranchNameSubURL }}
+          {{ end }}"
+        >
+          {{ svg "octicon-code" 16 }} <span>{{ .i18n.Tr "repo.code" }}</span>
+        </a>
+      {{ end }}
+
+      {{ if .Permission.CanRead $.UnitTypeIssues }}
+        <a class="{{ if .PageIsIssueList }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/issues">
+          {{ svg "octicon-issue-opened" 16 }} <span>{{ .i18n.Tr "repo.issues" }}</span>
+          {{ if .Repository.NumOpenIssues }}
+            <span class="!badge-primary !badge !badge-md">{{ CountFmt .Repository.NumOpenIssues }}</span>
+          {{ end }}
+        </a>
+      {{ end }}
+
+      {{ if .Permission.CanRead $.UnitTypeExternalTracker }}
+        <a class="{{ if .PageIsIssueList }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoExternalIssuesLink }}" target="_blank" rel="noopener noreferrer"> {{ svg "octicon-link-external" 16 }} <span>{{ .i18n.Tr "repo.issues" }}</span> </a>
+      {{ end }}
+
+      {{ if and .Repository.CanEnablePulls (.Permission.CanRead $.UnitTypePullRequests) }}
+        <a class="{{ if .PageIsPullList }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/pulls">
+          {{ svg "octicon-git-pull-request" 16 }} <span>{{ .i18n.Tr "repo.pulls" }}</span>
+          {{ if .Repository.NumOpenPulls }}
+            <span class="!badge-primary !badge !badge-md">{{ CountFmt .Repository.NumOpenPulls }}</span>
+          {{ end }}
+        </a>
+      {{ end }}
+
+      {{ if and .IsPackagesEnableForAllOrgs (.Permission.CanRead $.UnitTypePackages) }}
+        <a href="{{ .RepoLink }}/packages" class="{{ if .IsPackagesPage }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1"> {{ svg "octicon-package" 16 }} <span>{{ .i18n.Tr "packages.title" }}</span> </a>
+      {{ end }}
+
+      {{ if and (not .UnitProjectsGlobalDisabled) (.Permission.CanRead $.UnitTypeProjects) }}
+        <a href="{{ .RepoLink }}/projects" class="{{ if .IsProjectsPage }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1">
+          {{ svg "octicon-project" 16 }} <span>{{ .i18n.Tr "repo.project_board" }}</span>
+          {{ if .Repository.NumOpenProjects }}
+            <span class="!badge-primary !badge !badge-md">{{ CountFmt .Repository.NumOpenProjects }}</span>
+          {{ end }}
+        </a>
+      {{ end }}
+
+      {{ if and (.Permission.CanRead $.UnitTypeReleases) (not .IsEmptyRepo) }}
+        <a class="{{ if .PageIsReleaseList }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/releases">
+          {{ svg "octicon-tag" 16 }} <span>{{ .i18n.Tr "repo.releases" }}</span>
+          {{ if .NumReleases }}
+            <span class="!badge-primary !badge !badge-md">{{ CountFmt .NumReleases }}</span>
+          {{ end }}
+        </a>
+      {{ end }}
+
+      {{ if or (.Permission.CanRead $.UnitTypeWiki) (.Permission.CanRead $.UnitTypeExternalWiki) }}
+        <a
+          class="{{ if .PageIsWiki }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1"
+          href="{{ .RepoLink }}/wiki"
+          {{ if (.Permission.CanRead $.UnitTypeExternalWiki) }}
+            target="_blank" rel="noopener noreferrer"
+          {{ end }}
+        >
+          {{ svg "octicon-book" 16 }} <span>{{ .i18n.Tr "repo.wiki" }}</span>
+        </a>
+      {{ end }}
+
+      {{ if and (.Permission.CanReadAny $.UnitTypePullRequests $.UnitTypeIssues $.UnitTypeReleases) (not .IsEmptyRepo) }}
+        <a class="{{ if .PageIsActivity }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/activity"> {{ svg "octicon-pulse" 16 }} <span>{{ .i18n.Tr "repo.activity" }}</span> </a>
+      {{ end }}
+
+      {{/* IsPluginsEnableAllOrgs */}}
+      {{ if not .Repository.IsFork }}
+        {{ range $pluginRoute := .PluginRoutes }}
+          {{/* if containGeneric $.Repository.Owner.Plugins $pluginRoute.Name */}}
+          {{ if or (not $.EnableForAllOrgs) (containGeneric $.Repository.Owner.Plugins $pluginRoute.Name) }}
+            <a
+              class="{{ if eq $.PluginName $pluginRoute.Route }}
+                tab-active
+              {{ end }} cu-tab-lifted cu-tab space-x-1"
+              href="{{ $.RepoLink }}/-/{{ $pluginRoute.Route }}"
+            >
+              <span class="cu-svg h-4 w-4">
+                {{ if eq $pluginRoute.Icon "" }}
+                  {{ svg "icons8-plugin" 16 "w-4 h-4 svg" }}
+                {{ else }}
+                  {{ $pluginRoute.Icon }}
+                {{ end }}
+              </span>
+              <span>{{ $pluginRoute.Route }}</span>
+            </a>
+          {{ end }}
+        {{ end }}
+        {{/*
+        <a class="{{ if .PageIsAlertManager }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/alertmanager"> {{ svg "octicon-pulse" 16 }} <span>{{ .i18n.Tr "repo.alertmanager" }}</span> </a>
+        */}}
+      {{ end }}
+
+      {{ template "custom/extra_tabs" . }}
+
+      {{ if .Permission.IsAdmin }}
+        <a class="{{ if .PageIsSettings }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/settings"> {{ svg "octicon-gear" 16 }} <span>{{ .i18n.Tr "repo.settings" }}</span> </a>
+      {{ end }}
+    {{ else if .Permission.IsAdmin }}
+      <a class="{{ if .PageIsSettings }}tab-active{{ end }} cu-tab-lifted cu-tab space-x-1" href="{{ .RepoLink }}/settings"> {{ svg "octicon-gear" 16 }} <span>{{ .i18n.Tr "repo.settings" }}</span> </a>
+    {{ end }}
+  </div>
+</div>

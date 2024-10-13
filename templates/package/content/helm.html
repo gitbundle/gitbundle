@@ -1,0 +1,53 @@
+{{ if eq .PackageDescriptor.Package.Type "helm" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.helm.registry" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>helm repo add gitea {{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/helm
+helm repo update</code></pre>
+      </div>
+    </div>
+    <div class="form-control">
+      <div class="label"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.helm.install" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>helm install {{ .PackageDescriptor.Package.Name }} gitea/{{ .PackageDescriptor.Package.Name }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.helm.documentation" | Safe }}</p>
+  </div>
+
+  {{ if .PackageDescriptor.Metadata.Description }}
+    <h4 class="text-lg">{{ .i18n.Tr "packages.about" }}</h4>
+    <div class="cu-links-primary">
+      {{ .PackageDescriptor.Metadata.Description }}
+    </div>
+  {{ end }}
+
+  {{ if .PackageDescriptor.Metadata.Dependencies }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.dependencies" }}</h4>
+    <div>
+      <div class="grid grid-cols-16 gap-4 rounded-t-lg bg-base-300 p-2">
+        <div class="col-span-10">{{ .i18n.Tr "packages.dependency.id" }}</div>
+        <div class="col-span-6">{{ .i18n.Tr "packages.dependency.version" }}</div>
+      </div>
+      <div class="divide-y">
+        {{ range .PackageDescriptor.Metadata.Dependencies }}
+          <div class="grid grid-cols-16 gap-4">
+            <div class="col-span-10 py-2 pl-2">{{ .Name }}</div>
+            <div class="col-span-6 py-2">{{ .Version }}</div>
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  {{ end }}
+
+  {{ if .PackageDescriptor.Metadata.Keywords }}
+    <h4 class="mt-10 text-lg">{{ .i18n.Tr "packages.keywords" }}</h4>
+    <div class="flex flex-wrap items-center gap-2">
+      {{ range .PackageDescriptor.Metadata.Keywords }}
+        <div class="badge-ghost badge">{{ . }}</div>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ end }}

@@ -1,0 +1,135 @@
+{{ template "base/head" . }}
+<!--  user profile -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-16 gap-8">
+      <div class="cu-links-primary-hover col-span-4 h-fit space-y-4">
+        <div id="profile-avatar" class="content df">
+          {{ if eq .SignedUserName .Owner.Name }}
+            <a class="tooltip tooltip-bottom" href="{{ AppSubUrl }}/user/settings" data-tip="{{ .i18n.Tr "user.change_avatar" }}">
+              {{ avatar .Owner 290 "w-full rounded-full" }}
+            </a>
+          {{ else }}
+            {{ avatar .Owner 290 "w-full rounded-full" }}
+          {{ end }}
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-center gap-1">
+            {{ if .Owner.FullName }}<span class="text-lg font-bold">{{ .Owner.FullName }}</span>{{ end }}
+            <span class="text-lg font-bold">{{ .Owner.Name }}</span>
+            <a href="{{ .Owner.HomeLink }}.rss"><i class="tooltip tooltip-bottom" data-tip="{{ .i18n.Tr "rss_feed" }}">{{ svg "octicon-rss" 18 }}</i></a>
+          </div>
+          <div class="flex items-center justify-center gap-1"><a class="flex items-center gap-1" href="{{ .Owner.HomeLink }}?tab=followers">{{ svg "octicon-person" 18 }}{{ .Owner.NumFollowers }} {{ .i18n.Tr "user.followers" }}</a> · <a class="flex items-center gap-1" href="{{ .Owner.HomeLink }}?tab=following">{{ .Owner.NumFollowing }} {{ .i18n.Tr "user.following" }}</a></div>
+        </div>
+        <ul class="space-y-2">
+          {{ if and .IsSigned (ne .SignedUserName .Owner.Name) }}
+            <li class="flex items-center gap-2">
+              {{ if $.IsFollowing }}
+                <form class="w-full" method="post" action="{{ .Link }}?action=unfollow&redirect_to={{ $.Link }}">
+                  {{ $.CsrfTokenHtml }}
+                  <button type="submit" class="btn-outline btn-block btn-sm btn">{{ svg "octicon-person" }} {{ .i18n.Tr "user.unfollow" }}</button>
+                </form>
+              {{ else }}
+                <form class="w-full" method="post" action="{{ .Link }}?action=follow&redirect_to={{ $.Link }}">
+                  {{ $.CsrfTokenHtml }}
+                  <button type="submit" class="btn-outline btn-block btn-sm btn">{{ svg "octicon-person" }} {{ .i18n.Tr "user.follow" }}</button>
+                </form>
+              {{ end }}
+            </li>
+          {{ end }}
+          {{ if .Owner.Location }}
+            <li class="flex items-center gap-1">{{ svg "octicon-location" }} {{ .Owner.Location }}</li>
+          {{ end }}
+          {{ if .ShowUserEmail }}
+            <li class="flex items-center gap-1">
+              {{ svg "octicon-mail" }}
+              <a href="mailto:{{ .Owner.Email }}" rel="nofollow">{{ .Owner.Email }}</a>
+            </li>
+          {{ end }}
+          {{ if .Owner.Website }}
+            <li class="flex items-center gap-1">
+              {{ svg "octicon-link" }}
+              <a target="_blank" rel="noopener noreferrer me" href="{{ .Owner.Website }}">{{ .Owner.Website }}</a>
+            </li>
+          {{ end }}
+          {{ if $.RenderedDescription }}
+            <li>
+              <div class="markup">{{ $.RenderedDescription|Str2html }}</div>
+            </li>
+          {{ end }}
+          {{ range .OpenIDs }}
+            {{ if .Show }}
+              <li class="flex items-center gap-1">
+                {{ svg "fa-openid" }}
+                <a target="_blank" rel="noopener noreferrer" href="{{ .URI }}">{{ .URI }}</a>
+              </li>
+            {{ end }}
+          {{ end }}
+          <li class="flex items-center gap-1">{{ svg "octicon-clock" }} {{ .i18n.Tr "user.join_on" }} {{ .Owner.CreatedUnix.FormatShort }}</li>
+          <div class="divider my-2"></div>
+          {{ if and .Orgs .HasOrgsVisible }}
+            <li class="flex flex-wrap items-center gap-1">
+              {{ range .Orgs }}
+                {{ if (or .Visibility.IsPublic (and ($.SignedUser) (or .Visibility.IsLimited (and (.HasMemberWithUserID $.SignedUserID) .Visibility.IsPrivate) ($.IsAdmin)))) }}
+                  <a class="tooltip" href="{{ .HomeLink }}" data-tip="{{ .Name }}">
+                    {{ avatar . 28 "rounded-full" }}
+                  </a>
+                {{ end }}
+              {{ end }}
+            </li>
+          {{ end }}
+        </ul>
+      </div>
+      <div class="col-span-12 h-fit">
+        <div class="tabs mb-4">
+          <a class="{{ if and (ne .TabName "activity") (ne .TabName "following") (ne .TabName "followers") (ne .TabName "stars") (ne .TabName "watching") (ne .TabName "projects") }}tab-active{{ end }} tab-lifted tab" href="{{ .Owner.HomeLink }}">
+            {{ svg "octicon-repo" }}
+            {{ .i18n.Tr "user.repositories" }}
+          </a>
+          {{ if .IsPackageEnabled }}
+            <a class="{{ if eq .TabName "packages" }}tab-active{{ end }} tab-lifted tab" href="{{ .Owner.HomeLink }}/-/packages">
+              {{ svg "octicon-package" }}
+              {{ .i18n.Tr "packages.title" }}
+            </a>
+          {{ end }}
+          <a class="{{ if eq .TabName "activity" }}tab-active{{ end }} tab-lifted tab" href="{{ .Owner.HomeLink }}?tab=activity">
+            {{ svg "octicon-rss" }}
+            {{ .i18n.Tr "user.activity" }}
+          </a>
+          {{ if not .DisableStars }}
+            <a class="{{ if eq .TabName "stars" }}tab-active{{ end }} tab-lifted tab" href="{{ .Owner.HomeLink }}?tab=stars">
+              {{ svg "octicon-star" }}
+              {{ .i18n.Tr "user.starred" }}
+              {{ if .Owner.NumStars }}
+                <div class="ui primary label">{{ .Owner.NumStars }}</div>
+              {{ end }}
+            </a>
+          {{ else }}
+            <a class="{{ if eq .TabName "watching" }}tab-active{{ end }} tab-lifted tab" href="{{ .Owner.HomeLink }}?tab=watching">
+              {{ svg "octicon-eye" }}
+              {{ .i18n.Tr "user.watched" }}
+            </a>
+          {{ end }}
+        </div>
+
+        {{ if eq .TabName "activity" }}
+          {{ if .Owner.KeepActivityPrivate }}
+            <div svelte-simple-alert data-desc="{{ .i18n.Tr "user.disabled_public_activity" }}" data-type="info" data-icon="true"></div>
+          {{ end }}
+          {{ template "user/heatmap" . }}
+          {{ template "user/dashboard/feeds" . }}
+        {{ else if eq .TabName "following" }}
+          {{ template "repo/user_cards" . }}
+        {{ else if eq .TabName "followers" }}
+          {{ template "repo/user_cards" . }}
+        {{ else }}
+          {{/* stars or repo list */}}
+          {{ template "explore/repo_search" . }}
+          {{ template "explore/repo_list" . }}
+          {{ template "base/paginate" . }}
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

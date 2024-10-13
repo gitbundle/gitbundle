@@ -1,0 +1,12 @@
+<div class="rounded-lg border">
+  <h4 class="flex items-center justify-between rounded-t-lg border-b bg-base-200 px-4 py-2">
+    {{ .i18n.Tr "admin.monitor.process" }}
+    <a class="btn-primary btn-sm btn" href="{{ AppSubUrl }}/admin/monitor/stacktrace">{{ .i18n.Tr "admin.monitor.stacktrace" }}</a>
+  </h4>
+
+  <div class="divide-y">
+    {{ range .Processes }}
+      {{ template "admin/process-row" dict "Process" . "root" $ }}
+    {{ end }}
+  </div>
+</div>

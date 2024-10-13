@@ -1,0 +1,33 @@
+<div class="dropdown-end dropdown">
+  <label tabindex="0" class="btn-outline btn-sm btn">
+    {{ .i18n.Tr "repo.diff.options_button" }}
+    {{ svg "octicon-triangle-down" 14 }}
+  </label>
+  <ul tabindex="0" class="dropdown-content menu z-50 p-2">
+    <li>
+      <a jq-toggle-diff-stats class="py-2" data-target="#diff-files">{{ .i18n.Tr "repo.diff.show_diff_stats" }}</a>
+    </li>
+    {{ if .Issue.Index }}
+      <li>
+        <a class="py-2" href="{{ $.RepoLink }}/pulls/{{ .Issue.Index }}.patch" download="{{ .Issue.Index }}.patch">{{ .i18n.Tr "repo.diff.download_patch" }}</a>
+      </li>
+      <li>
+        <a class="py-2" href="{{ $.RepoLink }}/pulls/{{ .Issue.Index }}.diff" download="{{ .Issue.Index }}.diff">{{ .i18n.Tr "repo.diff.download_diff" }}</a>
+      </li>
+    {{ else if $.PageIsWiki }}
+      <li>
+        <a class="py-2" href="{{ $.RepoLink }}/wiki/commit/{{ PathEscape .Commit.ID.String }}.patch" download="{{ ShortSha .Commit.ID.String }}.patch">{{ .i18n.Tr "repo.diff.download_patch" }}</a>
+      </li>
+      <li>
+        <a class="py-2" href="{{ $.RepoLink }}/wiki/commit/{{ PathEscape .Commit.ID.String }}.diff" download="{{ ShortSha .Commit.ID.String }}.diff">{{ .i18n.Tr "repo.diff.download_diff" }}</a>
+      </li>
+    {{ else if .Commit.ID.String }}
+      <li>
+        <a class="py-2" href="{{ $.RepoLink }}/commit/{{ PathEscape .Commit.ID.String }}.patch" download="{{ ShortSha .Commit.ID.String }}.patch">{{ .i18n.Tr "repo.diff.download_patch" }}</a>
+      </li>
+      <li>
+        <a class="py-2" href="{{ $.RepoLink }}/commit/{{ PathEscape .Commit.ID.String }}.diff" download="{{ ShortSha .Commit.ID.String }}.diff">{{ .i18n.Tr "repo.diff.download_diff" }}</a>
+      </li>
+    {{ end }}
+  </ul>
+</div>

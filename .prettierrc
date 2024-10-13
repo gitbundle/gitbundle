@@ -1,0 +1,39 @@
+{
+  "semi": false,
+  "useTabs": false,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "printWidth": 160,
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-svelte",
+    "prettier-plugin-go-template",
+    "prettier-plugin-tailwindcss"
+  ],
+  "overrides": [
+    {
+      "files": "./web_src/css/**/*.css",
+      "options": {
+        "parser": "css"
+      }
+    },
+    {
+      "files": "./templates/**/*.html",
+      "options": {
+        "parser": "go-template",
+        "printWidth": 1000
+      }
+    },
+    {
+      "files": "./web_src/js/**/*.svelte",
+      "options": {
+        "parser": "svelte",
+        "printWidth": 500
+      }
+    },
+    {
+      "files": "./web_src/js/**/*.js"
+    }
+  ],
+  "goTemplateBracketSpacing": true
+}

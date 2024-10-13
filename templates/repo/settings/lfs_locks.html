@@ -1,0 +1,66 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository settings lfs -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <!-- ui repository file list container -->
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <div class="tab-size-8 non-diff-file-content">
+          <h4 class="text-xl font-bold"><a class="link-hover link-primary link" href="{{ .LFSFilesLink }}">{{ .i18n.Tr "repo.settings.lfs" }}</a> / {{ .i18n.Tr "repo.settings.lfs_locks" }} ({{ .i18n.Tr "admin.total" .Total }})</h4>
+          <div class="divider my-2"></div>
+          <form class="ignore-dirty" method="POST">
+            {{ $.CsrfTokenHtml }}
+            <div class="input-group">
+              <input class="input-bordered input w-full" name="path" value="" placeholder="{{ .i18n.Tr "repo.settings.lfs_lock_path" }}" autofocus />
+              <button class="btn-primary btn">{{ .i18n.Tr "repo.settings.lfs_lock" }}</button>
+            </div>
+          </form>
+          <table id="lfs-files-locks-table" class="table w-full">
+            <tbody>
+              {{ range $index, $lock := .LFSLocks }}
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      {{ if index $.Linkable $index }}
+                        {{ svg "octicon-file" }}
+                        <a class="link-hover link-primary link tooltip" href="{{ $.RepoLink }}/src/branch/{{ PathEscapeSegments $.Repository.DefaultBranch }}/{{ PathEscapeSegments $lock.Path }}" data-tip="{{ $lock.Path }}">{{ $lock.Path }}</a>
+                      {{ else }}
+                        {{ svg "octicon-diff" }}
+                        <span class="tooltip" data-tip="{{ $.i18n.Tr "repo.settings.lfs_lock_file_no_exist" }}">{{ $lock.Path }}</span>
+                      {{ end }}
+                      {{ if not (index $.Lockables $index) }}
+                        <span class="tooltip" data-tip="{{ $.i18n.Tr "repo.settings.lfs_noattribute" }}">{{ svg "octicon-alert" }}</span>
+                      {{ end }}
+                    </div>
+                  </td>
+                  <td>
+                    <a class="link-hover link-primary link" href="{{ $.Owner.HomeLink }}">
+                      {{ avatar $.Owner }}
+                      {{ $.Owner.DisplayName }}
+                    </a>
+                  </td>
+                  <td>{{ TimeSince .Created $.i18n.Lang }}</td>
+                  <td>
+                    <form action="{{ $.LFSFilesLink }}/locks/{{ $lock.ID }}/unlock" method="POST">
+                      {{ $.CsrfTokenHtml }}
+                      <button class="btn-primary btn gap-1">{{ svg "octicon-lock" }}{{ $.i18n.Tr "repo.settings.lfs_force_unlock" }}</button>
+                    </form>
+                  </td>
+                </tr>
+              {{ else }}
+                <tr>
+                  <td colspan="4">{{ .i18n.Tr "repo.settings.lfs_locks_no_locks" }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+          {{ template "base/paginate" . }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

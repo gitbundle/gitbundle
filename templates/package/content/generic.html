@@ -1,0 +1,12 @@
+{{ if eq .PackageDescriptor.Package.Type "generic" }}
+  <h4 class="text-lg">{{ .i18n.Tr "packages.installation" }}</h4>
+  <div class="flex flex-col gap-4 overflow-x-auto">
+    <div class="form-control">
+      <div class="labe"><div class="flex items-center gap-1">{{ svg "octicon-terminal" }} {{ .i18n.Tr "packages.generic.download" }}</div></div>
+      <div class="markup">
+        <pre class="code-block !my-0 whitespace-normal"><code>curl {{ AppUrl }}api/packages/{{ .PackageDescriptor.Owner.Name }}/generic/{{ .PackageDescriptor.Package.Name }}/{{ .PackageDescriptor.Version.Version }}/{{ (index .PackageDescriptor.Files 0).File.Name }}</code></pre>
+      </div>
+    </div>
+    <p class="cu-links-primary">{{ .i18n.Tr "packages.generic.documentation" | Safe }}</p>
+  </div>
+{{ end }}

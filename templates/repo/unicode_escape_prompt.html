@@ -1,0 +1,49 @@
+{{ if .EscapeStatus }}
+  {{ if .EscapeStatus.BadBIDI }}
+    <!-- <div class="ui error message unicode-escape-prompt tl">
+            <span class="close icon hide-panel button" data-panel-closest=".message">{{ svg "octicon-x" 16 "close inside" }}</span>
+            <div class="header">
+                {{ $.root.i18n.Tr "repo.bidi_bad_header" }}
+            </div>
+            <p>{{ $.root.i18n.Tr "repo.bidi_bad_description" | Str2html }}</p>
+        </div> -->
+    <!-- <div class="alert alert-error mb-4 gap-0 rounded-lg opacity-50 shadow-lg">
+      <div class="unicode-escape-prompt flex flex-1 items-center gap-2">
+        <span class="h-4 w-4">{{ svg "fa-circle-xmark-regular" }}</span>
+        <div class="font-bold">
+          {{ $.root.i18n.Tr "repo.bidi_bad_header" }}
+          <br />
+          <p>{{ $.root.i18n.Tr "repo.bidi_bad_description" | Str2html }}</p>
+        </div>
+      </div>
+      <button class="flex-none cursor-pointer" jq-error-message>
+        {{ svg "fa-xmark-solid" 18 "h-[18px] w-[18px]" }}
+      </button>
+      {{ Asset "js/base-alert.js" }}
+    </div> -->
+    <div svelte-simple-alert data-title="{{ $.root.i18n.Tr "repo.bidi_bad_header" }}" data-desc="{{ $.root.i18n.Tr "repo.bidi_bad_description" | Str2html }}" data-type="error" data-icon="true" data-close="true"></div>
+  {{ else if .EscapeStatus.HasBIDI }}
+    <!-- <div class="ui warning message unicode-escape-prompt tl">
+            <span class="close icon hide-panel button" data-panel-closest=".message">{{ svg "octicon-x" 16 "close inside" }}</span>
+            <div class="header">
+                {{ $.root.i18n.Tr "repo.unicode_header" }}
+            </div>
+            <p>{{ $.root.i18n.Tr "repo.unicode_description" | Str2html }}</p>
+        </div> -->
+    <!-- <div class="alert alert-warning mb-4 gap-0 rounded-lg opacity-50 shadow-lg">
+      <div class="unicode-escape-prompt flex flex-1 items-center gap-2">
+        <span class="h-4 w-4">{{ svg "fa-circle-xmark-regular" }}</span>
+        <div class="font-bold">
+          {{ $.root.i18n.Tr "repo.unicode_header" }}
+          <br />
+          <p>{{ $.root.i18n.Tr "repo.unicode_description" | Str2html }}</p>
+        </div>
+      </div>
+      <button class="flex-none cursor-pointer" jq-error-message>
+        {{ svg "fa-xmark-solid" 18 "h-[18px] w-[18px]" }}
+      </button>
+      {{ Asset "js/base-alert.js" }}
+    </div> -->
+    <div svelte-simple-alert data-title="{{ $.root.i18n.Tr "repo.unicode_header" }}" data-desc="{{ $.root.i18n.Tr "repo.unicode_description" | Str2html }}" data-type="warning" data-icon="true" data-close="true"></div>
+  {{ end }}
+{{ end }}

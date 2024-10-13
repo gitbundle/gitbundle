@@ -1,0 +1,58 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository file editor edit -->
+<div jq-repo-editor class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "base/alert" . }}
+    <!-- ui edit form -->
+    <form jq-repository-edit-form method="post" action="{{ .RepoLink }}/_diffpatch/{{ .BranchName  | PathEscapeSegments }}">
+      {{ .CsrfTokenHtml }}
+      <input type="hidden" name="last_commit" value="{{ .last_commit }}" />
+      <input type="hidden" name="page_has_posted" value="{{ .PageHasPosted }}" />
+      <!-- fitted item treepath -->
+      <div class="cu-links-primary {{ if .Err_TreePath }}error{{ end }} mb-4 flex items-center gap-x-1">
+        {{ .i18n.Tr "repo.editor.patching" }}
+        <a href="{{ $.RepoLink }}">{{ .Repository.FullName }}</a>
+        <div class="divider-horizontal mx-1 w-1">:</div>
+        <a href="{{ $.BranchLink }}">{{ .BranchName }}</a>
+        <span>{{ .i18n.Tr "repo.editor.or" }} <a href="{{ $.BranchLink }}">{{ .i18n.Tr "repo.editor.cancel_lower" }}</a></span>
+        <input type="hidden" id="tree_path" name="tree_path" value="" required />
+        <input id="file-name" type="hidden" value="diff.patch" />
+      </div>
+      <div class="space-y-4">
+        <div jq-tabs class="tabs" data-write="write">
+          <a class="tab-lifted tab tab-active" data-tab="write">{{ svg "octicon-code" 16 "mr-1" }}{{ .i18n.Tr "repo.editor.new_patch" }}</a>
+        </div>
+        <div jq-contents>
+          <div class="mb-4" data-tab="write">
+            <textarea jq-edit_area name="content" class="hidden" data-id="repo-{{ .Repository.Name }}-patch" data-context="{{ .RepoLink }}" data-line-wrap-extensions="{{ .LineWrapExtensions }}">{{ .FileContent }}</textarea>
+            <div jq-editor-loading class="text-center">
+              {{ template "base/loading" }}
+              {{ .i18n.Tr "loading" }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{ template "repo/editor/commit_form" . }}
+    </form>
+  </div>
+
+  <div jq-edit-empty-content-modal>
+    <input type="checkbox" class="modal-toggle" />
+    <div class="modal">
+      <div class="modal-box">
+        <h3 class="flex items-center gap-x-2 text-lg font-bold">
+          {{ svg "octicon-file" }}
+          {{ .i18n.Tr "repo.editor.commit_empty_file_header" }}
+        </h3>
+        <p class="py-4">{{ .i18n.Tr "repo.editor.commit_empty_file_text" }}</p>
+        <div class="modal-action">
+          <button jq-cancel class="btn gap-1" type="button">{{ svg "octicon-x" }}{{ .i18n.Tr "repo.editor.cancel" }}</button>
+          <button jq-save class="btn-primary btn gap-1" type="button">{{ svg "fa-save-solid" }}{{ .i18n.Tr "repo.editor.commit_changes" }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-editor.js" }}
+</div>
+{{ template "base/footer" . }}

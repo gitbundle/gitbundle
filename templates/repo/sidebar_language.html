@@ -1,0 +1,40 @@
+{{ if and (.Permission.CanRead $.UnitTypeCode) (not .IsEmptyRepo) .LanguageStats }}
+  <div class="hero-content flex-col items-start gap-2 p-0 text-base-content">
+    <h3 class="text-xl font-bold">Languages</h3>
+    <div class="flex h-2 w-full">
+      {{ $len := len .LanguageStats }}
+      {{ $end := Add $len -1 }}
+      {{ range $index,$element := .LanguageStats }}
+        <div
+          class="{{ if eq $len 1 }}
+            rounded-full
+          {{ else }}
+            {{ if eq $index 0 }}
+              rounded-l-full
+            {{ else if eq $index $end }}
+              rounded-r-full
+            {{ end }}
+          {{ end }} flex h-full"
+          style="width: {{ .Percentage }}%; background-color: {{ .Color }}"
+        >
+          &nbsp;
+        </div>
+      {{ end }}
+    </div>
+    <div class="grid w-full grid-cols-2 justify-between gap-x-4">
+      {{ range .LanguageStats }}
+        <div class="col-span-1 flex items-center gap-x-1">
+          <span class="badge badge-xs" style="background-color: {{ .Color }}"></span>
+          <span class="text-sm font-bold">
+            {{ if eq .Language "other" }}
+              {{ $.i18n.Tr "repo.language_other" }}
+            {{ else }}
+              {{ .Language }}
+            {{ end }}
+          </span>
+          <span class="">{{ .Percentage }}%</span>
+        </div>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

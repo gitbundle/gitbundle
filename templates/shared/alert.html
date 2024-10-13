@@ -1,0 +1,8 @@
+{{ template "base/head" . }}
+{{ if .IsRepo }}{{ template "repo/header" . }}{{ end }}
+<div class="main-container {{ if .IsRepo }}repository{{ end }} flex flex-col">
+  <div class="px-4">
+    {{ template "base/alert" . }}
+  </div>
+</div>
+{{ template "base/footer" . }}

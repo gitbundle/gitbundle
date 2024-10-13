@@ -1,0 +1,235 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository commits -->
+<div jq-repository-activity class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <h2 class="flex items-center gap-2">
+      <span class="text-2xl font-bold">{{ .DateFrom }} - {{ .DateUntil }}</span>
+      <div class="dropdown">
+        <label tabindex="0" class="btn-outline btn">{{ .i18n.Tr "repo.activity.period.filter_label" }} <strong>{{ .PeriodText }}</strong> {{ svg "octicon-triangle-down" 14 "dropdown icon" }}</label>
+        <ul tabindex="0" class="dropdown-content menu rounded-box p-2 shadow">
+          <li><a class="{{ if eq .Period "daily" }}active{{ end }}" href="{{ $.RepoLink }}/activity/daily">{{ .i18n.Tr "repo.activity.period.daily" }}</a></li>
+          <li><a class="{{ if eq .Period "halfweekly" }}active{{ end }}" href="{{ $.RepoLink }}/activity/halfweekly">{{ .i18n.Tr "repo.activity.period.halfweekly" }}</a></li>
+          <li><a class="{{ if eq .Period "weekly" }}active{{ end }}" href="{{ $.RepoLink }}/activity/weekly">{{ .i18n.Tr "repo.activity.period.weekly" }}</a></li>
+          <li><a class="{{ if eq .Period "monthly" }}active{{ end }}" href="{{ $.RepoLink }}/activity/monthly">{{ .i18n.Tr "repo.activity.period.monthly" }}</a></li>
+          <li><a class="{{ if eq .Period "quarterly" }}active{{ end }}" href="{{ $.RepoLink }}/activity/quarterly">{{ .i18n.Tr "repo.activity.period.quarterly" }}</a></li>
+          <li><a class="{{ if eq .Period "semiyearly" }}active{{ end }}" href="{{ $.RepoLink }}/activity/semiyearly">{{ .i18n.Tr "repo.activity.period.semiyearly" }}</a></li>
+          <li>
+            <a class="{{ if eq .Period "yearly" }}active{{ end }}" href="{{ $.RepoLink }}/activity/yearly">{{ .i18n.Tr "repo.activity.period.yearly" }}</a>
+          </li>
+        </ul>
+      </div>
+    </h2>
+
+    {{ if (or (.Permission.CanRead $.UnitTypeIssues) (.Permission.CanRead $.UnitTypePullRequests)) }}
+      <div class="divide-y rounded-lg border">
+        <h4 class="rounded-t-lg bg-base-200 p-4">{{ .i18n.Tr "repo.activity.overview" }}</h4>
+        <div class="grid grid-cols-12 gap-4 p-4">
+          {{ if .Permission.CanRead $.UnitTypePullRequests }}
+            <div class="col-span-6 gap-1">
+              {{ if gt .Activity.ActivePRCount 0 }}
+                <div class="flex items-center">
+                  <a href="#merged-pull-requests" class="flex h-2 bg-purple-800" style="width: {{ .Activity.MergedPRPerc }}{{ if ne .Activity.MergedPRPerc 0 }}%{{ end }}"></a>
+                  <a href="#proposed-pull-requests" class="flex h-2 flex-1 bg-green-800"></a>
+                </div>
+              {{ else }}
+                <div class="flex h-2 w-full bg-mako-600"></div>
+              {{ end }}
+              {{ .i18n.TrN .Activity.ActivePRCount "repo.activity.active_prs_count_1" "repo.activity.active_prs_count_n" .Activity.ActivePRCount | Safe }}
+            </div>
+          {{ end }}
+          {{ if .Permission.CanRead $.UnitTypeIssues }}
+            <div class="col-span-6 gap-1">
+              {{ if gt .Activity.ActiveIssueCount 0 }}
+                <div class="flex items-center">
+                  <a href="#closed-issues" class="flex h-2 bg-red-800" style="width: {{ .Activity.ClosedIssuePerc }}{{ if ne .Activity.ClosedIssuePerc 0 }}%{{ end }}"></a>
+                  <a href="#new-issues" class="flex h-2 flex-1 bg-green-800"></a>
+                </div>
+              {{ else }}
+                <div class="flex h-2 w-full bg-mako-600"></div>
+              {{ end }}
+              {{ .i18n.TrN .Activity.ActiveIssueCount "repo.activity.active_issues_count_1" "repo.activity.active_issues_count_n" .Activity.ActiveIssueCount | Safe }}
+            </div>
+          {{ end }}
+        </div>
+        <div class="cu-links-primary-hover grid grid-cols-12 divide-x">
+          {{ if .Permission.CanRead $.UnitTypePullRequests }}
+            <a href="#merged-pull-requests p-4" class="col-span-3 flex flex-col justify-center text-center">
+              <div class="flex items-center justify-center gap-1"><span class="text-purple-600">{{ svg "octicon-git-pull-request" }}</span> <strong>{{ .Activity.MergedPRCount }}</strong></div>
+              {{ .i18n.TrN .Activity.MergedPRCount "repo.activity.merged_prs_count_1" "repo.activity.merged_prs_count_n" }}
+            </a>
+            <a href="#proposed-pull-requests" class="col-span-3 flex flex-col justify-center p-4 text-center">
+              <div class="flex items-center justify-center gap-1"><span class="text-green-600">{{ svg "octicon-git-branch" }}</span> <strong>{{ .Activity.OpenedPRCount }}</strong></div>
+              {{ .i18n.TrN .Activity.OpenedPRCount "repo.activity.opened_prs_count_1" "repo.activity.opened_prs_count_n" }}
+            </a>
+          {{ end }}
+          {{ if .Permission.CanRead $.UnitTypeIssues }}
+            <a href="#closed-issues" class="col-span-3 flex flex-col justify-center p-4 text-center">
+              <div class="flex items-center justify-center gap-1"><span class="text-red-600">{{ svg "octicon-issue-closed" }}</span> <strong>{{ .Activity.ClosedIssueCount }}</strong></div>
+              {{ .i18n.TrN .Activity.ClosedIssueCount "repo.activity.closed_issues_count_1" "repo.activity.closed_issues_count_n" }}
+            </a>
+            <a href="#new-issues" class="col-span-3 flex flex-col justify-center p-4 text-center">
+              <div class="flex items-center justify-center gap-1"><span class="text-green-600">{{ svg "octicon-issue-opened" }}</span> <strong>{{ .Activity.OpenedIssueCount }}</strong></div>
+              {{ .i18n.TrN .Activity.OpenedIssueCount "repo.activity.new_issues_count_1" "repo.activity.new_issues_count_n" }}
+            </a>
+          {{ end }}
+        </div>
+
+        {{ if .Permission.CanRead $.UnitTypeCode }}
+          {{ if eq .Activity.Code.CommitCountInAllBranches 0 }}
+            <div class="grid grid-cols-12 p-4">
+              <h4 class="col-span-full items-center text-center text-xl font-bold">{{ .i18n.Tr "repo.activity.no_git_activity" }}</h4>
+            </div>
+          {{ end }}
+          {{ if gt .Activity.Code.CommitCountInAllBranches 0 }}
+            <div class="grid grid-cols-12 divide-x">
+              <div class="col-span-6 p-4">
+                {{ .i18n.Tr "repo.activity.git_stats_exclude_merges" }}
+                <strong>{{ .i18n.TrN .Activity.Code.AuthorCount "repo.activity.git_stats_author_1" "repo.activity.git_stats_author_n" .Activity.Code.AuthorCount }}</strong>
+                {{ .i18n.TrN .Activity.Code.AuthorCount "repo.activity.git_stats_pushed_1" "repo.activity.git_stats_pushed_n" }}
+                <strong>{{ .i18n.TrN .Activity.Code.CommitCount "repo.activity.git_stats_commit_1" "repo.activity.git_stats_commit_n" .Activity.Code.CommitCount }}</strong>
+                {{ .i18n.Tr "repo.activity.git_stats_push_to_branch" .Repository.DefaultBranch }}
+                <strong>{{ .i18n.TrN .Activity.Code.CommitCountInAllBranches "repo.activity.git_stats_commit_1" "repo.activity.git_stats_commit_n" .Activity.Code.CommitCountInAllBranches }}</strong>
+                {{ .i18n.Tr "repo.activity.git_stats_push_to_all_branches" }}
+                {{ .i18n.Tr "repo.activity.git_stats_on_default_branch" .Repository.DefaultBranch }}
+                <strong>{{ .i18n.TrN .Activity.Code.ChangedFiles "repo.activity.git_stats_file_1" "repo.activity.git_stats_file_n" .Activity.Code.ChangedFiles }}</strong>
+                {{ .i18n.TrN .Activity.Code.ChangedFiles "repo.activity.git_stats_files_changed_1" "repo.activity.git_stats_files_changed_n" }}
+                {{ .i18n.Tr "repo.activity.git_stats_additions" }}
+                <strong class="text-green-600">{{ .i18n.TrN .Activity.Code.Additions "repo.activity.git_stats_addition_1" "repo.activity.git_stats_addition_n" .Activity.Code.Additions }}</strong>
+                {{ .i18n.Tr "repo.activity.git_stats_and_deletions" }}
+                <strong class="text-red-600">{{ .i18n.TrN .Activity.Code.Deletions "repo.activity.git_stats_deletion_1" "repo.activity.git_stats_deletion_n" .Activity.Code.Deletions }}</strong>.
+              </div>
+              <div class="col-span-6 p-4">
+                <div svelte-repo-activity-top-authors-chart></div>
+              </div>
+            </div>
+          {{ end }}
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if gt .Activity.PublishedReleaseCount 0 }}
+      <h4 class="divider !gap-2" id="published-releases">
+        <span>{{ svg "octicon-tag" }}</span>
+        {{ .i18n.Tr "repo.activity.title.releases_published_by"
+          (.i18n.TrN .Activity.PublishedReleaseCount "repo.activity.title.releases_1" "repo.activity.title.releases_n" .Activity.PublishedReleaseCount)
+          (.i18n.TrN .Activity.PublishedReleaseAuthorCount "repo.activity.title.user_1" "repo.activity.title.user_n" .Activity.PublishedReleaseAuthorCount)
+        }}
+      </h4>
+      <div class="flex flex-col gap-2">
+        {{ range .Activity.PublishedReleases }}
+          <p class="flex items-center gap-1">
+            <span class="badge-green badge">{{ $.i18n.Tr "repo.activity.published_release_label" }}</span>
+            {{ .TagName }}
+            {{ if not .IsTag }}
+              <a class="link-hover link-primary link" href="{{ $.RepoLink }}/src/{{ .TagName | PathEscapeSegments }}">{{ .Title | RenderEmoji }}</a>
+            {{ end }}
+            {{ TimeSinceUnix .CreatedUnix $.i18n.Lang }}
+          </p>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if gt .Activity.MergedPRCount 0 }}
+      <h4 class="divider !gap-2" id="merged-pull-requests">
+        <span>{{ svg "octicon-git-pull-request" }}</span>
+        {{ .i18n.Tr "repo.activity.title.prs_merged_by"
+          (.i18n.TrN .Activity.MergedPRCount "repo.activity.title.prs_1" "repo.activity.title.prs_n" .Activity.MergedPRCount)
+          (.i18n.TrN .Activity.MergedPRAuthorCount "repo.activity.title.user_1" "repo.activity.title.user_n" .Activity.MergedPRAuthorCount)
+        }}
+      </h4>
+      <div class="flex flex-col gap-2">
+        {{ range .Activity.MergedPRs }}
+          <p class="flex items-center gap-1">
+            <span class="badge-purple badge">{{ $.i18n.Tr "repo.activity.merged_prs_label" }}</span>
+            #{{ .Index }} <a class="link-hover link-primary link" href="{{ $.RepoLink }}/pulls/{{ .Index }}">{{ .Issue.Title | RenderEmoji }}</a>
+            {{ TimeSinceUnix .MergedUnix $.i18n.Lang }}
+          </p>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if gt .Activity.OpenedPRCount 0 }}
+      <h4 class="divider !gap-2" id="proposed-pull-requests">
+        <span>{{ svg "octicon-git-branch" }}</span>
+        {{ .i18n.Tr "repo.activity.title.prs_opened_by"
+          (.i18n.TrN .Activity.OpenedPRCount "repo.activity.title.prs_1" "repo.activity.title.prs_n" .Activity.OpenedPRCount)
+          (.i18n.TrN .Activity.OpenedPRAuthorCount "repo.activity.title.user_1" "repo.activity.title.user_n" .Activity.OpenedPRAuthorCount)
+        }}
+      </h4>
+      <div class="flex flex-col gap-2">
+        {{ range .Activity.OpenedPRs }}
+          <p class="flex items-center gap-1">
+            <span class="badge-green badge">{{ $.i18n.Tr "repo.activity.opened_prs_label" }}</span>
+            #{{ .Index }} <a class="link-hover link-primary link" href="{{ $.RepoLink }}/pulls/{{ .Index }}">{{ .Issue.Title | RenderEmoji }}</a>
+            {{ TimeSinceUnix .Issue.CreatedUnix $.i18n.Lang }}
+          </p>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if gt .Activity.ClosedIssueCount 0 }}
+      <h4 class="divider !gap-2" id="closed-issues">
+        <span>{{ svg "octicon-issue-closed" }}</span>
+        {{ .i18n.Tr "repo.activity.title.issues_closed_from"
+          (.i18n.TrN .Activity.ClosedIssueCount "repo.activity.title.issues_1" "repo.activity.title.issues_n" .Activity.ClosedIssueCount)
+          (.i18n.TrN .Activity.ClosedIssueAuthorCount "repo.activity.title.user_1" "repo.activity.title.user_n" .Activity.ClosedIssueAuthorCount)
+        }}
+      </h4>
+      <div class="flex flex-col gap-2">
+        {{ range .Activity.ClosedIssues }}
+          <p class="flex items-center gap-1">
+            <span class="badge-red badge">{{ $.i18n.Tr "repo.activity.closed_issue_label" }}</span>
+            #{{ .Index }} <a class="link-hover link-primary link" href="{{ $.RepoLink }}/issues/{{ .Index }}">{{ .Title | RenderEmoji }}</a>
+            {{ TimeSinceUnix .ClosedUnix $.i18n.Lang }}
+          </p>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if gt .Activity.OpenedIssueCount 0 }}
+      <h4 class="divider !gap-2" id="new-issues">
+        <span>{{ svg "octicon-issue-opened" }}</span>
+        {{ .i18n.Tr "repo.activity.title.issues_created_by"
+          (.i18n.TrN .Activity.OpenedIssueCount "repo.activity.title.issues_1" "repo.activity.title.issues_n" .Activity.OpenedIssueCount)
+          (.i18n.TrN .Activity.OpenedIssueAuthorCount "repo.activity.title.user_1" "repo.activity.title.user_n" .Activity.OpenedIssueAuthorCount)
+        }}
+      </h4>
+      <div class="flex flex-col gap-2">
+        {{ range .Activity.OpenedIssues }}
+          <p class="flex items-center gap-1">
+            <span class="badge-green badge">{{ $.i18n.Tr "repo.activity.new_issue_label" }}</span>
+            #{{ .Index }} <a class="link-hover link-primary link" href="{{ $.RepoLink }}/issues/{{ .Index }}">{{ .Title | RenderEmoji }}</a>
+            {{ TimeSinceUnix .CreatedUnix $.i18n.Lang }}
+          </p>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ if gt .Activity.UnresolvedIssueCount 0 }}
+      <h4 class="divider !gap-2" id="unresolved-conversations">
+        <span>{{ svg "octicon-comment-discussion" }}</span>
+        {{ .i18n.TrN .Activity.UnresolvedIssueCount "repo.activity.title.unresolved_conv_1" "repo.activity.title.unresolved_conv_n" .Activity.UnresolvedIssueCount }}
+      </h4>
+      <div class="flex justify-center">
+        {{ .i18n.Tr "repo.activity.unresolved_conv_desc" }}
+      </div>
+      <div class="flex flex-col gap-2">
+        {{ range .Activity.UnresolvedIssues }}
+          <p class="flex items-center gap-1">
+            <span class="badge-green badge">{{ $.i18n.Tr "repo.activity.unresolved_conv_label" }}</span>
+            #{{ .Index }}
+            {{ if .IsPull }}
+              <a class="link-hover link-primary link" href="{{ $.RepoLink }}/pulls/{{ .Index }}">{{ .Title | RenderEmoji }}</a>
+            {{ else }}
+              <a class="link-hover link-primary link" href="{{ $.RepoLink }}/issues/{{ .Index }}">{{ .Title | RenderEmoji }}</a>
+            {{ end }}
+            {{ TimeSinceUnix .UpdatedUnix $.i18n.Lang }}
+          </p>
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+  {{ Asset "js/repo-activity.js" }}
+</div>
+{{ template "base/footer" . }}

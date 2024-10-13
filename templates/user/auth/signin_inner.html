@@ -1,0 +1,85 @@
+{{ if not ( or .EnableOpenIDSignIn .EnableSSPI ) }}
+  <h4 class="hero rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+    {{ if .LinkAccountMode }}
+      {{ .i18n.Tr "auth.oauth_signin_title" }}
+    {{ else }}
+      {{ .i18n.Tr "auth.login_userpass" }}
+    {{ end }}
+  </h4>
+{{ end }}
+{{ if or (not .LinkAccountMode) (and .LinkAccountMode .LinkAccountModeSignIn) }}
+  <div class="px-4">
+    {{ template "base/alert" . }}
+  </div>
+{{ end }}
+<form class="ignore-dirty mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .SignInLink }}" method="post">
+  {{ .CsrfTokenHtml }}
+  <div class="required {{ if and (.Err_UserName) (or (not .LinkAccountMode) (and .LinkAccountMode .LinkAccountModeSignIn)) }}error{{ end }} form-control">
+    <label class="label"><span class="label-text">{{ .i18n.Tr "home.uname_holder" }}</span></label>
+    <input class="input-bordered input" id="user_name" type="text" name="user_name" value="{{ .user_name }}" autofocus required />
+  </div>
+  {{ if or (not .DisablePassword) .LinkAccountMode }}
+    <div class="required {{ if and (.Err_Password) (or (not .LinkAccountMode) (and .LinkAccountMode .LinkAccountModeSignIn)) }}error{{ end }} form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "password" }}</span></label>
+      <input class="input-bordered input" id="password" name="password" type="password" value="{{ .password }}" autocomplete="current-password" required />
+    </div>
+  {{ end }}
+  {{ if and .EnableCaptcha (eq .CaptchaType "image") }}
+    <div class="form-control">
+      {{ .Captcha.CreateHTML }}
+    </div>
+    <div class="required {{ if .Err_Captcha }}error{{ end }} form-control">
+      <label class="label"><span class="label-text">{{ .i18n.Tr "captcha" }}</span></label>
+      <input class="input-bordered input" id="captcha" name="captcha" value="{{ .captcha }}" autocomplete="off" />
+    </div>
+  {{ end }}
+  {{ if and .EnableCaptcha (eq .CaptchaType "recaptcha") }}
+    <div class="required form-control">
+      <div class="g-recaptcha" data-sitekey="{{ .RecaptchaSitekey }}"></div>
+    </div>
+  {{ end }}
+  {{ if and .EnableCaptcha (eq .CaptchaType "hcaptcha") }}
+    <div class="required form-control">
+      <div class="h-captcha" data-sitekey="{{ .HcaptchaSitekey }}"></div>
+    </div>
+  {{ end }}
+  <div class="form-control space-y-2">
+    <button class="btn-primary btn">
+      {{ if .LinkAccountMode }}
+        {{ .i18n.Tr "auth.oauth_signin_submit" }}
+      {{ else }}
+        {{ .i18n.Tr "sign_in" }}
+      {{ end }}
+    </button>
+  </div>
+  <div class="form-control flex-row justify-between">
+    {{ if not .LinkAccountMode }}
+      <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="remember" type="checkbox" />{{ .i18n.Tr "auth.remember_me" }}</label>
+    {{ end }}
+    <a href="{{ AppSubUrl }}/user/forgot_password" class="link-hover link-primary link">{{ .i18n.Tr "auth.forgot_password" }}</a>
+  </div>
+
+  {{ if .ShowRegistrationButton }}
+    <div class="form-control">
+      <a class="link-hover link-primary link" href="{{ AppSubUrl }}/user/sign_up">{{ .i18n.Tr "auth.sign_up_now" | Str2html }}</a>
+    </div>
+  {{ end }}
+
+  {{ if and .OrderedOAuth2Names .OAuth2Providers }}
+    <div>
+      <div jq-oauth2-login-loader class="hidden">
+        {{ template "base/loading" }}
+      </div>
+      <div jq-oauth2-login-navigator class="form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "sign_in_with" }}</span></label>
+        <div class="flex flex-wrap items-center gap-2">
+          {{ range $key := .OrderedOAuth2Names }}
+            {{ $provider := index $.OAuth2Providers $key }}
+            <a href="{{ AppSubUrl }}/user/oauth2/{{ $key }}"> <img jq-oauth-login-image alt="{{ $provider.DisplayName }}{{ if eq $provider.Name "openidConnect" }}({{ $key }}){{ end }}" title="{{ $provider.DisplayName }}{{ if eq $provider.Name "openidConnect" }}({{ $key }}){{ end }}" class="{{ $provider.Name }} h-10 w-10" src="{{ AppSubUrl }}{{ $provider.Image }}" /></a>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+  {{ end }}
+</form>
+{{ Asset "js/user-auth-signin_inner.js" }}

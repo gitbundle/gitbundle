@@ -1,0 +1,33 @@
+.lines-num {
+  @apply w-[1%] px-2 text-right text-base-content/40;
+}
+
+.lines-num span::after {
+  @apply cursor-pointer px-2 leading-5 content-[attr(data-line-number)];
+}
+
+.lines-num,
+.lines-code {
+  @apply py-0 text-xs;
+}
+
+/* .lines-num span::after {
+  @apply content-[attr(data-line-number)] leading-5 px-2 cursor-pointer;
+} */
+
+.code-inner {
+  overflow-wrap: anywhere;
+  @apply whitespace-pre-wrap break-all;
+}
+
+.file-view.code {
+  @apply font-mono;
+}
+
+.lines-num {
+  @apply hover:text-base-content;
+}
+
+.lines-code.active {
+  @apply !bg-slate-700;
+}

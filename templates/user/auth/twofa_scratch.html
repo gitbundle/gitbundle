@@ -1,0 +1,26 @@
+{{ template "base/head" . }}
+<!--  user signin -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    <h3 class="rounded-t-lg bg-base-300 p-4 text-center text-xl font-bold">
+      {{ .i18n.Tr "twofa_scratch" }}
+    </h3>
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <form class="ignore-dirty mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <div class="required form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "auth.scratch_code" }}</span></label>
+        <input class="input-bordered input" id="token" name="token" type="text" autocomplete="off" autofocus required />
+      </div>
+      <div class="form-control">
+        <button class="btn-primary btn">{{ .i18n.Tr "auth.verify" }}</button>
+      </div>
+      <div class="form-control">
+        <a class="link-hover link-primary link" href="{{ AppSubUrl }}/user/two_factor">{{ .i18n.Tr "back_to_use_passcode" | Str2html }}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

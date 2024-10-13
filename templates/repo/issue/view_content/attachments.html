@@ -1,0 +1,40 @@
+<div jq-dropzone-attachments>
+  {{ if .Attachments }}
+    <div class="divider my-1"></div>
+  {{ end }}
+
+  {{ $hasThumbnails := false }}
+  {{- range .Attachments -}}
+    <div class="flex">
+      <div class="cu-links-primary flex flex-1 items-center p-1">
+        <a class="flex items-center gap-x-1" target="_blank" rel="noopener noreferrer" href="{{ .DownloadURL }}" title="{{ $.ctx.i18n.Tr "repo.issues.attachment.open_tab" .Name }}">
+          {{ if FilenameIsImage .Name }}
+            {{ if not (containGeneric $.Content .UUID) }}
+              {{ $hasThumbnails = true }}
+            {{ end }}
+            {{ svg "octicon-file" }}
+          {{ else }}
+            {{ svg "octicon-desktop-download" }}
+          {{ end }}
+          <strong>{{ .Name }}</strong>
+        </a>
+      </div>
+      <div class="flex items-center">{{ .Size | FileSize }}</div>
+    </div>
+  {{ end -}}
+
+  {{ if $hasThumbnails }}
+    <div class="divider my-1"></div>
+    <div class="flex flex-wrap gap-2">
+      {{- range .Attachments -}}
+        {{ if FilenameIsImage .Name }}
+          {{ if not (containGeneric $.Content .UUID) }}
+            <a target="_blank" rel="noopener noreferrer" href="{{ .DownloadURL }}">
+              <img class="!h-28 !w-28 !rounded-none" src="{{ .DownloadURL }}" title="{{ $.ctx.i18n.Tr "repo.issues.attachment.open_tab" .Name }}" />
+            </a>
+          {{ end }}
+        {{ end }}
+      {{ end -}}
+    </div>
+  {{ end }}
+</div>

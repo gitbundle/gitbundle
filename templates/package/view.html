@@ -1,0 +1,92 @@
+{{ template "base/head" . }}
+<div class="main-container">
+  <div class="mx-auto flex w-full max-w-7xl flex-col space-y-4">
+    {{ template "user/overview/header" . }}
+    <div class="grid grid-cols-16 gap-x-8">
+      <div class="col-span-full gap-1">
+        <h1 class="text-xl">{{ .PackageDescriptor.Package.Name }} ({{ .PackageDescriptor.Version.Version }})</h1>
+        <div class="cu-links-primary flex items-center gap-1">
+          {{ $timeStr := TimeSinceUnix .PackageDescriptor.Version.CreatedUnix $.i18n.Lang }}
+          {{ if .HasRepositoryAccess }}
+            {{ .i18n.Tr "packages.published_by_in" $timeStr .PackageDescriptor.Creator.HomeLink (.PackageDescriptor.Creator.GetDisplayName | Escape) .PackageDescriptor.Repository.HTMLURL (.PackageDescriptor.Repository.FullName | Escape) | Safe }}
+          {{ else }}
+            {{ .i18n.Tr "packages.published_by" $timeStr .PackageDescriptor.Creator.HomeLink (.PackageDescriptor.Creator.GetDisplayName | Escape) | Safe }}
+          {{ end }}
+        </div>
+        <div class="divider"></div>
+      </div>
+      <div class="col-span-12 grid h-fit gap-4">
+        {{ template "package/content/composer" . }}
+        {{ template "package/content/conan" . }}
+        {{ template "package/content/container" . }}
+        {{ template "package/content/generic" . }}
+        {{ template "package/content/helm" . }}
+        {{ template "package/content/maven" . }}
+        {{ template "package/content/npm" . }}
+        {{ template "package/content/nuget" . }}
+        {{ template "package/content/pypi" . }}
+        {{ template "package/content/rubygems" . }}
+      </div>
+      <div class="col-span-4 h-fit">
+        <h2 class="text-lg font-bold">{{ .i18n.Tr "packages.details" }}</h2>
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2">{{ svg .PackageDescriptor.Package.Type.SVGName 16 }} {{ .PackageDescriptor.Package.Type.Name }}</div>
+          {{ if .HasRepositoryAccess }}
+            <div class="cu-links-primary flex items-center gap-2">{{ svg "octicon-repo" 16 }} <a href="{{ .PackageDescriptor.Repository.HTMLURL }}">{{ .PackageDescriptor.Repository.FullName }}</a></div>
+          {{ end }}
+          <div class="flex items-center gap-2">{{ svg "octicon-calendar" 16 }} {{ .PackageDescriptor.Version.CreatedUnix.FormatDate }}</div>
+          <div class="flex items-center gap-2">{{ svg "octicon-download" 16 }} {{ .PackageDescriptor.Version.DownloadCount }}</div>
+          {{ template "package/metadata/composer" . }}
+          {{ template "package/metadata/conan" . }}
+          {{ template "package/metadata/container" . }}
+          {{ template "package/metadata/generic" . }}
+          {{ template "package/metadata/helm" . }}
+          {{ template "package/metadata/maven" . }}
+          {{ template "package/metadata/npm" . }}
+          {{ template "package/metadata/nuget" . }}
+          {{ template "package/metadata/pypi" . }}
+          {{ template "package/metadata/rubygems" . }}
+        </div>
+        {{ if not (eq .PackageDescriptor.Package.Type "container") }}
+          <div class="divider"></div>
+          <h2 class="text-lg font-bold">{{ .i18n.Tr "packages.assets" }} ({{ len .PackageDescriptor.Files }})</h2>
+          <div class="flex flex-col gap-1">
+            {{ range .PackageDescriptor.Files }}
+              <div class="cu-links-primary flex items-center gap-2">
+                <a href="{{ $.Link }}/files/{{ .File.ID }}">{{ .File.Name }}</a>
+                <span class="whitespace-nowrap text-sm">{{ FileSize .Blob.Size }}</span>
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+        {{ if .LatestVersions }}
+          <div class="divider"></div>
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold">{{ .i18n.Tr "packages.versions" }} ({{ .TotalVersionCount }})</h2>
+            <a class="link-hover link-primary link" href="{{ $.PackageDescriptor.PackageWebLink }}/versions">{{ .i18n.Tr "packages.versions.view_all" }}</a>
+          </div>
+          <div class="flex flex-col gap-1">
+            {{ range .LatestVersions }}
+              <div class="cu-links-primary flex items-center gap-2">
+                <a href="{{ $.PackageDescriptor.PackageWebLink }}/{{ PathEscape .LowerVersion }}">{{ .Version }}</a>
+                <span class="text-sm">{{ $.i18n.Tr "packages.versions.on" }} {{ .CreatedUnix.FormatDate }}</span>
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+        {{ if or .CanWritePackages .HasRepositoryAccess }}
+          <div class="divider"></div>
+          <div class="flex flex-wrap items-center gap-2">
+            {{ if .HasRepositoryAccess }}
+              <div class="btn-primary btn w-fit gap-1">{{ svg "octicon-issue-opened" 16 }} <a href="{{ .PackageDescriptor.Repository.HTMLURL }}/issues">{{ .i18n.Tr "repo.issues" }}</a></div>
+            {{ end }}
+            {{ if .CanWritePackages }}
+              <div class="btn-primary btn w-fit gap-1">{{ svg "octicon-gear" 16 }} <a href="{{ .Link }}/settings">{{ .i18n.Tr "repo.settings" }}</a></div>
+            {{ end }}
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

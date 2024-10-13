@@ -1,0 +1,56 @@
+{{ template "base/head" . }}
+<!--  organization teams -->
+<div jq-org-teams class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    {{ template "org/header" . }}
+    {{ template "base/alert" . }}
+    <div class="grid grid-cols-16 gap-4">
+      {{ template "org/team/sidebar" . }}
+      <div class="col-span-10 h-fit">
+        {{ template "org/team/navbar" . }}
+        <div class="space-y-2 divide-y rounded-b-lg border border-t-0 py-2">
+          {{ if .IsOrganizationOwner }}
+            <form class="flex items-center gap-2 px-4" id="add-member-form" action="{{ $.OrgLink }}/teams/{{ $.Team.LowerName | PathEscape }}/action/add" method="post">
+              {{ .CsrfTokenHtml }}
+              <input type="hidden" name="uid" value="{{ .SignedUser.ID }}" />
+              <div svelte-search-org-team-member class="w-full max-w-xs">
+                <script>
+                  ;(() => {
+                    window.config.pageData.orgTeamMember = {
+                      placeholder: {{ .i18n.Tr "repo.settings.search_user_placeholder" }},
+                      autocomplete:"off",
+                      required: true,
+                      fieldName: 'uname',
+                    }
+                  })()
+                </script>
+              </div>
+              <button class="btn-primary btn">{{ .i18n.Tr "org.teams.add_team_member" }}</button>
+            </form>
+          {{ end }}
+          {{ range .Team.Members }}
+            <div class="flex items-center justify-between px-4 pt-2">
+              <a class="flex items-center gap-2" href="{{ .HomeLink }}">
+                <div class="avatar">
+                  <span class="h-8 w-8 rounded-full">
+                    {{ avatar . }}
+                  </span>
+                </div>
+                {{ .DisplayName }}
+              </a>
+              {{ if and $.IsOrganizationOwner (not (and ($.Team.IsOwnerTeam) (eq (len $.Team.Members) 1))) }}
+                <button svelte-simple-modal class="btn-red btn-xs btn" data-title="{{ $.i18n.Tr "org.members.remove" }}" data-title-svg-name="octicon-x" data-desc="{{ $.i18n.Tr "org.members.remove.detail" .DisplayName $.Team.Name | Safe }}" data-modal-id="remove-team-member" data-href="{{ $.OrgLink }}/teams/{{ $.Team.LowerName | PathEscape }}/action/remove" data-form-key[0]="uid" data-form-val[0]="{{ .ID }}">{{ $.i18n.Tr "org.members.remove" }}</button>
+              {{ end }}
+            </div>
+          {{ else }}
+            <div class="px-4 py-2">
+              <span class="italic text-gray-500">{{ $.i18n.Tr "org.teams.members.none" }}</span>
+            </div>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/org-team-members.js" }}
+</div>
+{{ template "base/footer" . }}

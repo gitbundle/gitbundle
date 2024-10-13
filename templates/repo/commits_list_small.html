@@ -1,0 +1,71 @@
+{{ $index := 0}}
+<div class="cu-timeline-item commits-list">
+{{range .comment.Commits}}
+	{{ $tag := printf "%s-%d" $.comment.HashTag $index }}
+	{{ $index = Add $index 1}}
+	<div class="collapse ml-[9px]" id="{{$tag}}">
+		<div class="flex items-center">
+      <div class="col-start-1 row-start-1 flex flex-1 items-center gap-x-1">
+        <span class="py-1 bg-base-100 mr-4">{{svg "octicon-git-commit"}}</span>
+        {{if .User}}
+          <a class="avatar" href="{{.User.HomeLink}}">
+            <span class="w-5 rounded-full">
+              {{avatar .User}}
+            </span>
+          </a>
+        {{else}}
+        <span class="avatar">
+          <span class="w-5 rounded-full">
+            {{avatarByEmail .Author.Email .Author.Name}}
+          </span>
+        </span>
+        {{end}}
+        {{ $commitLink:= printf "%s/commit/%s" $.comment.Issue.PullRequest.BaseRepo.Link (PathEscape .ID.String) }}
+        <!-- mono commit-summary -->
+        <span class="{{if gt .ParentCount 1}}text-base-content{{end}}" title="{{.Summary}}">{{RenderCommitMessageLinkSubject $.root.Context .Message ($.comment.Issue.PullRequest.BaseRepo.Link|Escape) $commitLink $.comment.Issue.PullRequest.BaseRepo.ComposeMetas}}</span>
+        {{if IsMultilineCommitMessage .Message}}
+          <label for="full-commit-message-{{$tag}}" class="btn-gray btn-xs btn h-1 min-h-[0.75rem]">···</label>
+        {{end}}
+      </div>
+      <div class="flex items-center gap-x-1">
+        {{template "repo/commit_statuses" dict "Status" .Status "Statuses" .Statuses "root" $.root}}
+        {{ $class := "normal" }}
+        {{ if .Signature }}
+          {{ if .Verification.Verified }}
+            {{ if eq .Verification.TrustStatus "trusted" }}
+              {{ $class = "green" }}
+            {{ else if eq .Verification.TrustStatus "untrusted" }}
+              {{ $class = "yellow" }}
+            {{ else }}
+              {{ $class = "orange" }}
+            {{ end }}
+          {{ else if .Verification.Warning }}
+            {{ $class = "red" }}
+          {{ end }}
+        {{ end }}
+        {{if $.comment.Issue.PullRequest.BaseRepo.Name}}
+          <a class="btn-outline-{{ $class }} btn-outline btn-xs btn divide-x-2 py-0 items-center" href="{{$.comment.Issue.PullRequest.BaseRepo.Link}}/commit/{{PathEscape .ID.String}}" rel="nofollow" class="{{$class}}">
+        {{else}}
+          <span class="btn-outline-{{ $class }} btn-outline btn btn-xs divide-x-2 py-0 items-center">
+        {{end}}
+        <span class="shortsha">{{ShortSha .ID.String}}</span>
+        {{if .Signature}}
+          <div class="pl-2 ml-2">
+            {{template "repo/shabox_badge" dict "root" $.root "verification" .Verification}}
+          </div>
+        {{end}}
+        {{if $.comment.Issue.PullRequest.BaseRepo.Name}}
+          </a>
+        {{else}}
+          </span>
+        {{end}}
+      </div>
+    </div>
+
+		{{if IsMultilineCommitMessage .Message}}
+      <input type="checkbox" class="hidden" id="full-commit-message-{{$tag}}" />
+      <pre class="collapse-content ml-11 px-4 text-sm text-base-content whitespace-pre-line">{{RenderCommitBody $.root.Context .Message ($.comment.Issue.PullRequest.BaseRepo.Link|Escape) $.comment.Issue.PullRequest.BaseRepo.ComposeMetas}}</pre>
+    {{end}}
+	</div>
+{{end}}
+</div>

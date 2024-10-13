@@ -1,0 +1,245 @@
+<div class="grid grid-cols-16 gap-4">
+  <!-- I know, there is probably a better way to do this (moved from sidebar.tmpl, original author: 6543 @ 2021-02-28) -->
+  <!-- Agree, there should be a better way, eg: introduce window.config.pageData (original author: wxiaoguang @ 2021-09-05) -->
+  <input type="hidden" id="repolink" value="{{ $.RepoRelPath }}" />
+  <input type="hidden" id="repoId" value="{{ .Repository.ID }}" />
+  <input type="hidden" id="issueIndex" value="{{ .Issue.Index }}" />
+  <input type="hidden" id="type" value="{{ .IssueType }}" />
+
+  {{ $createdStr:= TimeSinceUnix .Issue.CreatedUnix $.i18n.Lang }}
+  <div class="md:col-span-12 col-span-16">
+    <div class="cu-timeline flex flex-col">
+      <div id="{{ .Issue.HashTag }}" class="flex h-fit gap-x-2">
+        {{ if .Issue.OriginalAuthor }}
+          <div class="avatar mr-1 h-10">
+            <span class="w-10 rounded-full">
+              <img src="{{ AppSubUrl }}/assets/img/avatar_default.png" />
+            </span>
+          </div>
+        {{ else }}
+          <a class="avatar mr-1 h-10" {{ if gt .Issue.Poster.ID 0 }}href="{{ .Issue.Poster.HomeLink }}"{{ end }}>
+            <span class="w-10 rounded-full">
+              {{ avatar .Issue.Poster }}
+            </span>
+          </a>
+        {{ end }}
+        <div jq-content class="flex-1 flex-col">
+          <div class="cu-left-triangle relative flex items-center rounded-t-lg border bg-base-200 p-4">
+            <div class="flex flex-1 items-center gap-x-1">
+              {{ if .Issue.OriginalAuthor }}
+                <span class="flex items-center gap-x-1 text-primary-content">
+                  {{ svg (MigrationIcon .Repository.GetOriginalURLHostname) }}
+                  {{ .Issue.OriginalAuthor }}
+                </span>
+                <span>
+                  {{ .i18n.Tr "repo.issues.commented_at" (.Issue.HashTag|Escape) $createdStr | Safe }}
+                </span>
+                <span class="text-mako-400">
+                  {{ if .Repository.OriginalURL }}({{ $.i18n.Tr "repo.migrated_from" (.Repository.OriginalURL|Escape) (.Repository.GetOriginalURLHostname|Escape) | Safe }}){{ end }}
+                </span>
+              {{ else }}
+                <!-- inline-timeline-avatar  -->
+                <a class="hidden" href="{{ .Issue.Poster.HomeLink }}">
+                  {{ avatar .Issue.Poster }}
+                </a>
+                <span class="cu-links-primary-content">
+                  <a {{ if gt .Issue.Poster.ID 0 }}href="{{ .Issue.Poster.HomeLink }}"{{ end }}>{{ .Issue.Poster.GetDisplayName }}</a>
+                  {{ .i18n.Tr "repo.issues.commented_at" (.Issue.HashTag|Escape) $createdStr | Safe }}
+                </span>
+              {{ end }}
+            </div>
+            <div class="flex items-center gap-x-2">
+              {{ if gt .Issue.ShowRole 0 }}
+                {{ if (.Issue.ShowRole.HasRole "Writer") }}
+                  <div class="badge badge-info badge-outline">
+                    {{ $.i18n.Tr "repo.issues.collaborator" }}
+                  </div>
+                {{ end }}
+                {{ if (.Issue.ShowRole.HasRole "Owner") }}
+                  <div class="badge badge-info badge-outline">{{ $.i18n.Tr "repo.issues.owner" }}</div>
+                {{ end }}
+              {{ end }}
+              {{ if not $.Repository.IsArchived }}
+                {{ template "repo/issue/view_content/add_reaction" Dict "ctx" $ "ActionURL" (Printf "%s/issues/%d/reactions" $.RepoLink .Issue.Index) }}
+                {{ template "repo/issue/view_content/context_menu" Dict "ctx" $ "item" .Issue "delete" false "issue" true "diff" false "IsCommentPoster" $.IsIssuePoster }}
+              {{ end }}
+            </div>
+          </div>
+          <div jq-temp class="flex flex-col rounded-b-lg border border-t-0 bg-base-100">
+            <div class="px-4 py-2">
+              <div class="no-extra-style render-content markup" {{ if or $.Permission.IsAdmin $.HasIssuesOrPullsWritePermission $.IsIssuePoster }}data-can-edit="true"{{ end }}>
+                {{ if .Issue.RenderedContent }}
+                  {{ .Issue.RenderedContent|Str2html }}
+                {{ else }}
+                  {{ .i18n.Tr "repo.issues.no_content" }}
+                {{ end }}
+              </div>
+              <div id="comment-{{ .Issue.ID }}" class="raw-content hidden">{{ .Issue.Content }}</div>
+              <div class="edit-content-zone hidden" data-write="issue-{{ .Issue.ID }}-write" data-preview="issue-{{ .Issue.ID }}-preview" data-update-url="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/content" data-context="{{ .RepoLink }}" data-attachment-url="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/attachments" data-view-attachment-url="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/view-attachments"></div>
+              {{ if .Issue.Attachments }}
+                {{ template "repo/issue/view_content/attachments" Dict "ctx" $ "Attachments" .Issue.Attachments "Content" .Issue.RenderedContent }}
+              {{ end }}
+            </div>
+            {{ $reactions := .Issue.Reactions.GroupByType }}
+            {{ if $reactions }}
+              {{ template "repo/issue/view_content/reactions" Dict "ctx" $ "ActionURL" (Printf "%s/issues/%d/reactions" $.RepoLink .Issue.Index) "Reactions" $reactions }}
+            {{ end }}
+          </div>
+        </div>
+      </div>
+
+      {{ template "repo/issue/view_content/comments" . }}
+
+      {{ if and .Issue.IsPull (not $.Repository.IsArchived) }}
+        {{ template "repo/issue/view_content/pull". }}
+      {{ end }}
+
+      {{ if .IsSigned }}
+        {{ if and (or .IsRepoAdmin .HasIssuesOrPullsWritePermission (not .Issue.IsLocked)) (not .Repository.IsArchived) }}
+          <div class="cu-timeline-item comment">
+            <a class="timeline-avatar" href="{{ .SignedUser.HomeLink }}">
+              {{ avatar .SignedUser }}
+            </a>
+            <div class="cu-left-triangle after:border-r-base-100 flex flex-1 items-center rounded-lg border bg-base-100 p-4">
+              <!-- id="comment-form" -->
+              <form jq-issue-comment-form class="w-full" action="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/comments" method="post">
+                {{ template "repo/issue/comment_tab" . }}
+                {{ .CsrfTokenHtml }}
+                <!-- id="status" -->
+                <input jq-status name="status" type="hidden" />
+                <div class="flex items-center justify-end mt-4 gap-x-2">
+                  {{ if and (or .HasIssuesOrPullsWritePermission .IsIssuePoster) (not .DisableStatusChange) }}
+                    {{ if .Issue.IsClosed }}
+                      <div jq-status-button class="btn btn-primary" tabindex="6" data-status="{{ .i18n.Tr "repo.issues.reopen_issue" }}" data-status-and-comment="{{ .i18n.Tr "repo.issues.reopen_comment_issue" }}" data-status-val="reopen">
+                        {{ .i18n.Tr "repo.issues.reopen_issue" }}
+                      </div>
+                    {{ else }}
+                      <div jq-status-button class="btn btn-red" tabindex="6" data-status="{{ .i18n.Tr "repo.issues.close_issue" }}" data-status-and-comment="{{ .i18n.Tr "repo.issues.close_comment_issue" }}" data-status-val="close">
+                        {{ .i18n.Tr "repo.issues.close_issue" }}
+                      </div>
+                    {{ end }}
+                  {{ end }}
+                  <!-- loading-button  -->
+                  <button class="btn btn-primary" tabindex="5">
+                    {{ .i18n.Tr "repo.issues.create_comment" }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        {{ else if .Repository.IsArchived }}
+          <div class="ml-14 cu-links-primary mb-4 gap-2 break-words rounded-lg border !border-yellow-600/40 p-4 text-yellow-600 bg-base-100 text-center">
+            {{ if .Issue.IsPull }}
+              {{ .i18n.Tr "repo.archive.pull.nocomment" }}
+            {{ else }}
+              {{ .i18n.Tr "repo.archive.issue.nocomment" }}
+            {{ end }}
+          </div>
+        {{ end }}
+      {{ else }}
+        {{ if .Repository.IsArchived }}
+          <div class="ml-14 cu-links-primary mb-4 gap-2 break-words rounded-lg border !border-yellow-600/40 p-4 text-yellow-600 bg-base-100 text-center">
+            {{ if .Issue.IsPull }}
+              {{ .i18n.Tr "repo.archive.pull.nocomment" }}
+            {{ else }}
+              {{ .i18n.Tr "repo.archive.issue.nocomment" }}
+            {{ end }}
+          </div>
+        {{ else }}
+          {{ if .IsSigned }}
+            {{ if .Repository.IsArchived }}
+              <div class="cu-timeline-item comment">
+                <a class="timeline-avatar" href="{{ .SignedUser.HomeLink }}">
+                  {{ avatar .SignedUser }}
+                </a>
+                <div class="cu-left-triangle after:border-r-base-100 flex items-center rounded-lg border bg-base-100 p-4 w-full">
+                  <!--  id="comment-form" -->
+                  <form jq-issue-comment-form class="w-full" action="{{ $.RepoLink }}/issues/{{ .Issue.Index }}/comments" method="post">
+                    {{ template "repo/issue/comment_tab" . }}
+                    {{ .CsrfTokenHtml }}
+                    <!-- id="status" -->
+                    <input jq-status name="status" type="hidden" />
+                    <div class="flex items-center justify-end mt-4 gap-x-2">
+                      {{ if and (or .HasIssuesOrPullsWritePermission .IsIssuePoster) (not .DisableStatusChange) }}
+                        {{ if .Issue.IsClosed }}
+                        <!-- id="status-button" -->
+                          <div jq-status-button class="btn btn-primary" tabindex="6" data-status="{{ .i18n.Tr "repo.issues.reopen_issue" }}" data-status-and-comment="{{ .i18n.Tr "repo.issues.reopen_comment_issue" }}" data-status-val="reopen">
+                            {{ .i18n.Tr "repo.issues.reopen_issue" }}
+                          </div>
+                        {{ else }}
+                          <div jq-status-button class="btn btn-red" tabindex="6" data-status="{{ .i18n.Tr "repo.issues.close_issue" }}" data-status-and-comment="{{ .i18n.Tr "repo.issues.close_comment_issue" }}" data-status-val="close">
+                            {{ .i18n.Tr "repo.issues.close_issue" }}
+                          </div>
+                        {{ end }}
+                      {{ end }}
+                      <!--  loading-button -->
+                      <button class="btn btn-primary" tabindex="5">
+                        {{ .i18n.Tr "repo.issues.create_comment" }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            {{ end }}
+          {{ else }}
+            <div class="ml-[54px] mt-2 cu-links-primary mb-4 gap-2 break-words rounded-lg border !border-yellow-600/40 p-4 text-yellow-600 text-center bg-base-100">
+              {{ .i18n.Tr "repo.issues.sign_in_require_desc" (.SignInLink|Escape) | Safe }}
+            </div>
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    </div>
+  </div>
+
+  {{ template "repo/issue/view_content/sidebar" . }}
+</div>
+
+<div class="hidden" id="edit-content-form">
+  <div jq-edit-comment-form class="space-y-4">
+		<div jq-tabs class="tabs" data-write="write" data-preview="preview">
+			<a class="tab-lifted tab tab-active" data-tab="write">{{$.i18n.Tr "write"}}</a>
+			<a class="tab-lifted tab" data-tab="preview" data-url="{{$.Repository.HTMLURL}}/markdown" data-context="{{$.RepoLink}}">{{$.i18n.Tr "preview"}}</a>
+		</div>
+    <div jq-contents>
+      <div data-tab="write">
+        <textarea tabindex="1" name="content" class="js-quick-submit textarea textarea-bordered w-full"></textarea>
+      </div>
+      <div data-tab="preview" class="markup hidden">
+        <div class="text-center">
+          {{ template "base/loading" }}
+          {{ .i18n.Tr "loading" }}
+        </div>
+      </div>
+    </div>
+		{{if .IsAttachmentEnabled}}
+			<div>
+				{{template "repo/upload" .}}
+			</div>
+		{{end}}
+    <div class="flex items-center justify-end mt-4 gap-x-2">
+      <div jq-cancel class="btn" tabindex="3">{{.i18n.Tr "repo.issues.cancel"}}</div>
+      <div jq-save class="btn btn-primary" tabindex="2">{{.i18n.Tr "repo.issues.save"}}</div>
+    </div>
+	</div>
+</div>
+
+{{/*TODO: not found this case currently @critical */}}
+{{ template "repo/issue/view_content/reference_issue_dialog" . }}
+
+
+<div class="hidden" id="no-content">
+  <span class="no-content">{{ .i18n.Tr "repo.issues.no_content" }}</span>
+</div>
+
+{{Asset "js/repo-issue-view_content.js"}}
+
+{{/*<div class="ui small basic delete modal">
+  <div class="ui icon header">
+    {{ svg "octicon-trash" }}
+    {{ .i18n.Tr "repo.branch.delete" .HeadTarget }}
+  </div>
+  <div class="content">
+    <p>{{ .i18n.Tr "repo.branch.delete_desc" | Str2html }}</p>
+  </div>
+  {{ template "base/delete_modal_actions" . }}
+</div>*/}}

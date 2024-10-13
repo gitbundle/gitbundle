@@ -1,0 +1,159 @@
+/* @tailwind components;
+
+@layer components { */
+body {
+  @apply font-sans text-sm text-base-content;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+.cu-header {
+  @apply font-bold;
+}
+
+strong {
+  @apply font-extrabold;
+}
+
+/* p {
+    @apply text-base-content;
+  } */
+::-moz-selection {
+  @apply bg-primary-focus/50 text-primary-content;
+}
+
+::selection {
+  @apply bg-primary-focus/50 text-primary-content;
+}
+
+input,
+textarea,
+select {
+  @apply border-base-content/10 text-base-content placeholder:text-gray-500;
+}
+
+.input-bordered,
+.textarea-bordered,
+.select-bordered {
+  @apply focus:border-none focus:outline-1 focus:outline-offset-1 focus:outline-mako-800;
+}
+
+/* .border,.border-t,.border-b,.border-l,.border-r, */
+[class*='border'] {
+  @apply border-base-content/10;
+}
+
+/* [class^="divide"] > :not([hidden]) ~ :not([hidden]){ */
+[class*='divide'] {
+  @apply divide-base-content/10;
+}
+
+/* [class*="divider"]{
+    @apply bg-mako-800 w-[1px];
+  } */
+.tabs {
+  @apply border-b border-b-base-content/20;
+}
+
+.tab {
+  @apply flex-nowrap items-center whitespace-nowrap text-base-content;
+  /* @apply border-b-base-300; */
+  /* --tab-color: hsla(var(--bc) / var(--tw-text-opacity, 1));
+    --tab-bg: hsla(var(--b1) / var(--tw-bg-opacity, 1));
+    --tab-border-color: hsla(var(--b3) / var(--tw-bg-opacity, 1)); */
+  /* --tab-color: hsla(var(--bc) / var(--tw-text-opacity, 1)); */
+  /* --tab-bg: hsla(var(--bc) / var(--tw-bg-opacity, 0.2)); */
+  /* --tab-border-color: hsla(var(--b1) / var(--tw-bg-opacity, 1)); */
+  --tab-bg: hsla(var(--bc) / 0.1) !important;
+  --tab-border-color: hsla(var(--b3) / 0) !important;
+}
+
+.tab-lifted {
+  @apply !border-0;
+  /* &.tab-active:not(.tab-disabled):not([disabled]):not(.disabled) {
+      @apply !border-base-content/10 !bg-mako-800;
+    } */
+}
+
+.cu-tab {
+  @apply tab flex-nowrap items-center whitespace-nowrap text-base-content;
+  --tab-bg: hsla(var(--bc) / 0.1) !important;
+  --tab-border-color: hsla(var(--b3) / 0) !important;
+}
+
+.cu-tab-lifted {
+  @apply tab-lifted !border-0;
+}
+
+.cu-menu {
+  @apply menu;
+
+  &.cu-menu-horizontal {
+    @apply menu-horizontal;
+  }
+}
+
+.tooltip {
+  @apply flex;
+}
+
+.rounded-box {
+  @apply rounded-lg;
+}
+
+.divider::before,
+.divider::after {
+  @apply bg-base-content/10;
+}
+
+.collapse > .collapse-content {
+  @apply pb-0;
+}
+
+[class*='avatar'] img {
+  @apply rounded-full;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+.checkbox-sm {
+  @apply h-4 w-4 rounded;
+}
+
+.radio-sm {
+  @apply h-4 w-4;
+}
+
+a .badge-ghost,
+a.badge-ghost {
+  @apply hover:badge-primary;
+}
+
+table.table {
+  @apply w-full;
+}
+
+.scrollbar {
+  &::-webkit-scrollbar {
+    @apply h-1 w-1;
+  }
+
+  &::-webkit-scrollbar-track {
+    @apply rounded-[100vh] bg-base-content/10;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @apply rounded-[100vh] border border-base-content/10;
+  }
+
+  &::-webkit-scrollbar-thumb:hover,
+  &::-webkit-scrollbar-thumb:active {
+    @apply bg-base-content/40;
+  }
+}
+/* } */

@@ -1,0 +1,66 @@
+.cu-timeline {
+  @apply relative;
+  &:before {
+    @apply absolute bottom-0 left-4 top-0 z-[-1] my-4 ml-[52px] w-[2px] bg-mako-800 content-[""];
+  }
+
+  .cu-timeline-item {
+    @apply my-1 ml-[52px] gap-x-1 py-1;
+    &.event {
+      @apply flex flex-wrap items-center;
+      & .detail {
+        @apply ml-12 flex w-full items-center gap-x-1;
+      }
+    }
+    &.comment {
+      @apply ml-0 flex gap-x-2;
+      .timeline-avatar {
+        @apply avatar mr-1 h-10;
+        img {
+          @apply w-10 rounded-full;
+        }
+      }
+    }
+    &.commits-list {
+      /* @apply bg-sky-800; */
+      @apply space-y-2;
+    }
+    & b {
+      @apply font-bold text-secondary-content;
+    }
+    & del * {
+      @apply !text-base-content;
+    }
+    & a:not(.timeline-avatar) {
+      @apply link-hover link text-secondary-content hover:text-primary;
+      & img {
+        @apply h-5 w-5 rounded-full;
+      }
+    }
+    .cu-timeline-badge {
+      @apply badge mr-2 h-9 w-9 rounded-full;
+    }
+  }
+
+  .cu-timeline-item-group {
+    @apply my-1 py-1;
+    > .cu-timeline-item {
+      @apply ml-0;
+      &.event {
+        @apply py-0;
+      }
+      &.review {
+        @apply ml-20;
+      }
+      &.comment {
+        @apply my-0 ml-[52px] py-0;
+      }
+      .timeline-avatar {
+        @apply avatar mr-2 h-10;
+        img {
+          @apply w-10 rounded-full;
+        }
+      }
+    }
+  }
+}

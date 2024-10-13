@@ -1,0 +1,138 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!--  repository settings edit -->
+<div jq-repository-settings-tags class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        {{ if .Repository.IsArchived }}
+          <div svelte-simple-alert data-desc="{{ .i18n.Tr "repo.settings.archive.tagsettings_unavailable" }}" data-type="warning" data-icon="true"></div>
+        {{ else }}
+          <h4 class="text-xl font-bold">
+            {{ .i18n.Tr "repo.settings.tags.protection" }}
+          </h4>
+          <div class="divider my-2"></div>
+          <form class="flex flex-col gap-4" action="{{ .Link }}" method="post">
+            {{ .CsrfTokenHtml }}
+            <div class="form-control">
+              <label class="label"><span class="label-text">{{ .i18n.Tr "repo.settings.tags.protection.pattern" }}</span></label>
+              <input class="input-bordered input" name="name_pattern" autocomplete="off" value="{{ .name_pattern }}" placeholder="v*" autofocus required />
+              <p class="help cu-links-primary">{{ .i18n.Tr "repo.settings.tags.protection.pattern.description" | Safe }}</p>
+            </div>
+            <div class="form-control">
+              <label>{{ .i18n.Tr "repo.settings.tags.protection.allowed.users" }}</label>
+              <div svelte-repo-search-allowlist_users>
+                <script>
+                  (() => {
+                    const items = []
+                    {{ range .Users }}
+                    items.push({value: {{.ID}}, label: {{ .GetDisplayName }}, avatar: {{ avatar . }}, avatar_img: true})
+                    {{ end }}
+                    window.config.pageData.repoSearchAllowlistUsers = {
+                      items,
+                      multiple: true,
+                      defaultValue: {{ .allowlist_users }},
+                      placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_users" }},
+                      fieldName: "allowlist_users",
+                    }
+                  })()
+                </script>
+              </div>
+            </div>
+            {{ if .Owner.IsOrganization }}
+              <div class="form-control">
+                <label>{{ .i18n.Tr "repo.settings.tags.protection.allowed.teams" }}</label>
+                <div svelte-repo-search-allowlist_teams>
+                  <script>
+                  (() => {
+                    const items = []
+                    {{ range .Teams }}
+                    items.push({value: {{.ID}}, label: {{ .Name }}, avatar: {{ svg "octicon-people" }}, avatar_img: false})
+                    {{ end }}
+                    window.config.pageData.repoSearchAllowlistTeams = {
+                      items,
+                      multiple: true,
+                      defaultValue: {{ .allowlist_teams }},
+                      placeholder: {{ .i18n.Tr "repo.settings.protect_whitelist_search_teams" }},
+                      fieldName: "allowlist_teams",
+                    }
+                  })()
+                </script>
+                </div>
+              </div>
+            {{ end }}
+            <div class="flex gap-2">
+              {{ if .PageIsEditProtectedTag }}
+                <button class="btn-primary btn">
+                  {{ $.i18n.Tr "save" }}
+                </button>
+                <a class="btn" href="{{ $.RepoLink }}/settings/tags">
+                  {{ $.i18n.Tr "cancel" }}
+                </a>
+              {{ else }}
+                <button class="btn-primary btn">
+                  {{ $.i18n.Tr "repo.settings.tags.protection.create" }}
+                </button>
+              {{ end }}
+            </div>
+          </form>
+
+          <div class="mt-4 rounded-lg border">
+            <div class="grid grid-cols-12 rounded-t-lg bg-base-300 p-4">
+              <div class="col-span-2">{{ .i18n.Tr "repo.settings.tags.protection.pattern" }}</div>
+              <div class="col-span-8">{{ .i18n.Tr "repo.settings.tags.protection.allowed" }}</div>
+              <div class="col-span-2"></div>
+            </div>
+            <div class="grid gap-4 divide-y">
+              {{ range .ProtectedTags }}
+                <div class="grid grid-cols-12 p-4">
+                  <div class="col-span-2 grid items-center"><pre>{{ .NamePattern }}</pre></div>
+                  <div class="col-span-8">
+                    {{ if or .AllowlistUserIDs (and $.Owner.IsOrganization .AllowlistTeamIDs) }}
+                      <div class="flex items-center gap-2">
+                        {{ $userIDs := .AllowlistUserIDs }}
+                        {{ range $.Users }}
+                          {{ if contain $userIDs .ID }}
+                            <a class="btn-outline btn-sm btn gap-1" href="{{ .HomeLink }}">{{ avatar . 20 "w-5 h-5 rounded-full" }} {{ .GetDisplayName }}</a>
+                          {{ end }}
+                        {{ end }}
+                        {{ if $.Owner.IsOrganization }}
+                          {{ $teamIDs := .AllowlistTeamIDs }}
+                          {{ range $.Teams }}
+                            {{ if contain $teamIDs .ID }}
+                              <a class="btn-outline btn-sm btn" href="{{ $.Owner.OrganisationLink }}/teams/{{ PathEscape .LowerName }}">{{ .Name }}</a>
+                            {{ end }}
+                          {{ end }}
+                        {{ end }}
+                      </div>
+                    {{ else }}
+                      {{ $.i18n.Tr "repo.settings.tags.protection.allowed.noone" }}
+                    {{ end }}
+                  </div>
+                  <div class="col-span-2">
+                    <div class="flex items-center justify-end gap-2">
+                      <a class="btn-outline-primary btn-outline tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "edit" }}" href="{{ $.RepoLink }}/settings/tags/{{ .ID }}">{{ svg "octicon-pencil" }}</a>
+                      <form action="{{ $.RepoLink }}/settings/tags/delete" method="post">
+                        {{ $.CsrfTokenHtml }}
+                        <input type="hidden" name="id" value="{{ .ID }}" />
+                        <button class="btn-red tooltip btn-sm btn" data-tip="{{ $.i18n.Tr "remove" }}">{{ svg "octicon-trash" }}</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              {{ else }}
+                <div class="p-4 text-center">
+                  <p>{{ .i18n.Tr "repo.settings.tags.protection.none" }}</p>
+                </div>
+              {{ end }}
+            </div>
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+  {{ Asset "js/repo-settings-tags.js" }}
+</div>
+{{ template "base/footer" . }}

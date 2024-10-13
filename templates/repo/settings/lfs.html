@@ -1,0 +1,50 @@
+{{ template "base/head" . }}
+{{ template "repo/header" . }}
+<!-- repository settings lfs -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-[1280px] space-y-4">
+    <div class="grid grid-cols-10 gap-8">
+      {{ template "repo/settings/navbar" . }}
+      <div class="col-span-10 md:col-span-8">
+        {{ template "base/alert" . }}
+        <h4 class="flex items-center justify-between text-xl font-bold">
+          {{ .i18n.Tr "repo.settings.lfs_filelist" }} ({{ .i18n.Tr "admin.total" .Total }})
+          <div class="flex items-center gap-2">
+            <a class="btn-outline btn-sm btn" href="{{ .Link }}/locks">{{ .i18n.Tr "repo.settings.lfs_locks" }}</a>
+            <a class="btn-primary btn-sm btn" href="{{ .Link }}/pointers">&nbsp;{{ .i18n.Tr "repo.settings.lfs_findpointerfiles" }}</a>
+          </div>
+        </h4>
+        <div class="divider my-2"></div>
+        <table id="lfs-files-table" class="table w-full">
+          <tbody>
+            {{ range .LFSFiles }}
+              <tr>
+                <td>
+                  <span class="btn-outline btn-sm btn">
+                    <a href="{{ $.Link }}/show/{{ .Oid }}" title="{{ .Oid }}" class="truncate">
+                      {{ ShortSha .Oid }}
+                    </a>
+                  </span>
+                </td>
+                <td>{{ FileSize .Size }}</td>
+                <td>{{ TimeSince .CreatedUnix.AsTime $.i18n.Lang }}</td>
+                <td>
+                  <div class="flex items-center justify-end gap-2">
+                    <a class="btn-primary btn-xs btn" href="{{ $.Link }}/find?oid={{ .Oid }}&size={{ .Size }}">{{ $.i18n.Tr "repo.settings.lfs_findcommits" }}</a>
+                    <button svelte-simple-modal data-async="false" data-title="{{ $.i18n.Tr "repo.settings.lfs_delete" .Oid }}" data-desc="{{ $.i18n.Tr "repo.settings.lfs_delete_warning" }}" data-href="{{ $.Link }}/delete/{{ .Oid }}" data-action-approve-color="yellow" class="btn-red tooltip btn-xs btn" data-tip="{{ $.i18n.Tr "repo.editor.delete_this_file" }}" data-modal="#delete-{{ .Oid }}">{{ svg "octicon-trash" }}</button>
+                  </div>
+                </td>
+              </tr>
+            {{ else }}
+              <tr>
+                <td colspan="4">{{ .i18n.Tr "repo.settings.lfs_no_lfs_files" }}</td>
+              </tr>
+            {{ end }}
+          </tbody>
+        </table>
+        {{ template "base/paginate" . }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

@@ -1,0 +1,41 @@
+{{ template "base/head" . }}
+<!--  user signin openid -->
+<div class="main-container">
+  <div class="mx-auto mt-20 h-fit w-full max-w-xl space-y-4 rounded-lg border bg-base-200">
+    {{ template "user/auth/signin_navbar" . }}
+    <div class="px-4">
+      {{ template "base/alert" . }}
+    </div>
+    <!-- <h4 class="flex items-center justify-center gap-2 text-xl font-bold">
+      {{ svg "fa-openid" }}
+      OpenID
+    </h4> -->
+    <form class="mx-auto flex w-3/5 flex-col gap-2 space-y-2 pb-8" action="{{ .Link }}" method="post">
+      {{ .CsrfTokenHtml }}
+      <div class="form-control">
+        <label class="label"><span class="label-text">{{ .i18n.Tr "auth.openid_signin_desc" }}</span></label>
+      </div>
+      <div class="required {{ if .Err_OpenID }}error{{ end }} form-control">
+        <label class="label">
+          <span class="label-text flex items-center gap-1">
+            {{ svg "fa-openid" }}
+            OpenID URI
+          </span>
+        </label>
+        <input class="input-bordered input" id="openid" name="openid" value="{{ .openid }}" autofocus required />
+      </div>
+      <div class="form-control">
+        <button class="btn-primary btn">{{ .i18n.Tr "sign_in" }}</button>
+      </div>
+      <div class="form-control">
+        <label class="flex items-center gap-1"><input class="checkbox checkbox-sm" name="remember" type="checkbox" />{{ .i18n.Tr "auth.remember_me" }}</label>
+      </div>
+      {{ if .ShowRegistrationButton }}
+        <div class="form-control">
+          <a class="link-hover link-primary link" href="{{ AppSubUrl }}/user/sign_up">{{ .i18n.Tr "auth.sign_up_now" | Str2html }}</a>
+        </div>
+      {{ end }}
+    </form>
+  </div>
+</div>
+{{ template "base/footer" . }}

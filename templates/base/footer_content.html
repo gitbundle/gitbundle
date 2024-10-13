@@ -1,0 +1,29 @@
+<footer class="footer items-center py-4 text-base-content">
+  <div class="grid-flow-col items-center">
+    <div class="flex items-center gap-1"><img class="h-5 w-5" src="{{ AssetUrlPrefix }}/img/logo.svg" alt="GitBundle" aria-hidden="true" /><span> © 2023 - All right reserved</span></div>
+    <div class="text-gray-500">
+      {{ if (or .ShowFooterVersion .PageIsAdmin) }}
+        {{ .i18n.Tr "version" }}:
+        {{ if .IsAdmin }}
+          <a class="link-hover link text-base-content" href="{{ AppSubUrl }}/admin/config">{{ AppVer }}</a>
+        {{ else }}
+          {{ AppVer }}
+        {{ end }}
+      {{ end }}
+      {{ if and .TemplateLoadTimes ShowFooterTemplateLoadTime }}
+        {{ .i18n.Tr "page" }}:
+        <strong>{{ LoadTimes .PageStartTime }}</strong> {{ .i18n.Tr "template" }}
+        {{ if .TemplateName }}{{ .TemplateName }}{{ end }}:
+        <strong>{{ call .TemplateLoadTimes }}</strong>
+      {{ end }}
+    </div>
+  </div>
+  <div class="grid-flow-col gap-4 text-xs md:place-self-center md:justify-self-end">
+    <a class="link-hover link" href="https://docs.gitbundle.com">Docs</a>
+    {{ if ShowApiPage }}
+      <a class="link-hover link" href="https://docs.gitbundle.com/api">API</a>
+    {{ end }}
+    <a class="link-hover link" href="https://blog.gitbundle.com">Blog</a>
+    <a class="link-hover link" href="https://blog.gitbundle.com/about">About</a>
+  </div>
+</footer>

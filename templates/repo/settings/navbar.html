@@ -1,0 +1,119 @@
+<div class="sticky top-0 col-span-10 h-fit p-2 md:col-span-2">
+  <div class="flex flex-col">
+    <h2 class="indent-5 text-base-content/60">{{ .i18n.Tr "settings.access" }}</h2>
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsCollaboration }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsCollaboration }}active{{ end }}" href="{{ .RepoLink }}/settings/collaboration">
+          {{ svg "fa-users-gear" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "repo.settings.collaboration" }}
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="divider my-2"></div>
+  <div class="flex flex-col">
+    <h2 class="indent-5 text-base-content/60">{{ .i18n.Tr "settings.code" }}</h2>
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsOptions }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsOptions }}active{{ end }}" href="{{ .RepoLink }}/settings">
+          {{ svg "octicon-gear" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "repo.settings.options" }}
+        </a>
+      </li>
+      {{ if .MirrorsEnabled }}
+        <li class="{{ if .PageIsSettingsMirrors }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsMirrors }}active{{ end }}" href="{{ .RepoLink }}/settings/mirrors">
+            {{ svg "octicon-globe" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.mirrors" }}
+          </a>
+        </li>
+      {{ end }}
+      {{ if not .Repository.IsEmpty }}
+        <li class="{{ if .PageIsSettingsBranches }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsBranches }}active{{ end }}" href="{{ .RepoLink }}/settings/branches">
+            {{ svg "octicon-git-branch" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.branches" }}
+          </a>
+        </li>
+      {{ end }}
+      <li class="{{ if .PageIsSettingsTags }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsTags }}active{{ end }}" href="{{ .RepoLink }}/settings/tags">
+          {{ svg "octicon-tag" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "repo.settings.tags" }}
+        </a>
+      </li>
+      {{ if not DisableWebhooks }}
+        <li class="{{ if .PageIsSettingsHooks }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsHooks }}active{{ end }}" href="{{ .RepoLink }}/settings/hooks">
+            {{ svg "icons8-webhook" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.hooks" }}
+          </a>
+        </li>
+      {{ end }}
+      {{ if .SignedUser.CanEditGitHook }}
+        <li class="{{ if .PageIsSettingsGitHooks }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsGitHooks }}active{{ end }}" href="{{ .RepoLink }}/settings/hooks/git">
+            {{ svg "3rd-githook" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.githooks" }}
+          </a>
+        </li>
+      {{ end }}
+      {{ if .LFSStartServer }}
+        <li class="{{ if .PageIsSettingsLFS }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsLFS }}active{{ end }}" href="{{ .RepoLink }}/settings/lfs">
+            {{ svg "fa-hard-drive-solid" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.lfs" }}
+          </a>
+        </li>
+      {{ end }}
+      {{/*
+      {{ if and (not .Repository.IsFork) .Permission.IsOwner }}
+        <li class="{{ if .PageIsSettingsDeployments }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsDeployments }}active{{ end }}" href="{{ .RepoLink }}/settings/deployments">
+            {{ svg "fa-gears-solid" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.build_and_deploy" }}
+          </a>
+        </li>
+      {{ end }}
+      */}}
+    </ul>
+  </div>
+  <div class="divider my-2"></div>
+  <div class="flex flex-col">
+    <h2 class="indent-5 text-base-content/60">{{ .i18n.Tr "settings.security" }}</h2>
+    <ul class="cu-bordered-menu">
+      <li class="{{ if .PageIsSettingsKeys }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsKeys }}active{{ end }}" href="{{ .RepoLink }}/settings/keys">
+          {{ svg "octicon-key" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "repo.settings.deploy_keys" }}
+        </a>
+      </li>
+      <li class="{{ if .PageIsSettingsSigning }}cu-bordered{{ end }}">
+        <div class="divider-y"></div>
+        <a class="{{ if .PageIsSettingsSigning }}active{{ end }}" href="{{ .RepoLink }}/settings/signing">
+          {{ svg "fa-file-signature-solid" 16 "w-4 h-4" }}
+          {{ .i18n.Tr "repo.settings.signing" }}
+        </a>
+      </li>
+      {{ if .Permission.IsOwner }}
+        <li class="{{ if .PageIsSettingsAdmin }}cu-bordered{{ end }}">
+          <div class="divider-y"></div>
+          <a class="{{ if .PageIsSettingsAdmin }}active{{ end }}" href="{{ .RepoLink }}/settings/admin">
+            {{ svg "fa-user-gear" 16 "w-4 h-4" }}
+            {{ .i18n.Tr "repo.settings.admin" }}
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+{{ template "base/head" . }}
+<!--  repository new migrate -->
+<div class="main-container">
+  <div class="mx-auto w-full max-w-3xl space-y-4">
+    <div class="grid grid-cols-2 gap-8">
+      {{ range .Services }}
+        <a class="flex flex-col items-center rounded-lg border p-4 text-center hover:bg-base-content/10 hover:shadow-xl" href="{{ AppSubUrl }}/repo/migrate?service_type={{ . }}&org={{ $.Org }}&mirror={{ $.Mirror }}">
+          {{ svg (Printf "gitea-%s" .Name) 256 "!w-64 !h-64" }}
+          <p class="tooltip text-sm font-bold" data-tip="{{ .Title }}">{{ (Printf "repo.migrate.%s.description" .Name) | $.i18n.Tr }}</p>
+        </a>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ template "base/footer" . }}

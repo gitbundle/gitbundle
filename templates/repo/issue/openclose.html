@@ -1,0 +1,18 @@
+<a class="{{ if not .IsShowClosed }}text-primary font-bold{{ end }} flex items-center gap-x-2" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ $.ViewType }}&sort={{ $.SortType }}&state=open&labels={{ .SelectLabels }}&milestone={{ .MilestoneID }}&assignee={{ .AssigneeID }}">
+  {{ if .PageIsPullList }}
+    {{ svg "octicon-git-pull-request" 16 }}
+  {{ else }}
+    {{ svg "octicon-issue-opened" 16 }}
+  {{ end }}
+  <span>
+    {{ JsPrettyNumber .IssueStats.OpenCount }}
+    {{ .i18n.Tr "repo.issues.open_title" }}
+  </span>
+</a>
+<a class="{{ if .IsShowClosed }}text-primary font-bold{{ end }} flex items-center gap-x-2" href="{{ $.Link }}?q={{ $.Keyword }}&type={{ .ViewType }}&sort={{ $.SortType }}&state=closed&labels={{ .SelectLabels }}&milestone={{ .MilestoneID }}&assignee={{ .AssigneeID }}">
+  {{ svg "octicon-check" 16 }}
+  <span>
+    {{ JsPrettyNumber .IssueStats.ClosedCount }}
+    {{ .i18n.Tr "repo.issues.closed_title" }}
+  </span>
+</a>

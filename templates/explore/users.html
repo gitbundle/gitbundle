@@ -1,0 +1,31 @@
+{{ template "explore/header" . }}
+<div class="my-4 flex flex-1 flex-col px-8">
+  {{ template "explore/search" . }}
+  <div class="divide-y">
+    {{ range .Users }}
+      <div class="flex items-center gap-2 px-1 py-4 hover:bg-base-content/10">
+        {{ avatar . 40 "rounded-full" }}
+        <div class="flex flex-col gap-1">
+          <strong><a class="link-hover link-primary link" href="{{ .HomeLink }}">{{ .Name }}</a> {{ .FullName }}</strong>
+          <div class="flex items-center gap-1">
+            {{ if .Location }}
+              {{ svg "octicon-location" }}
+              {{ .Location }}
+            {{ end }}
+            {{ if and $.ShowUserEmail .Email $.IsSigned (not .KeepEmailPrivate) }}
+              {{ svg "octicon-mail" }}
+              <a href="mailto:{{ .Email }}" rel="nofollow">{{ .Email }}</a>
+            {{ end }}
+            {{ svg "octicon-clock" }}
+            {{ $.i18n.Tr "user.join_on" }}
+            {{ .CreatedUnix.FormatShort }}
+          </div>
+        </div>
+      </div>
+    {{ else }}
+      <p>{{ $.i18n.Tr "explore.user_no_results" }}</p>
+    {{ end }}
+    {{ template "base/paginate" . }}
+  </div>
+</div>
+{{ template "explore/footer" . }}

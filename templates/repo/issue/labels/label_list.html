@@ -1,0 +1,88 @@
+<div class="divide-y rounded-lg border">
+  <!-- ui top attached header -->
+  <h4 class="flex items-center justify-between rounded-t-lg bg-base-200 p-4">
+    {{ .i18n.Tr "repo.issues.label_count" .NumLabels }}
+    <!-- ui right floated secondary menu filter -->
+    <div class="flex items-center">
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="flex items-center">
+          {{ .i18n.Tr "repo.issues.filter_sort" }}
+          {{ svg "octicon-triangle-down" 14 }}
+        </label>
+        <ul tabindex="0" class="dropdown-content menu p-2">
+          <li>
+            <a class="{{ if or (eq .SortType "alphabetically") (not .SortType) }}active{{ end }}" href="{{ $.Link }}?sort=alphabetically&state={{ $.State }}">{{ .i18n.Tr "repo.issues.label.filter_sort.alphabetically" }}</a>
+          </li>
+          <li>
+            <a class="{{ if eq .SortType "reversealphabetically" }}active{{ end }}" href="{{ $.Link }}?sort=reversealphabetically&state={{ $.State }}">{{ .i18n.Tr "repo.issues.label.filter_sort.reverse_alphabetically" }}</a>
+          </li>
+          <li>
+            <a class="{{ if eq .SortType "leastissues" }}active{{ end }}" href="{{ $.Link }}?sort=leastissues&state={{ $.State }}">{{ .i18n.Tr "repo.milestones.filter_sort.least_issues" }}</a>
+          </li>
+          <li>
+            <a class="{{ if eq .SortType "mostissues" }}active{{ end }}" href="{{ $.Link }}?sort=mostissues&state={{ $.State }}">{{ .i18n.Tr "repo.milestones.filter_sort.most_issues" }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </h4>
+
+  <div class="divide-y">
+    {{ if and (not $.PageIsOrgSettingsLabels) (or $.CanWriteIssues $.CanWritePulls) (eq .NumLabels 0) (not $.Repository.IsArchived) }}
+      {{ template "repo/issue/labels/label_load_template" . }}
+    {{ else if and ($.PageIsOrgSettingsLabels) (eq .NumLabels 0) }}
+      {{ template "repo/issue/labels/label_load_template" . }}
+    {{ end }}
+    {{ range .Labels }}
+      <div class="grid grid-cols-16 items-center p-4 hover:bg-base-content/10 hover:last:rounded-b-lg">
+        <div class="col-span-4">
+          <div class="badge gap-1 py-3" style="color: {{ .ForegroundColor }}; background-color: {{ .Color }}">{{ svg "octicon-tag" }} {{ .Name | RenderEmoji }}</div>
+        </div>
+        <div class="col-span-6">
+          {{ .Description | RenderEmoji }}
+        </div>
+        <div class="cu-links-primary-hover col-span-3">
+          {{ if $.PageIsOrgSettingsLabels }}
+            <a class="flex items-center gap-1" href="{{ AppSubUrl }}/issues?labels={{ .ID }}">{{ svg "octicon-issue-opened" }} {{ $.i18n.Tr "repo.issues.label_open_issues" .NumOpenIssues }}</a>
+          {{ else }}
+            <a class="flex items-center gap-1" href="{{ $.RepoLink }}/issues?labels={{ .ID }}">{{ svg "octicon-issue-opened" }} {{ $.i18n.Tr "repo.issues.label_open_issues" .NumOpenIssues }}</a>
+          {{ end }}
+        </div>
+        <div class="cu-links-primary-hover col-span-3 flex justify-end gap-2">
+          {{ if and (not $.PageIsOrgSettingsLabels ) (not $.Repository.IsArchived) (or $.CanWriteIssues $.CanWritePulls) }}
+            <a svelte-simple-modal class="btn-outline tooltip btn-sm btn gap-1" data-tip="{{ $.i18n.Tr "repo.issues.label_delete" }}" href="#" data-title="{{ $.i18n.Tr "repo.issues.label_deletion" }}" data-desc="{{ $.i18n.Tr "repo.issues.label_deletion_desc" }}" data-href="{{ $.Link }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">{{ svg "octicon-trash" }}</a>
+
+            <a jq-edit-label-button class="btn-outline tooltip btn-sm btn gap-1" data-tip="{{ $.i18n.Tr "repo.issues.label_edit" }}" href="#" data-id="{{ .ID }}" data-title="{{ .Name }}" data-description="{{ .Description }}" data-color="{{ .Color }}">{{ svg "octicon-pencil" }}</a>
+          {{ else if $.PageIsOrgSettingsLabels }}
+            <a svelte-simple-modal class="btn-outline tooltip btn-sm btn gap-1" data-tip="{{ $.i18n.Tr "repo.issues.label_delete" }}" href="#" data-title="{{ $.i18n.Tr "repo.issues.label_deletion" }}" data-desc="{{ $.i18n.Tr "repo.issues.label_deletion_desc" }}" data-href="{{ $.Link }}/delete" data-form-key[0]="id" data-form-val[0]="{{ .ID }}">{{ svg "octicon-trash" }}</a>
+            <a jq-edit-label-button class="btn-outline tooltip btn-sm btn gap-1" data-tip="{{ $.i18n.Tr "repo.issues.label_edit" }}" href="#" data-id="{{ .ID }}" data-title="{{ .Name }}" data-description="{{ .Description }}" data-color="{{ .Color }}">{{ svg "octicon-pencil" }}</a>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+    {{ if and (not .PageIsOrgSettingsLabels) (.OrgLabels) }}
+      <div class="cu-links-primary flex items-center gap-1 bg-base-200 p-4">
+        {{ $.i18n.Tr "repo.org_labels_desc" | Str2html }}
+        {{ if .IsOrganizationOwner }}
+          <a href="{{ .OrganizationLink }}/settings/labels">({{ $.i18n.Tr "repo.org_labels_desc_manage" }})</a>:
+        {{ end }}
+      </div>
+      {{ if (not $.PageIsOrgSettingsLabels) }}
+        {{ range .OrgLabels }}
+          <div class="grid grid-cols-16 items-center p-4 hover:bg-base-content/10 hover:last:rounded-b-lg">
+            <div class="col-span-4">
+              <div class="badge gap-1 py-3" style="color: {{ .ForegroundColor }}; background-color: {{ .Color }}">{{ svg "octicon-tag" }} {{ .Name | RenderEmoji }}</div>
+            </div>
+            <div class="col-span-6">
+              {{ .Description | RenderEmoji }}
+            </div>
+            <div class="cu-links-primary-hover col-span-4">
+              <a class="flex items-center gap-1" href="{{ $.RepoLink }}/issues?labels={{ .ID }}">{{ svg "octicon-issue-opened" }} {{ $.i18n.Tr "repo.issues.label_open_issues" .NumOpenRepoIssues }}</a>
+            </div>
+            <div class="col-span-4"></div>
+          </div>
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  </div>
+</div>
