@@ -4,12 +4,14 @@ GitBundle is a modern DevOps service. Which is based on git, built with Golang, 
 
 The target for GitBundle is to make everything become more efficient and easy for DevOps.
 
+![profile-light](screenshot/profile-light.png)
+![profile-dark](screenshot/profile-dark.png)
+
 ## A Simple Config
 
 ```console
 GITBUNDLE_APP_NAME="GitBundle"
 GITBUNDLE_DEBUG=true
-GITBUNDLE_CALLER=true
 
 # Some names are limited because of GitBundle needed
 GITBUNDLE_USER_ADMIN_UID=root
@@ -54,7 +56,3 @@ Host gitbundle.com
 ```bash
 ssh -T git@gitbundle.com -p 22
 ```
-
-## Notes
-
-Currently, GitBundle is only support linux/amd64, linux/arm64, other platforms are not available, as we have limited server resources. And a lot of features are still developing or testing.
