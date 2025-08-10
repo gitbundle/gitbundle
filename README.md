@@ -1,58 +1,20 @@
-# GitBundle
+# Gitbundle
 
-GitBundle is a modern DevOps service. Which is based on git, built with Golang, Docker, K8s, Svelte, Tailwind ...
+**A Rust-powered, self-hosted code hosting platform**
 
-The target for GitBundle is to make everything become more efficient and easy for DevOps.
+🚧 **Version 3 is in preparation** — a complete refactor in **Rust 1.88** for **performance**, **safety**, and **compatibility**.
+
+A **GitLab/GitHub-like** solution reimagined with the power of **Rust**, leveraging the modern ecosystem — **tokio**, **actix**, **git2-rs**, **SeaORM**, and **tracing** — to deliver:
+
+- 🚀 **Blazing-fast performance** with async I/O and optimized database access
+- 🛡 **Memory safety** and reliability backed by Rust’s strong type system
+- 🔄 **Compatibility** with GitLab/GitHub workflows, pipelines, and integrations
+- ⚙ **Extensibility** for custom pipelines and CI/CD setups
+- 🔌 **Easy integration & multi-language APIs** for seamless customization and automation
+
+**Our mission:** Empower developers to own their code hosting with a platform that is fast, secure, and fully in their control.
+
 
 ![profile-light](screenshot/profile-light.png)
 ![profile-dark](screenshot/profile-dark.png)
 
-## A Simple Config
-
-```console
-GITBUNDLE_APP_NAME="GitBundle"
-GITBUNDLE_DEBUG=true
-
-# Some names are limited because of GitBundle needed
-GITBUNDLE_USER_ADMIN_UID=root
-GITBUNDLE_USER_ADMIN_EMAIL=root@example.com
-# The super admin user password, admin pages are coming soon
-GITBUNDLE_USER_ADMIN_PASSWORD=root
-
-GITBUNDLE_GIT_ROOT=/data/gitbundle
-GITBUNDLE_BLOBSTORE_BUCKET=/data/gitbundle/blob
-
-# Default database is sqlite3, also supports mysql postgres
-GITBUNDLE_DATABASE_DEBUG=false
-GITBUNDLE_DATABASE_DRIVER=sqlite3
-GITBUNDLE_DATABASE_DATASOURCE=database.sqlite3
-```
-
-## GOPRIVATE Configuration
-
-1. Add `id_rsa.pub` in your GitBundle account.
-
-2. Exec the following script, use your own domain
-
-```bash
-# Set GOPRIVATE env
-go env -w GOPRIVATE=gitbundle.com
-# Rewrite `go get` with ssh protocol
-git config --global url."git@gitbundle.com:".insteadOf "https://gitbundle.com/"
-```
-
-3. If you need to configure ssh for GitBundle singlly
-
-```console
-# ~/.ssh/config
-Host gitbundle.com
-    HostName gitbundle.com
-    User git
-    IdentityFile ~/.ssh/gitbundle/id_rsa
-```
-
-4. Test ssh, this is necessary for `go get`, as `go get` does not provide a prompt for asking your agreement.
-
-```bash
-ssh -T git@gitbundle.com -p 22
-```
