@@ -15,6 +15,12 @@ GitBundle combines the reliability of Rust, a streamlined workflow engine, and a
 
 ---
 
+## Overview
+
+The **GitBundle Server** uses release tags such as `server-v3.0.0` for stable builds and `server-v3.0.0-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
+
+The **GitBundle Runner** follows the same convention, using tags like `runner-v1.0.0` for stable releases and `runner-v1.0.0-beta` for releases that are close to production use.
+
 ## Running GitBundle Server
 
 GitBundle Server loads configuration from the `.env` file in the working directory.
