@@ -1,20 +1,160 @@
-# Gitbundle
-
-**A Rust-powered, self-hosted code hosting platform**
-
-🚧 **Version 3 is in preparation** — a complete refactor in **Rust 1.88** for **performance**, **safety**, and **compatibility**.
-
-A **GitLab/GitHub-like** solution reimagined with the power of **Rust**, leveraging the modern ecosystem — **tokio**, **actix**, **git2-rs**, **SeaORM**, and **tracing** — to deliver:
-
-- 🚀 **Blazing-fast performance** with async I/O and optimized database access
-- 🛡 **Memory safety** and reliability backed by Rust’s strong type system
-- 🔄 **Compatibility** with GitLab/GitHub workflows, pipelines, and integrations
-- ⚙ **Extensibility** for custom pipelines and CI/CD setups
-- 🔌 **Easy integration & multi-language APIs** for seamless customization and automation
-
-**Our mission:** Empower developers to own their code hosting with a platform that is fast, secure, and fully in their control.
+# GitBundle
 
 
-![profile-light](screenshot/profile-light.png)
-![profile-dark](screenshot/profile-dark.png)
+**A modern, Rust-powered code hosting and workflow automation platform** designed as a high-performance alternative to GitLab and GitHub.  
+GitBundle combines the reliability of Rust, a streamlined workflow engine, and a fully self-hosted architecture built for development teams that need control, security, and speed.
 
+## Key Highlights
+
+- ⚡ High-performance core powered by Rust with async I/O
+- 🔒 Reliable and memory-safe architecture
+- 🔄 Workflow engine compatible with GitHub Actions syntax
+- 🧩 Extensible by design for custom CI/CD pipelines and integrations
+- 🌐 Multi-language API support for automation and tooling
+- 🏢 Ideal for teams and enterprises requiring a secure, self-hosted platform
+
+---
+
+## Running GitBundle Server
+
+GitBundle Server loads configuration from the `.env` file in the working directory.
+
+```bash
+# Copy the template and start the server
+cp .env.slim .env
+gitbundle server
+```
+
+## Running GitBundle Server in Container (**recommended**)
+
+Using containerized deployment ensures isolation, consistency, and strong performance.
+
+```bash
+docker pull ghcr.io/gitbundle/server:v3.0.0-beta
+# or
+docker pull gitbundle/server:v3.0.0-beta
+```
+
+## Running the GitBundle Runner
+
+The GitBundle Runner is responsible for executing workflows and reporting logs to the server.
+
+```bash
+mkdir ~/.gitbundle-runner
+cd ~/.gitbundle-runner
+
+# Follow the UI instructions for registration
+runner register --server-url <SERVER_URL> --token <TOKEN>
+
+# Start the runner
+runner start
+```
+
+## Operational Recommendation
+
+For stability and performance, deploy GitBundle Server and GitBundle Runner on separate machines.
+Running both on the same host may cause resource contention during workflow execution.
+
+## Github Workflow Syntax Compatibility
+
+GitBundle provides broad compatibility with GitHub Actions workflow syntax, including:
+
+  - Standard GitHub Actions YAML structure
+  - Jobs, steps, runs-on, needs, and conditionals
+  - Matrix expansion (not ready yet)
+  - Expressions using GitHub’s expression language
+  - All official GitHub contexts and variables
+    - github
+    - env
+    - vars
+    - job
+    - jobs
+    - steps
+    - runner (only runner.arch, runner.os, runner.environment are currently supported)
+    - secrets
+    - strategy (not ready yet)
+    - matrix (not ready yet)
+    - needs
+    - inputs
+
+## Supported Github Event Types & Operation
+
+- **branch_protection_rule**
+  - created
+  - edited
+  - deleted
+
+- **check_run** (not ready yet)
+  - created
+  - edited
+  - deleted
+
+- **check_suite** (not ready yet)
+
+- **branch**
+  - created
+  - renamed
+  - updated
+  - deleted
+  
+- **tag**
+  - created
+  - updated
+  - deleted
+
+- **pull_request**
+  - synchronize
+  - commented
+  - reviewed
+  - assigned
+  - opened
+  - closed
+  - reopened
+  - merged
+  - edited
+  - review_requested
+  - review_commented
+  - labeled (not ready yet)
+  - locked (not ready yet)
+
+- **release**
+  - created
+  - deleted
+  - edited
+  - published
+  - prereleased
+
+- **repository**
+  - renamed
+  - imported
+  - created
+  - deleted
+  - forked
+  - default_branch_updated
+  - restored
+  - public
+  - watch_started (not ready yet)
+  - transferred (not ready yet)
+  - dispatch
+	
+- **schedule** (not ready yet)
+
+- **status** (not ready yet)
+
+- **workflow_call**
+
+- **workflow_dispatch**
+
+- **workflow_run**
+  - completed
+  - requested
+  - in_progress
+  
+## Gitlab Workflow Syntax Compatibility (WIP)
+
+# FAQ
+
+For issues or inquiries, please report through the official issue tracker:
+https://github.com/gitbundle/gitbundle-/issues
+
+Thank you for your support.
