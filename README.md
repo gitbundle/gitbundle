@@ -36,9 +36,9 @@ gitbundle server
 Using containerized deployment ensures isolation, consistency, and strong performance.
 
 ```bash
-docker pull ghcr.io/gitbundle/server:v3.0.0-beta
+docker pull ghcr.io/gitbundle/server:v3-beta
 # or
-docker pull gitbundle/server:v3.0.0-beta
+docker pull gitbundle/server:v3-beta
 ```
 
 ## Running the GitBundle Runner

@@ -1,7 +1,8 @@
 services:
   server:
-    # image: gitbundle/server:v3.0.0-beta
-    image: ghcr.io/gitbundle/server:v3.0.0-beta
+    # image: ghcr.io/gitbundle/server:v3-beta
+    image: gitbundle/server:v3-beta
+    # pull_policy: always
     ports:
     - 8080:8080
     - 8022:8022
@@ -21,6 +22,9 @@ services:
     - GITBUNDLE_ENCRYPTER_SECRET=${GITBUNDLE_ENCRYPTER_SECRET}
     - GITBUNDLE_HTTP_PORT=${GITBUNDLE_HTTP_PORT:-8080}
     - GITBUNDLE_SSH_PORT=${GITBUNDLE_SSH_PORT:-8022}
+    - GITBUNDLE_URL_BASE=${GITBUNDLE_URL_BASE}
+    - GITBUNDLE_URL_GIT_SSH=${GITBUNDLE_URL_GIT_SSH}
+    # and other environment variables...
     restart: always
     networks:
     - gitbundle
