@@ -4,6 +4,8 @@
 **A modern, Rust-powered code hosting and workflow automation platform** designed as a high-performance alternative to GitLab and GitHub.  
 GitBundle combines the reliability of Rust, a streamlined workflow engine, and a fully self-hosted architecture built for development teams that need control, security, and speed.
 
+[demo](https://demo.gitbundle.com)
+
 ## Key Highlights
 
 - ⚡ High-performance core powered by Rust with async I/O
@@ -17,7 +19,7 @@ GitBundle combines the reliability of Rust, a streamlined workflow engine, and a
 
 ## Overview
 
-The **GitBundle Server** uses release tags such as `server-v3.0.0` for stable builds and `server-v3.0.0-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
+The **GitBundle Server** uses release tags such as `server-v3.1.0` for stable builds and `server-v3.1.0-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
 
 The **GitBundle Runner** follows the same convention, using tags like `runner-v1.0.0` for stable releases and `runner-v1.0.0-beta` for releases that are close to production use.
 
@@ -161,6 +163,6 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
 # FAQ
 
 For issues or inquiries, please report through the official issue tracker:
-https://github.com/gitbundle/gitbundle-/issues
+https://github.com/gitbundle/gitbundle/issues
 
 Thank you for your support.
