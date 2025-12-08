@@ -1,8 +1,7 @@
 # GitBundle
 
-
-**A modern, Rust-powered code hosting and workflow automation platform** designed as a high-performance alternative to GitLab and GitHub.  
-GitBundle combines the reliability of Rust, a streamlined workflow engine, and a fully self-hosted architecture built for development teams that need control, security, and speed.
+**GitBundle is a modern, Rust-powered code hosting and workflow automation platform built for performance, security, and full self-hosting.**
+It provides a streamlined workflow engine, an efficient Rust backend, and an architecture designed for teams that need reliability, control, and speed.
 
 [demo](https://demo.gitbundle.com)
 
