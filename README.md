@@ -26,6 +26,11 @@ The **GitBundle Runner** follows the same convention, using tags like `runner-v1
 
 GitBundle Server loads configuration from the `.env` file in the working directory.
 
+requirements:
+
+- git
+- [gitleaks](https://github.com/gitleaks/gitleaks)
+
 ```bash
 # Copy the template and start the server
 cp .env.slim .env
@@ -45,6 +50,10 @@ docker pull gitbundle/server:v3-beta
 ## Running the GitBundle Runner
 
 The GitBundle Runner is responsible for executing workflows and reporting logs to the server.
+
+requirements:
+
+- git
 
 ```bash
 mkdir ~/.gitbundle-runner
