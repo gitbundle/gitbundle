@@ -9,6 +9,10 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - ./data:/data
+    # use .env to configure environment variables
+    env_file:
+    - .env
+    # use environment field to override variables directly
     environment:
     - GITBUNDLE_APP_NAME=${GITBUNDLE_APP_NAME:-GitBundle}
     - GITBUNDLE_TRACE=${GITBUNDLE_TRACE:-false}
