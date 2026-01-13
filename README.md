@@ -77,7 +77,7 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
 
   - Standard GitHub Actions YAML structure
   - Jobs, steps, runs-on, needs, and conditionals
-  - Matrix expansion (not ready yet)
+  - Matrix expansion
   - Expressions using GitHub’s expression language
   - All official GitHub contexts and variables
     - github
@@ -88,8 +88,8 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
     - steps
     - runner (only runner.arch, runner.os, runner.environment are currently supported)
     - secrets
-    - strategy (not ready yet)
-    - matrix (not ready yet)
+    - strategy
+    - matrix
     - needs
     - inputs
 
