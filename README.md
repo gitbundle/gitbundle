@@ -54,6 +54,7 @@ The GitBundle Runner is responsible for executing workflows and reporting logs t
 requirements:
 
 - git
+- docker
 
 ```bash
 mkdir ~/.gitbundle-runner
