@@ -1,7 +1,7 @@
 services:
   server:
-    # image: ghcr.io/gitbundle/server:v3-beta
-    image: gitbundle/server:v3-beta
+    # image: ghcr.io/gitbundle/server:v3
+    image: gitbundle/server:v3
     # pull_policy: always
     ports:
     - 8080:8080
