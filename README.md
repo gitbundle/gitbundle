@@ -18,18 +18,22 @@ It provides a streamlined workflow engine, an efficient Rust backend, and an arc
 
 ## Overview
 
-The **GitBundle Server** uses release tags such as `server-v3.3.0` for stable builds and `server-v3.3.0-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
+The **GitBundle Server** uses release tags such as `server-v3.4.0` for stable builds and `server-v3.4.0-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
 
-The **GitBundle Runner** follows the same convention, using tags like `runner-v1.1.0` for stable releases and `runner-v1.1.0-beta` for releases that are close to production use.
+The **GitBundle Runner** follows the same convention, using tags like `runner-v1.2.0` for stable releases and `runner-v1.2.0-beta` for releases that are close to production use.
+
+## Requirements
+
+For both GitBundle Server and GitBundle Runner:
+
+- git
+- [gitleaks](https://github.com/gitleaks/gitleaks) @v8.30.0+
+- nodejs @18.16.0+
+- docker @28.5.2+
 
 ## Running GitBundle Server
 
 GitBundle Server loads configuration from the `.env` file in the working directory.
-
-requirements:
-
-- git
-- [gitleaks](https://github.com/gitleaks/gitleaks)
 
 ```bash
 # Copy the template and start the server
@@ -50,11 +54,6 @@ docker pull gitbundle/server:v3
 ## Running the GitBundle Runner
 
 The GitBundle Runner is responsible for executing workflows and reporting logs to the server.
-
-requirements:
-
-- git
-- docker
 
 ```bash
 mkdir ~/.gitbundle-runner
@@ -87,7 +86,7 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
     - job
     - jobs
     - steps
-    - runner (only runner.arch, runner.os, runner.environment are currently supported)
+    - runner
     - secrets
     - strategy
     - matrix
