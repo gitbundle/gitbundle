@@ -1,0 +1,123 @@
+name: Docker Image
+
+on:
+  release:
+    types: [published]
+
+env:
+  IMAGE_NAME: gitbundle/server
+
+jobs:
+  build:
+    runs-on: [self-hosted, macos, arm64]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ vars.GITHUB_PACKAGES_USERNAME }}
+          password: ${{ secrets.GITHUB_PACKAGES_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: gitbundle/metadata-action@master
+        with:
+          repository: gitbundle/gitbundle
+          description: |
+            GitBundle is a modern, Rust-powered code hosting and workflow automation platform built for performance, security, and full self-hosting.
+          html_url: https://gitbundle.com
+          images: |
+            gitbundle/server
+            ghcr.io/gitbundle/server
+          tags: |
+            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{major}}.{{minor}}
+            type=semver,pattern=v{{major}}
+
+      - name: Setup multi-platform builder
+        run: docker buildx use multi || docker buildx create --name multi --use
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  test-image:
+    runs-on: [self-hosted, macos, arm64]
+    needs: build
+    steps:
+      - name: Pull built image
+        run: |
+          docker pull ${IMAGE_NAME}:${{ github.ref_name }}
+          docker pull ${IMAGE_NAME}:latest
+
+      - name: Run HTTP smoke test
+        shell: bash
+        run: |
+          #!/usr/bin/env bash
+          set -e
+
+          CONTAINER_PORT=8080
+          CONTAINER_NAME=test-gitbundle-server
+          IMAGE=${IMAGE_NAME}:${GITHUB_REF_NAME}
+          HOST_PORT=8888
+          TARGET_URL=http://127.0.0.1:${HOST_PORT}/api/v3/system/version
+
+          cleanup() {
+            docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+            docker rm "$CONTAINER_NAME" >/dev/null 2>&1 || true
+          }
+
+          if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+            echo "Removing existing container $CONTAINER_NAME..."
+            cleanup
+          fi
+
+          docker run -d --name "$CONTAINER_NAME" -p ${HOST_PORT}:${CONTAINER_PORT} \
+            -e GITBUNDLE_ARTIFACT_HOST=localhost \
+            -e GITBUNDLE_ARTIFACTCACHE_HOST=localhost \
+            "$IMAGE"
+
+          INTERVAL=2
+          MAX_RETRIES=5
+
+          RETRY=0
+          SUCCESS=0
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            echo "Trying to reach the service (attempt $((RETRY+1)))..."
+            if curl -sSf ${TARGET_URL} >/dev/null; then
+              SUCCESS=1
+              break
+            fi
+            RETRY=$((RETRY+1))
+            sleep $INTERVAL
+            INTERVAL=$((INTERVAL * 2))
+            [ $INTERVAL -gt 30 ] && INTERVAL=30
+          done
+
+          if [ $SUCCESS -ne 1 ]; then
+            echo "Service did not become ready after $MAX_RETRIES attempts."
+            docker logs "$CONTAINER_NAME"
+            exit 1
+          fi
+
+          echo "Service is up!"
+          curl -v ${TARGET_URL}
+
+          cleanup

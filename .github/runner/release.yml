@@ -1,0 +1,179 @@
+name: Main Release
+
+on:
+  create:
+    tags:
+      - "v*"
+
+env:
+  CARGO_TERM_COLOR: always
+  PROJECT_NAME: runner
+  RELEASE_DIR: release
+  LLVM_MINGW_ROOT: /opt/llvm-mingw
+  LLVM_MINGW_VER: 20251216
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu24, ubuntu24-gnullvm, macos]
+        arch: [x64, arm64, arm]
+        include:
+          - os: ubuntu24
+            arch: x64
+            target: x86_64-unknown-linux-gnu
+            name: linux-x64
+          - os: ubuntu24
+            arch: arm64
+            target: aarch64-unknown-linux-gnu
+            name: linux-arm64
+          - os: ubuntu24
+            arch: arm
+            target: armv7-unknown-linux-gnueabihf
+            name: linux-arm
+          - os: ubuntu24-gnullvm
+            arch: x64
+            target: x86_64-pc-windows-gnullvm
+            name: windows-x64
+          - os: ubuntu24-gnullvm
+            arch: arm64
+            target: aarch64-pc-windows-gnullvm
+            name: windows-arm64
+          - os: macos
+            arch: arm64
+            target: aarch64-apple-darwin
+            name: macos-arm64
+          - os: macos
+            arch: x64
+            target: x86_64-apple-darwin
+            name: macos-x64
+        exclude:
+          - os: ubuntu24-gnullvm
+            arch: arm
+          - os: macos
+            arch: arm
+
+    name: Build (${{ matrix.os }} / ${{ matrix.arch }})
+    runs-on: [self-hosted, "${{ matrix.os }}", "${{ matrix.arch }}"]
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install toolchains
+      if: ${{ contains(fromJson('["ubuntu24", "ubuntu24-gnullvm"]'), matrix.os) && vars.install_toolchains == 'true' }}
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y \
+            clang \
+            libclang-dev \
+            llvm-dev
+
+    - name: Setup llvm-mingw
+      if: ${{ matrix.os == 'ubuntu24-gnullvm' && vars.setup_llvm_mingw == 'true' }}
+      shell: bash
+      run: |
+        set -euxo pipefail
+
+        ARCH="$(uname -m)"
+        case "$ARCH" in
+          x86_64) ARCH="x86_64" ;;
+          aarch64) ARCH="aarch64" ;;
+          *) echo "unsupported arch: $ARCH"; exit 1 ;;
+        esac
+
+        FILE="/tmp/llvm-mingw.tar.xz"
+        URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VER}/llvm-mingw-${LLVM_MINGW_VER}-ucrt-ubuntu-22.04-${ARCH}.tar.xz"
+        curl -fL "$URL" -o "$FILE"
+
+        sudo rm -rf "$LLVM_MINGW_ROOT"
+        sudo mkdir -p "$LLVM_MINGW_ROOT"
+        sudo tar -xJf "$FILE" --strip-components=1 -C "$LLVM_MINGW_ROOT"
+        ls -1 "$LLVM_MINGW_ROOT"
+
+    - uses: actions/setup-go@v6
+      with:
+        go-version: '1.25'
+
+    - name: Setup Rust Target
+      run: rustup target add "${{ matrix.target }}"
+
+    - name: Build Binary
+      run: cargo build --release --target "${{ matrix.target }}"
+
+    - name: Prepare Release Directory
+      run: mkdir -p "$RELEASE_DIR"
+
+    - name: Copy Binary to Release Dir
+      shell: bash
+      run: |
+        SRC_PATH="target/${{ matrix.target }}/release/${PROJECT_NAME}"
+        BIN_NAME="${{ matrix.name }}"
+        DEST="${RELEASE_DIR}/${PROJECT_NAME}-${BIN_NAME}"
+
+        if [[ "${{ matrix.os }}" == "ubuntu24-gnullvm" ]]; then
+          cp "${SRC_PATH}.exe" "${DEST}.exe"
+        else
+          cp "${SRC_PATH}" "${DEST}"
+        fi
+
+    - name: Install gitbundle-xtask
+      if: vars.install_gitbundle_xtask == 'true'
+      shell: bash
+      run: |
+        curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+        cargo binstall gitbundle-xtask -y
+
+    - name: Run gitbundle-xtask
+      shell: bash
+      run: |
+        BIN_PATH="${RELEASE_DIR}/${PROJECT_NAME}-${{ matrix.name }}"
+
+        EXTRA_ARGS=()
+        if [[ "${{ matrix.os }}" == "ubuntu24-gnullvm" ]]; then
+          BIN_PATH="${BIN_PATH}.exe"
+          EXTRA_ARGS+=(--mingw-path "$LLVM_MINGW_ROOT")
+        fi
+
+        gitbundle-xtask \
+          --binary-file "$BIN_PATH" \
+          --target-name "${PROJECT_NAME}" \
+          --output-path dist \
+          "${EXTRA_ARGS[@]}"
+
+    - name: Show Dist Output
+      run: ls -la dist/
+
+    - uses: actions/upload-artifact@v5
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        name: ${{ matrix.name }}
+        path: "dist/${{ env.PROJECT_NAME }}-${{ matrix.name }}.*"
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: macos-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          path: dist
+
+      - name: Show Dist Downloaded
+        shell: bash
+        run: |
+          ls -R
+          ls -R dist/
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          repository: gitbundle/gitbundle
+          tag_name: runner-${{ github.ref_name }}
+          name: GitBundle Runner ${{ github.ref_name }}
+          draft: true
+          prerelease: true
+          files: dist/**/*
+          # generate_release_notes: true
+          # body: |
+          #   123

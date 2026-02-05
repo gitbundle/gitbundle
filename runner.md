@@ -40,3 +40,8 @@ mkdir gitbundle-runner && cd gitbundle-runner
 - Logs are reported asynchronously to the GitBundle Server. Ensure network connectivity for reliable logging.
 - The runner is optimized for performance and concurrency, leveraging Rust’s async runtime.
 - It is strongly recommended to deploy **GitBundle Server** and **GitBundle Runner** on separate machines for better experience.
+
+# FAQ
+Q: If I want to use a custom runner cache directory, how can I do it?
+
+A: Export a global environment variable `XDG_CACHE_HOME` to specify the custom cache directory. The runner cache will be stored in the subdirectory named act. Users should not use a symbolic link for the cache directory, because the github action plugins may not work correctly. Instead, use a regular directory.
