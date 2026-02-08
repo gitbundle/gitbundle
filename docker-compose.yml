@@ -5,6 +5,8 @@ services:
     # pull_policy: always
     ports:
     - 8080:8080
+    - 8081:8081
+    - 8082:8082
     - 8022:8022
     volumes:
     - /etc/localtime:/etc/localtime:ro
@@ -32,6 +34,11 @@ services:
     restart: always
     networks:
     - gitbundle
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '30'
   db:
     image: postgres:14-alpine
     ports:
@@ -53,6 +60,11 @@ services:
       retries: 5
     networks:
     - gitbundle
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '30'
 networks:
   gitbundle:
     driver: bridge

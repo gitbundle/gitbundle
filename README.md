@@ -107,16 +107,47 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
 
 - **check_suite** (not ready yet)
 
-- **branch**
-  - created
-  - renamed
-  - updated
-  - deleted
+- **create** (extended)
+  - **branch**
+    - created
+    
+  - **tag**
+    - created
   
-- **tag**
-  - created
-  - updated
-  - deleted
+  ```yaml
+  on:
+    delete:
+      branches:
+        - beta/*
+      branches-ignore:
+        - alpha/*
+      tags:
+        - v*-beta
+      tags-ignore:
+        - v*-alpha
+      paths:
+        - 'src/**/*.rs'
+      paths-ignore:
+        - 'alpha/**/*.rs'
+  ```
+
+- **delete** (extended, refer to create event)
+  - **branch**
+    - deleted
+    
+  - **tag**
+    - deleted
+
+- **push**
+  - **branch**
+    - created
+    - updated
+    - deleted
+    
+  - **tag**
+    - created
+    - updated
+    - deleted
 
 - **pull_request**
   - synchronize
