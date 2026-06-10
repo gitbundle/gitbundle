@@ -3,7 +3,11 @@
 **GitBundle is an out-of-the-box, zero-config, modern, Rust-powered code hosting and workflow automation platform built for performance, security, and full self-hosting.**
 It provides a streamlined workflow engine, an efficient Rust backend, and an architecture designed for teams that need reliability, control, and speed.
 
-[demo](https://demo.gitbundle.com)
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=Z2UU4QM2C0o">
+    <img src="https://img.youtube.com/vi/Z2UU4QM2C0o/maxresdefault.jpg" alt="GitBundle Demo" width="100%" />
+  </a>
+</div>
 
 ## Key Highlights
 
