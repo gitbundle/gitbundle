@@ -239,6 +239,10 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
   - completed
   - requested
   - in_progress
+
+## License
+
+[![License](https://img.shields.io/badge/license-Elastic%202.0-blue)](LICENSE)
   
 # FAQ
 
