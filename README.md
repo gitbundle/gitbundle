@@ -18,6 +18,45 @@ It provides a streamlined workflow engine, an efficient Rust backend, and an arc
 - 🌐 Multi-language API support for automation and tooling
 - 🏢 Ideal for teams and enterprises requiring a secure, self-hosted platform
 
+## Screenshots
+
+### Light Theme
+
+<table>
+  <tr>
+    <td><img src="screenshot/light-repo-home.png" alt="Repository" width="100%" /></td>
+    <td><img src="screenshot/light-workflow-detail.png" alt="Workflow" width="100%" /></td>
+    <td><img src="screenshot/light-action-home.png" alt="Actions" width="100%" /></td>
+    <td><img src="screenshot/light-admin-runners.png" alt="Runners" width="100%" /></td>
+  </tr>
+  <tr>
+    <td><img src="screenshot/light-group-home.png" alt="Group" width="100%" /></td>
+    <td><img src="screenshot/light-admin-groups.png" alt="Admin Groups" width="100%" /></td>
+    <td><img src="screenshot/light-dashboard.png" alt="Dashboard" width="100%" /></td>
+    <td><img src="screenshot/light-person-profile.png" alt="Profile" width="100%" /></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>Dark Theme</b></summary>
+
+<table>
+  <tr>
+    <td><img src="screenshot/dark-repo-home.png" alt="Repository" width="100%" /></td>
+    <td><img src="screenshot/dark-workflow-detail.png" alt="Workflow" width="100%" /></td>
+    <td><img src="screenshot/dark-action-home.png" alt="Actions" width="100%" /></td>
+    <td><img src="screenshot/dark-admin-runners.png" alt="Runners" width="100%" /></td>
+  </tr>
+  <tr>
+    <td><img src="screenshot/dark-group-home.png" alt="Group" width="100%" /></td>
+    <td><img src="screenshot/dark-admin-groups.png" alt="Admin Groups" width="100%" /></td>
+    <td><img src="screenshot/dark-person-profile.png" alt="Profile" width="100%" /></td>
+    <td></td>
+  </tr>
+</table>
+
+</details>
+
 ---
 
 ## Overview
