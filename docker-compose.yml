@@ -2,7 +2,7 @@ services:
   server:
     # image: ghcr.io/gitbundle/server:v3
     image: gitbundle/server:v3
-    # pull_policy: always
+    pull_policy: always
     ports:
     - 8080:8080
     - 8081:8081
