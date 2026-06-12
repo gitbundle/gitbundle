@@ -1,5 +1,7 @@
 # GitBundle
 
+[![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/8rF95ZVh9)
+
 **GitBundle is an out-of-the-box, zero-config, modern, Rust-powered code hosting and workflow automation platform built for performance, security, and full self-hosting.**
 It provides a streamlined workflow engine, an efficient Rust backend, and an architecture designed for teams that need reliability, control, and speed.
 
