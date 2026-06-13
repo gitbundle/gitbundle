@@ -63,9 +63,19 @@ It provides a streamlined workflow engine, an efficient Rust backend, and an arc
 
 ## Overview
 
-The **GitBundle Server** uses release tags such as `server-v3.5.0` for stable builds and `server-v3.5.0-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
+The **GitBundle Server** uses release tags such as `server-v3.6.1` for stable builds and `server-v3.6.1-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
 
 The **GitBundle Runner** follows the same convention, using tags like `runner-v1.2.3` for stable releases and `runner-v1.2.3-beta` for releases that are close to production use.
+
+### Binary and Image Release Versioning
+
+GitBundle binaries and container images follow the **Semantic Versioning** convention: `MAJOR.MINOR.PATCH`.
+
+- **MAJOR** – Incremented when there are incompatible breaking changes.
+- **MINOR** – Incremented when new functionality is added in a backward-compatible manner.
+- **PATCH** – Incremented when backward-compatible bug fixes or minor improvements are made.
+
+When a defect is discovered in a published artifact, the fix will be applied and the artifact will be re-released with an incremented `PATCH` version (e.g., from `v1.2.3` to `v1.2.4`).
 
 ## Requirements
 
