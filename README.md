@@ -63,7 +63,7 @@ It provides a streamlined workflow engine, an efficient Rust backend, and an arc
 
 ## Overview
 
-The **GitBundle Server** uses release tags such as `server-v3.6.1` for stable builds and `server-v3.6.1-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
+The **GitBundle Server** uses release tags such as `server-v3.6.5` for stable builds and `server-v3.6.5-beta` for pre-release builds. Beta releases indicate that the build is feature-complete and near production-ready.
 
 The **GitBundle Runner** follows the same convention, using tags like `runner-v1.2.3` for stable releases and `runner-v1.2.3-beta` for releases that are close to production use.
 
