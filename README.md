@@ -1,7 +1,5 @@
 # GitBundle
 
-[![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/8rF95ZVh9)
-
 **GitBundle is an out-of-the-box, zero-config, modern, Rust-powered code hosting and workflow automation platform built for performance, security, and full self-hosting.**
 It provides a streamlined workflow engine, an efficient Rust backend, and an architecture designed for teams that need reliability, control, and speed.
 
@@ -32,16 +30,16 @@ It provides a streamlined workflow engine, an efficient Rust backend, and an arc
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-repo-home.png" alt="Repository" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-workflow-detail.png" alt="Workflow" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-action-home.png" alt="Actions" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-admin-runners.png" alt="Runners" width="100%" /></td>
+    <td><img src="screenshot/light-profile.png" alt="Profile" width="100%" /></td>
+    <td><img src="screenshot/light-runners.png" alt="Runners" width="100%" /></td>
+    <td><img src="screenshot/light-action-home.png" alt="Actions" width="100%" /></td>
+    <td><img src="screenshot/light-workflow-detail.png" alt="Workflow" width="100%" /></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-group-home.png" alt="Group" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-admin-groups.png" alt="Admin Groups" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-dashboard.png" alt="Dashboard" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/light-person-profile.png" alt="Profile" width="100%" /></td>
+    <td><img src="screenshot/light-dashboard.png" alt="Dashboard" width="100%" /></td>
+    <td><img src="screenshot/light-group-home.png" alt="Group" width="100%" /></td>
+    <td><img src="screenshot/light-create-repo.png" alt="Admin Groups" width="100%" /></td>
+    <td><img src="screenshot/light-repo-home.png" alt="Repository" width="100%" /></td>
   </tr>
 </table>
 
@@ -50,16 +48,16 @@ It provides a streamlined workflow engine, an efficient Rust backend, and an arc
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-repo-home.png" alt="Repository" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-workflow-detail.png" alt="Workflow" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-action-home.png" alt="Actions" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-admin-runners.png" alt="Runners" width="100%" /></td>
+    <td><img src="screenshot/dark-profile.png" alt="Profile" width="100%" /></td>
+    <td><img src="screenshot/dark-runners.png" alt="Runners" width="100%" /></td>
+    <td><img src="screenshot/dark-action-home.png" alt="Actions" width="100%" /></td>
+    <td><img src="screenshot/dark-workflow-detail.png" alt="Workflow" width="100%" /></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-group-home.png" alt="Group" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-admin-groups.png" alt="Admin Groups" width="100%" /></td>
-    <td><img src="https://raw.githubusercontent.com/gitbundle/gitbundle/main/screenshot/dark-person-profile.png" alt="Profile" width="100%" /></td>
-    <td></td>
+    <td><img src="screenshot/dark-dashboard.png" alt="Group" width="100%" /></td>
+    <td><img src="screenshot/dark-group-home.png" alt="Group" width="100%" /></td>
+    <td><img src="screenshot/dark-create-repo.png" alt="Admin Groups" width="100%" /></td>
+    <td><img src="screenshot/dark-repo-home.png" alt="Repository" width="100%" /></td>
   </tr>
 </table>
 
@@ -257,6 +255,10 @@ GitBundle provides broad compatibility with GitHub Actions workflow syntax, incl
   - completed
   - requested
   - in_progress
+
+## Let's Talk
+
+[![Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white)](https://discord.gg/8rF95ZVh9)
 
 ## License
 
