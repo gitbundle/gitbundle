@@ -90,6 +90,15 @@ For both GitBundle Server and GitBundle Runner:
 - nodejs @18.16.0+
 - docker @28.5.2+
 
+## Quickstart
+
+```bash
+git clone https://github.com/gitbundle/gitbundle
+cd gitbundle
+# This will start the GitBundle Server with default configuration listed in `docker-compose.yml` file.
+docker compose up -d
+```
+
 ## Running GitBundle Server
 
 GitBundle Server loads configuration from the `.env` file in the working directory.
