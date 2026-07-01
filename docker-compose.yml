@@ -2,7 +2,8 @@ services:
   server:
     # image: ghcr.io/gitbundle/server:v3
     image: gitbundle/server:v3
-    pull_policy: always
+    # Make sure use the latest docker image, because the latest image may contains some important bug fixes
+    # pull_policy: always
     ports:
     - 8080:8080
     - 8081:8081
@@ -12,26 +13,40 @@ services:
     - /etc/localtime:/etc/localtime:ro
     - ./data:/data
     # use .env to configure environment variables
-    env_file:
-    - .env
-    # use environment field to override variables directly
+    # env_file:
+    # - .env
+    # or use environment field to override variables directly
     environment:
     - GITBUNDLE_APP_NAME=${GITBUNDLE_APP_NAME:-GitBundle}
     - GITBUNDLE_TRACE=${GITBUNDLE_TRACE:-false}
     - GITBUNDLE_NESTED_GROUPS_ENABLED=${GITBUNDLE_NESTED_GROUPS_ENABLED:-false}
     - GITBUNDLE_USER_ADMIN_EMAIL=${GITBUNDLE_USER_ADMIN_EMAIL:-root@example.com}
-    - GITBUNDLE_USER_ADMIN_PASSWORD=${GITBUNDLE_USER_ADMIN_PASSWORD:-root}
+    # Required 8-128 characters, but DO NOT USE THE DEFAULT PASSWORD for security
+    - GITBUNDLE_USER_ADMIN_PASSWORD=${GITBUNDLE_USER_ADMIN_PASSWORD:-rootroot}
     - GITBUNDLE_GIT_ROOT=${GITBUNDLE_GIT_ROOT:-/data}
     - GITBUNDLE_BLOB_STORE_BUCKET=${GITBUNDLE_BLOB_STORE_BUCKET:-/data/blob}
     - GITBUNDLE_DATABASE_NAME=${GITBUNDLE_DATABASE_NAME:-gitbundle}
     - GITBUNDLE_DATABASE_URL=${GITBUNDLE_DATABASE_URL:-postgres://postgres:postgres@db:5432}
     - GITBUNDLE_ENCRYPTER_SECRET=${GITBUNDLE_ENCRYPTER_SECRET}
+    # Make sure the artifact host is accessible from outside, so the runner can download artifacts
+    - GITBUNDLE_ARTIFACT_HOST=${GITBUNDLE_ARTIFACT_HOST:-0.0.0.0}
+    - GITBUNDLE_ARTIFACT_PORT=${GITBUNDLE_ARTIFACT_PORT:-8081}
+    - GITBUNDLE_ARTIFACT_PATH=${GITBUNDLE_ARTIFACT_PATH:-/data/artifact}
+    - GITBUNDLE_ARTIFACT_URL=${GITBUNDLE_ARTIFACT_URL}
+    # Same notice as GITBUNDLE_ARTIFACT_HOST, but for the artifact cache
+    - GITBUNDLE_ARTIFACTCACHE_HOST=${GITBUNDLE_ARTIFACTCACHE_HOST:-0.0.0.0}
+    - GITBUNDLE_ARTIFACTCACHE_PORT=${GITBUNDLE_ARTIFACTCACHE_PORT:-8082}
+    - GITBUNDLE_ARTIFACTCACHE_PATH=${GITBUNDLE_ARTIFACTCACHE_PATH:-/data/artifactcache}
+    - GITBUNDLE_ARTIFACTCACHE_URL=${GITBUNDLE_ARTIFACTCACHE_URL}
+    - GITBUNDLE_HTTP_HOST=${GITBUNDLE_HTTP_HOST:-0.0.0.0}
     - GITBUNDLE_HTTP_PORT=${GITBUNDLE_HTTP_PORT:-8080}
+    - GITBUNDLE_SSH_HOST=${GITBUNDLE_SSH_HOST:-0.0.0.0}
     - GITBUNDLE_SSH_PORT=${GITBUNDLE_SSH_PORT:-8022}
     - GITBUNDLE_URL_BASE=${GITBUNDLE_URL_BASE}
     - GITBUNDLE_URL_GIT_SSH=${GITBUNDLE_URL_GIT_SSH}
     # and other environment variables...
     restart: always
+    # Maybe you could choose the host network mode
     networks:
     - gitbundle
     logging:
@@ -41,8 +56,9 @@ services:
         max-file: '30'
   db:
     image: postgres:14-alpine
-    ports:
-    - 5432:5432
+    # If you need to expose the database port to the host, uncomment the following lines
+    # ports:
+    # - 5432:5432
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
@@ -58,6 +74,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    # Maybe you could choose the host network mode
     networks:
     - gitbundle
     logging:
